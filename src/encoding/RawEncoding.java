@@ -11,11 +11,15 @@ import util.ByteUtil;
 public class RawEncoding extends Encode {
 
 	public int[] pixels;
+	public int x;
+	public int y;
 	public int width;
 	public int height;
 	public PixelFormat format;
 	
-	public RawEncoding(int width, int height, PixelFormat format) {
+	public RawEncoding(int x, int y, int width, int height, PixelFormat format) {
+		this.x = x;
+		this.y = y;
 		this.width = width;
 		this.height = height;
 		this.format = format;
@@ -31,7 +35,7 @@ public class RawEncoding extends Encode {
 		for (int i = 0; i < width * height; i++) {
 			byte[] pixel = new byte[format.bitsPerPixel/8];
 			dataIn.readFully(pixel);
-			// TODO add  
+			// TODO add colour shifting based on format
 			pixels[i] = ByteUtil.bytesToInt(pixel);
 		}
 	}

@@ -36,13 +36,21 @@ public class Frame extends Canvas implements Runnable {
 		long timer = System.currentTimeMillis();
 		int frames = 0;
 		frame.requestFocus();
+		boolean shouldRender = true;;
 		while (running) {
-			render();
-			frames++;
+			if (shouldRender) {
+				render();
+				frames++;
+				shouldRender = false;
+			}
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
 				frame.setTitle("FPS: " + frames);
 				frames = 0;
+			}
+			if (framebuffer.changed) {
+				shouldRender = true;
+				framebuffer.changed = false;
 			}
 		}
 	}

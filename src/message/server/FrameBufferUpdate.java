@@ -34,10 +34,12 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 			r.width = dataIn.readShort();
 			r.height = dataIn.readShort();
 			r.encodingType = dataIn.readInt();
-			Encoding.find(r.encodingType);
+			System.out.println(Encoding.find(r.encodingType));
 			if (Encoding.RAW_ENCODING.sameID(r.encodingType)) {
-				r.encode = new RawEncoding(r.width, r.height, format);
+				r.encode = new RawEncoding(r.x, r.y, r.width, r.height, format);
 				r.encode.readEncoding(in);
+			} else {
+				System.out.println("Should copy");
 			}
 			rectangles[i] = r;
 		}

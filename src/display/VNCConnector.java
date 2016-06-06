@@ -141,7 +141,7 @@ public class VNCConnector {
 
 	public static void main(String[] args) {
 		Thread.currentThread().setName("Main");
-		VNCCanvas canvas = new VNCCanvas(new VNCConnector("192.168.0.2", 5901, "superuse"));
+		VNCCanvas canvas = new VNCCanvas(new VNCConnector("192.168.0.9", 5900, "superuse"));
 		Thread t = new Thread(canvas);
 		t.setName("Canvas");
 		t.start();

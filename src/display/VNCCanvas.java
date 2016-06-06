@@ -89,10 +89,8 @@ public class VNCCanvas implements Runnable {
 					PixelRectangle[] rectangles = (PixelRectangle[]) update.receiveMessage();
 					for (PixelRectangle r : rectangles) {
 						if (r.encode != null) {
-							int[] pixels = r.encode.getPixels();
-							for (int i = 0; i < r.width * r.height; i++) {
-								frameBuffer.pixels[r.x + r.y * r.width + i] = pixels[i];  
-							}
+							//System.out.println(r.x + ", " + r.y + ", " + r.width + ", " + r.height + ", " + r.encodingType);
+							frameBuffer.handleFrameBufferUpdate(r.x, r.y, r.width, r.height, r.encode.getPixels());
 						}
 					}
 					shouldRequest = true;
