@@ -9,17 +9,20 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import message.client.FramebufferUpdateRequest;
+import message.client.PointerEvent;
 import message.client.SetEncodings;
 import message.client.SetPixelFormatMessage;
 import message.server.FrameBufferUpdate;
 import data.Encoding;
 import data.PixelFormat;
 import data.PixelRectangle;
+import data.PointerPoint;
 
 public class VNCCanvas implements Runnable {
 
 	public VNCConnector connector;
 	public FrameBuffer frameBuffer;
+	public IFrame frame;
 	
 	public Socket socket;
 	public OutputStream out;
@@ -27,9 +30,10 @@ public class VNCCanvas implements Runnable {
 	public DataOutputStream dataOut;
 	public DataInputStream dataIn;
 	
+	
 	private boolean running = false;
 	
-	public VNCCanvas(VNCConnector connector) {
+	public VNCCanvas(VNCConnector connector, IFrame frame) {
 		this.connector = connector;
 		frameBuffer = connector.getFrameBuffer();
 		this.socket = connector.socket;
@@ -38,11 +42,9 @@ public class VNCCanvas implements Runnable {
 		this.dataIn = connector.dataIn;
 		this.dataOut = connector.dataOut;
 		running = true;
-		
-		Frame f = new Frame(frameBuffer);
-		Thread fThread = new Thread(f);
-		fThread.setName("Frame buffer thread");
-		fThread.start();
+		this.frame = frame;
+		this.frame.setFrameBuffer(frameBuffer);
+		this.frame.start();
 	}
 
 	@Override
@@ -64,6 +66,7 @@ public class VNCCanvas implements Runnable {
 		SetEncodings encodings = new SetEncodings(socket);
 		encodings.encodings = new int[1];
 		encodings.encodings[0] = Encoding.RAW_ENCODING.getStartID();
+		//encodings.encodings[1] = Encoding.COPY_RECT_ENCODING.getStartID();
 		
 		try {
 			pixelFormat.sendMessage();
@@ -72,15 +75,18 @@ public class VNCCanvas implements Runnable {
 			e.printStackTrace();
 		}
 		boolean shouldRequest = true;
+		boolean first = true;
 		while (running) {
 			try {
+				//Send a request for changes of whole screen
 				if (shouldRequest) {
 					FramebufferUpdateRequest fbRequest = new FramebufferUpdateRequest(socket);
-					fbRequest.incremental = 1;
+					fbRequest.incremental = 0;
 					fbRequest.width = (short) frameBuffer.width;
 					fbRequest.height = (short) frameBuffer.height;
 					fbRequest.sendMessage();
 					shouldRequest = false;
+					first = false;
 				}
 				int id = dataIn.readByte();
 				switch (id) {
@@ -89,15 +95,26 @@ public class VNCCanvas implements Runnable {
 					PixelRectangle[] rectangles = (PixelRectangle[]) update.receiveMessage();
 					for (PixelRectangle r : rectangles) {
 						if (r.encode != null) {
-							//System.out.println(r.x + ", " + r.y + ", " + r.width + ", " + r.height + ", " + r.encodingType);
-							frameBuffer.handleFrameBufferUpdate(r.x, r.y, r.width, r.height, r.encode.getPixels());
+							frameBuffer.handleFrameBufferUpdate(r.x, r.y, r.width, r.height, r.encode);
 						}
 					}
 					shouldRequest = true;
 					break;
-				default:
-					System.out.println(id);
+					default:
+						System.out.println(id);
 					break;
+				}
+				// Check to see if mouse has moved
+				if (frame.sendPointer()) {
+					PointerPoint p = frame.getLocalPointer();
+					if (p != null) {
+						PointerEvent pEvent = new PointerEvent(socket);
+						pEvent.x = p.x;
+						pEvent.y = p.y;
+						pEvent.setClick(p.left, p.right);
+						pEvent.sendMessage();
+						System.out.println("Sent mouse");
+					}
 				}
 			} catch (IOException e) {
 				if (e instanceof EOFException) {
@@ -106,6 +123,7 @@ public class VNCCanvas implements Runnable {
 				}
 				e.printStackTrace();
 			}
+
 		}
 	}
 

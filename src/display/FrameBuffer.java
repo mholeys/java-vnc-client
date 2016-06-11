@@ -1,6 +1,7 @@
 package display;
 
 import data.PixelFormat;
+import encoding.Encode;
 
 public class FrameBuffer {
 
@@ -16,9 +17,13 @@ public class FrameBuffer {
 		pixels = new int[width * height];
 	}
 	
-	public void handleFrameBufferUpdate(int x, int y, int width, int height, int pixels[]) {
-		for (int i = 0; i < pixels.length; i++) {
-			this.pixels[x + y * width + i] = pixels[i];  
+	public void handleFrameBufferUpdate(int xS, int yS, int width, int height, Encode e) {
+		e.setFrameBuffer(this);
+		int[] pixels = e.getPixels();
+		for (int y = yS; y < height; y++) {
+			for (int x = xS; x < width; x++) {
+				this.pixels[x + y * this.width] = pixels[(x-xS) + (y-yS) * width];  
+			}
 		}
 		changed = true;
 	}

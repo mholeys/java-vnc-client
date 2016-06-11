@@ -3,6 +3,8 @@ package message.client;
 import java.io.IOException;
 import java.net.Socket;
 
+import util.ByteUtil;
+
 public class PointerEvent extends ClientSendMessage {
 
 	public byte button;
@@ -25,6 +27,21 @@ public class PointerEvent extends ClientSendMessage {
 	@Override
 	public int getId() {
 		return 5;
+	}
+
+	public void setClick(boolean left, boolean right) {
+		button = 0;
+		if (left) {
+			button |= 1; 
+		} else {
+			button &= 0xFF-1;
+		}
+		if (right) {
+			button |= 2; 
+		} else {
+			button &= 0xFF-2;
+		}
+		System.out.println(ByteUtil.convertToBits(button));
 	}
 
 }

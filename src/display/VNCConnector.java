@@ -12,6 +12,7 @@ import message.ClientInitMessage;
 import message.ServerInitMessage;
 import auth.Authentication;
 import auth.NoAuthentication;
+import auth.TightVNCAuthentication;
 import auth.VNCAuthentication;
 import data.PixelFormat;
 
@@ -35,12 +36,21 @@ public class VNCConnector {
 	public VNCConnector(String address, int port, String password) {
 		this.password = password;
 		try {
-			socket = new Socket(InetAddress.getByName(address), port);
-			out = socket.getOutputStream();
-			dataOut = new DataOutputStream(out);
-			in = socket.getInputStream();
-			dataIn = new DataInputStream(in);
-			handshake();
+			int count = 10;
+			boolean retry = true;
+			while (retry) {
+				socket = new Socket(InetAddress.getByName(address), port);
+				out = socket.getOutputStream();
+				dataOut = new DataOutputStream(out);
+				in = socket.getInputStream();
+				dataIn = new DataInputStream(in);
+				if (handshake()) {
+					retry = false;
+				} else if (count > 0) {
+					retry = true;
+					count--;
+				}
+			}
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -48,7 +58,7 @@ public class VNCConnector {
 		}
 	}
 	
-	private void handshake() throws IOException {
+	private boolean handshake() throws IOException {
 		String version = "RFB 003.007\n";
 		dataOut.writeBytes(version);
 
@@ -64,7 +74,7 @@ public class VNCConnector {
 			System.out.println(new String(message));
 		}
 		
-		boolean invalid = false, none = false, vnc_auth = false, tight = false, realvnc = false;
+		boolean invalid = false, none = false, vnc_auth = false, tight_auth = false, realvnc = false;
 		
 		//Get the different types
 		byte[] types = new byte[number];
@@ -85,39 +95,46 @@ public class VNCConnector {
 			case 4:
 				realvnc = true;
 			case 16:
-				tight = true;
+				tight_auth = true;
 				break;
 			}
 		}
 		System.out.println("Invalid " + invalid);
 		System.out.println("None " + none);
 		System.out.println("VNC " + vnc_auth);
-		System.out.println("TightVNC " + tight);
+		System.out.println("TightVNC " + tight_auth);
 		System.out.println("RealVNC " + realvnc);
 		
+		boolean tight = false;
 		Authentication auth = null;
-		if (vnc_auth) {
+		if (tight_auth) {
+			auth = new TightVNCAuthentication(socket, new String[] {password});
+			tight = true;
+		} else if (vnc_auth) {
 			auth = new VNCAuthentication(socket, new String[] {password});
 		} else if (none) {
 			auth = new NoAuthentication(socket, null);
 		}
 		if (auth == null) {
 			System.err.println("No common authentication");
-			System.exit(1);
+			return false;
 		}
 		dataOut.writeByte(auth.getSecurityId());
 		boolean authenticated = auth.authenticate();
 		
 		if (!authenticated) {
 			System.out.println("Failed to authenticate");
-			System.exit(1);
+			return false;
 		}
 		
 		ClientInitMessage clientInit = new ClientInitMessage(socket);
 		clientInit.sendMessage();
 		
-		//TODO add TightVNC extention stuff
-		ServerInitMessage serverInit = new ServerInitMessage(socket);
+		if (tight) {
+			System.out.println("Connected via tight");
+		}
+		
+		ServerInitMessage serverInit = new ServerInitMessage(socket, tight);
 		serverInit.receiveMessage();
 		name = serverInit.name;
 		width = serverInit.framebufferWidth;
@@ -130,6 +147,7 @@ public class VNCConnector {
 		System.out.println("Height: " + serverInit.framebufferHeight);
 		System.out.println("Bits per pixel: " + format.bitsPerPixel);
 		System.out.println("Depth: " + format.depth);
+		return true;
 	}
 	
 	public FrameBuffer getFrameBuffer() {
@@ -141,7 +159,9 @@ public class VNCConnector {
 
 	public static void main(String[] args) {
 		Thread.currentThread().setName("Main");
-		VNCCanvas canvas = new VNCCanvas(new VNCConnector("192.168.0.9", 5900, "superuse"));
+		VNCConnector connector = new VNCConnector("192.168.0.2", 5901, "superuse");
+		Frame frame = new Frame();
+		VNCCanvas canvas = new VNCCanvas(connector, frame);
 		Thread t = new Thread(canvas);
 		t.setName("Canvas");
 		t.start();

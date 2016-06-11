@@ -8,11 +8,15 @@ public class ByteUtil {
 		String s = "";
 		for (int i = 0; i < bytes.length; i++) {
 			for (int bit = 0; bit < 8; bit++) {
-				s += ""+ ((bytes[i] & 1<<bit)>>bit);
+				s += ""+ ((bytes[i] & 1<<8-bit)>>8-bit);
 			}
 			s += " ";
 		}
 		return s;
+	}
+	
+	public static String convertToBits(byte b) {
+		return convertToBits(new byte[] {b});
 	}
 	
 	public static int bytesToInt(byte[] bytes) {

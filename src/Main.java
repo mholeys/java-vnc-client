@@ -132,7 +132,6 @@ public class Main {
 		int nameLength = bytesToInt(readBytes(4));
 		String name = new String(readBytes(nameLength));
 		System.out.println("Connected to: " + name);
-		System.out.println("Size: " + framebufferWidth +","+ framebufferHeight);
 		
 		
 	}

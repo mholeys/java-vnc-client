@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import data.PixelFormat;
+import display.FrameBuffer;
 import util.ByteUtil;
 
 public class RawEncoding extends Encode {
@@ -43,6 +44,11 @@ public class RawEncoding extends Encode {
 	@Override
 	public int[] getPixels() {
 		return pixels;
+	}
+
+	@Override
+	public void setFrameBuffer(FrameBuffer frameBuffer) {
+		
 	}
 
 }

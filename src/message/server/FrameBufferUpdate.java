@@ -6,6 +6,7 @@ import java.net.Socket;
 import data.Encoding;
 import data.PixelFormat;
 import data.PixelRectangle;
+import encoding.CopyRectEncoding;
 import encoding.RawEncoding;
 
 public class FrameBufferUpdate extends ClientReceiveMessage {
@@ -34,12 +35,12 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 			r.width = dataIn.readShort();
 			r.height = dataIn.readShort();
 			r.encodingType = dataIn.readInt();
-			System.out.println(Encoding.find(r.encodingType));
 			if (Encoding.RAW_ENCODING.sameID(r.encodingType)) {
 				r.encode = new RawEncoding(r.x, r.y, r.width, r.height, format);
 				r.encode.readEncoding(in);
-			} else {
-				System.out.println("Should copy");
+			} else if (Encoding.COPY_RECT_ENCODING.sameID(r.encodingType)) {
+				r.encode = new CopyRectEncoding(r.x, r.y, r.width, r.height, format);
+				r.encode.readEncoding(in);
 			}
 			rectangles[i] = r;
 		}
