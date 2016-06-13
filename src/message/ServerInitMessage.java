@@ -3,7 +3,9 @@ package message;
 import java.io.IOException;
 import java.net.Socket;
 
+import data.Encoding;
 import data.PixelFormat;
+import encoding.TightEncodings;
 
 public class ServerInitMessage extends RecieveMessage {
 
@@ -51,6 +53,7 @@ public class ServerInitMessage extends RecieveMessage {
 		name = new String(nameBytes);
 		
 		if (tight) {
+			TightEncodings encodings = new TightEncodings();
 			short serverMessageCount = dataIn.readShort();
 			short clientMessageCount = dataIn.readShort();
 			short encodingCount = dataIn.readShort();
@@ -69,6 +72,8 @@ public class ServerInitMessage extends RecieveMessage {
 			for (int i = 0; i < encodingCount; i++) {
 				Capability c = new Capability();
 				c.read(dataIn);
+				Encoding e = Encoding.find(c.code);
+				encodings.addEncoding(e);
 				System.out.println(c);
 			}
 		}

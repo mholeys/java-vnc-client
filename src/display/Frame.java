@@ -109,11 +109,11 @@ public class Frame extends Canvas implements IFrame {
 		return (short) Math.round((double) y / (double)this.getHeight()*frameBuffer.height);
 	}
 	
+	boolean shouldRender = true;
 	public void run() {
 		long timer = System.currentTimeMillis();
 		int frames = 0;
 		frame.requestFocus();
-		boolean shouldRender = true;;
 		while (running) {
 			if (shouldRender) {
 				render();
@@ -136,6 +136,7 @@ public class Frame extends Canvas implements IFrame {
 		bs = getBufferStrategy();
 		if (bs == null) {
 			createBufferStrategy(3);
+			shouldRender = true;
 			return;
 		}
 

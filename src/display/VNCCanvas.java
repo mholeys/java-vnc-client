@@ -7,7 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Random;
 
+import org.omg.CORBA.FREE_MEM;
+
+import message.client.EnableContinuousUpdates;
 import message.client.FramebufferUpdateRequest;
 import message.client.PointerEvent;
 import message.client.SetEncodings;
@@ -63,14 +67,22 @@ public class VNCCanvas implements Runnable {
 		format.greenShift = 8;
 		format.blueShift = 0;
 		pixelFormat.format = format;
+		
+		EnableContinuousUpdates enable = new EnableContinuousUpdates(socket);
+		enable.enable = true;
+		enable.width = (short) frameBuffer.width;
+		enable.height = (short) frameBuffer.height;
+		
 		SetEncodings encodings = new SetEncodings(socket);
-		encodings.encodings = new int[1];
+		encodings.encodings = new int[2];
 		encodings.encodings[0] = Encoding.RAW_ENCODING.getStartID();
+		encodings.encodings[1] = Encoding.ZLIB_ENCODING.getStartID();
 		//encodings.encodings[1] = Encoding.COPY_RECT_ENCODING.getStartID();
 		
 		try {
 			pixelFormat.sendMessage();
 			encodings.sendMessage();
+			enable.sendMessage();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -81,7 +93,7 @@ public class VNCCanvas implements Runnable {
 				//Send a request for changes of whole screen
 				if (shouldRequest) {
 					FramebufferUpdateRequest fbRequest = new FramebufferUpdateRequest(socket);
-					fbRequest.incremental = 0;
+					fbRequest.incremental = (byte) (first ? 0 : 1);
 					fbRequest.width = (short) frameBuffer.width;
 					fbRequest.height = (short) frameBuffer.height;
 					fbRequest.sendMessage();
@@ -128,3 +140,4 @@ public class VNCCanvas implements Runnable {
 	}
 
 }
+

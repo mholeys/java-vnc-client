@@ -8,6 +8,7 @@ import data.PixelFormat;
 import data.PixelRectangle;
 import encoding.CopyRectEncoding;
 import encoding.RawEncoding;
+import encoding.ZLibEncoding;
 
 public class FrameBufferUpdate extends ClientReceiveMessage {
 
@@ -35,12 +36,17 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 			r.width = dataIn.readShort();
 			r.height = dataIn.readShort();
 			r.encodingType = dataIn.readInt();
+			System.out.println(r.encodingType);
 			if (Encoding.RAW_ENCODING.sameID(r.encodingType)) {
 				r.encode = new RawEncoding(r.x, r.y, r.width, r.height, format);
 				r.encode.readEncoding(in);
 			} else if (Encoding.COPY_RECT_ENCODING.sameID(r.encodingType)) {
 				r.encode = new CopyRectEncoding(r.x, r.y, r.width, r.height, format);
 				r.encode.readEncoding(in);
+			} else if (Encoding.ZLIB_ENCODING.sameID(r.encodingType)) {
+				r.encode = new ZLibEncoding(r.x, r.y, r.width, r.height, format);
+				r.encode.readEncoding(in);
+				System.out.println("ZLIB");
 			}
 			rectangles[i] = r;
 		}
