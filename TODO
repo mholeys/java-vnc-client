@@ -1,5 +1,5 @@
 TODO
-	work out problem where connection is terminated (by server) after tight vnc connection, but before getting first message.
-		Must be related to types of encoding?
-TODO
 	look at tight encoding for speed (zlib is not thread safe?)
+	
+TODO
+	Check if changes to force render createBufferStrat worked 

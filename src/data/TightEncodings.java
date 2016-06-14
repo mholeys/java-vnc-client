@@ -1,8 +1,6 @@
-package encoding;
+package data;
 
 import java.util.ArrayList;
-
-import data.Encoding;
 
 public class TightEncodings {
 

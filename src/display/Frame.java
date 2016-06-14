@@ -115,10 +115,13 @@ public class Frame extends Canvas implements IFrame {
 		int frames = 0;
 		frame.requestFocus();
 		while (running) {
+			if (frames == 0) {
+				shouldRender = true;
+			}
 			if (shouldRender) {
+				shouldRender = false;
 				render();
 				frames++;
-				shouldRender = false;
 			}
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;

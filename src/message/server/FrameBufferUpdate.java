@@ -9,14 +9,17 @@ import data.PixelRectangle;
 import encoding.CopyRectEncoding;
 import encoding.RawEncoding;
 import encoding.ZLibEncoding;
+import encoding.ZLibStream;
 
 public class FrameBufferUpdate extends ClientReceiveMessage {
 
 	public PixelFormat format;
+	public ZLibStream[] streams;
 	
-	public FrameBufferUpdate(Socket socket, PixelFormat format) {
+	public FrameBufferUpdate(Socket socket, PixelFormat format, ZLibStream[] streams) {
 		super(socket);
 		this.format = format;
+		this.streams = streams;
 	}
 
 	@Override
@@ -36,17 +39,15 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 			r.width = dataIn.readShort();
 			r.height = dataIn.readShort();
 			r.encodingType = dataIn.readInt();
-			System.out.println(r.encodingType);
 			if (Encoding.RAW_ENCODING.sameID(r.encodingType)) {
 				r.encode = new RawEncoding(r.x, r.y, r.width, r.height, format);
-				r.encode.readEncoding(in);
 			} else if (Encoding.COPY_RECT_ENCODING.sameID(r.encodingType)) {
 				r.encode = new CopyRectEncoding(r.x, r.y, r.width, r.height, format);
-				r.encode.readEncoding(in);
 			} else if (Encoding.ZLIB_ENCODING.sameID(r.encodingType)) {
-				r.encode = new ZLibEncoding(r.x, r.y, r.width, r.height, format);
+				r.encode = new ZLibEncoding(r.x, r.y, r.width, r.height, format, streams[0]);
+			}
+			if (r.encode != null) {
 				r.encode.readEncoding(in);
-				System.out.println("ZLIB");
 			}
 			rectangles[i] = r;
 		}

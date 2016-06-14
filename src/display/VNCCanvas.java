@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Random;
+import java.util.zip.Inflater;
 
 import org.omg.CORBA.FREE_MEM;
 
@@ -21,6 +22,7 @@ import data.Encoding;
 import data.PixelFormat;
 import data.PixelRectangle;
 import data.PointerPoint;
+import encoding.ZLibStream;
 
 public class VNCCanvas implements Runnable {
 
@@ -33,7 +35,7 @@ public class VNCCanvas implements Runnable {
 	public InputStream in;
 	public DataOutputStream dataOut;
 	public DataInputStream dataIn;
-	
+	public ZLibStream[] streams = new ZLibStream[4];	
 	
 	private boolean running = false;
 	
@@ -45,6 +47,10 @@ public class VNCCanvas implements Runnable {
 		this.out = connector.out;
 		this.dataIn = connector.dataIn;
 		this.dataOut = connector.dataOut;
+		this.streams[0] = new ZLibStream(in, new Inflater());
+		this.streams[1] = new ZLibStream(in, new Inflater());
+		this.streams[2] = new ZLibStream(in, new Inflater());
+		this.streams[3] = new ZLibStream(in, new Inflater());
 		running = true;
 		this.frame = frame;
 		this.frame.setFrameBuffer(frameBuffer);
@@ -68,23 +74,18 @@ public class VNCCanvas implements Runnable {
 		format.blueShift = 0;
 		pixelFormat.format = format;
 		
-		EnableContinuousUpdates enable = new EnableContinuousUpdates(socket);
-		enable.enable = true;
-		enable.width = (short) frameBuffer.width;
-		enable.height = (short) frameBuffer.height;
-		
 		SetEncodings encodings = new SetEncodings(socket);
-		encodings.encodings = new int[2];
-		encodings.encodings[0] = Encoding.RAW_ENCODING.getStartID();
-		encodings.encodings[1] = Encoding.ZLIB_ENCODING.getStartID();
+		encodings.encodings = new int[1];
+		//encodings.encodings[0] = Encoding.RAW_ENCODING.getStartID();
+		encodings.encodings[0] = Encoding.ZLIB_ENCODING.getStartID();
 		//encodings.encodings[1] = Encoding.COPY_RECT_ENCODING.getStartID();
 		
 		try {
 			pixelFormat.sendMessage();
 			encodings.sendMessage();
-			enable.sendMessage();
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.exit(0);
 		}
 		boolean shouldRequest = true;
 		boolean first = true;
@@ -103,7 +104,7 @@ public class VNCCanvas implements Runnable {
 				int id = dataIn.readByte();
 				switch (id) {
 				case 0:
-					FrameBufferUpdate update = new FrameBufferUpdate(socket, connector.format);
+					FrameBufferUpdate update = new FrameBufferUpdate(socket, connector.format, streams);
 					PixelRectangle[] rectangles = (PixelRectangle[]) update.receiveMessage();
 					for (PixelRectangle r : rectangles) {
 						if (r.encode != null) {
@@ -113,7 +114,7 @@ public class VNCCanvas implements Runnable {
 					shouldRequest = true;
 					break;
 					default:
-						System.out.println(id);
+						System.out.println("Unknown: " + id);
 					break;
 				}
 				// Check to see if mouse has moved

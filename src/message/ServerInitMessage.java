@@ -5,7 +5,7 @@ import java.net.Socket;
 
 import data.Encoding;
 import data.PixelFormat;
-import encoding.TightEncodings;
+import data.TightEncodings;
 
 public class ServerInitMessage extends RecieveMessage {
 
