@@ -41,7 +41,6 @@ public class PointerEvent extends ClientSendMessage {
 		} else {
 			button &= 0xFF-2;
 		}
-		System.out.println(ByteUtil.convertToBits(button));
 	}
 
 }

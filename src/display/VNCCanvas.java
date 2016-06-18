@@ -7,12 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Random;
 import java.util.zip.Inflater;
 
-import org.omg.CORBA.FREE_MEM;
-
-import message.client.EnableContinuousUpdates;
 import message.client.FramebufferUpdateRequest;
 import message.client.PointerEvent;
 import message.client.SetEncodings;
@@ -35,7 +31,7 @@ public class VNCCanvas implements Runnable {
 	public InputStream in;
 	public DataOutputStream dataOut;
 	public DataInputStream dataIn;
-	public ZLibStream[] streams = new ZLibStream[4];	
+	public ZLibStream[] streams = new ZLibStream[5];	
 	
 	private boolean running = false;
 	
@@ -51,6 +47,7 @@ public class VNCCanvas implements Runnable {
 		this.streams[1] = new ZLibStream(in, new Inflater());
 		this.streams[2] = new ZLibStream(in, new Inflater());
 		this.streams[3] = new ZLibStream(in, new Inflater());
+		this.streams[4] = new ZLibStream(in, new Inflater()); //Stream for zLib encoding
 		running = true;
 		this.frame = frame;
 		this.frame.setFrameBuffer(frameBuffer);
@@ -75,10 +72,14 @@ public class VNCCanvas implements Runnable {
 		pixelFormat.format = format;
 		
 		SetEncodings encodings = new SetEncodings(socket);
-		encodings.encodings = new int[1];
-		//encodings.encodings[0] = Encoding.RAW_ENCODING.getStartID();
+		encodings.encodings = new int[6];
 		encodings.encodings[0] = Encoding.ZLIB_ENCODING.getStartID();
-		//encodings.encodings[1] = Encoding.COPY_RECT_ENCODING.getStartID();
+		encodings.encodings[1] = Encoding.TIGHT_ENCODING.getStartID();
+		encodings.encodings[2] = Encoding.RAW_ENCODING.getStartID();
+		encodings.encodings[3] = Encoding.COPY_RECT_ENCODING.getStartID();
+		encodings.encodings[4] = Encoding.JPEG_QUALITY_LEVEL_PSEUDO_ENCODING.getEndID();
+		encodings.encodings[5] = Encoding.COMPRESSION_LEVEL_PSEUDO_ENCODING.getEndID();
+		
 		
 		try {
 			pixelFormat.sendMessage();
@@ -89,17 +90,40 @@ public class VNCCanvas implements Runnable {
 		}
 		boolean shouldRequest = true;
 		boolean first = true;
+		int requestWidth = frameBuffer.width, requestHeight = frameBuffer.height;
+		int requestX = 0, requestY = 0;
 		while (running) {
 			try {
 				//Send a request for changes of whole screen
 				if (shouldRequest) {
 					FramebufferUpdateRequest fbRequest = new FramebufferUpdateRequest(socket);
 					fbRequest.incremental = (byte) (first ? 0 : 1);
-					fbRequest.width = (short) frameBuffer.width;
-					fbRequest.height = (short) frameBuffer.height;
+					fbRequest.x = (short) (first ? 0 : requestX);
+					fbRequest.y = (short) (first ? 0 : requestY);
+					fbRequest.width = (short) (first ? frameBuffer.width : requestWidth);
+					fbRequest.height = (short) (first ? frameBuffer.height : requestHeight);
 					fbRequest.sendMessage();
 					shouldRequest = false;
 					first = false;
+				}
+				// Check to see if mouse has moved
+				if (frame.sendPointer()) {
+					PointerPoint p = frame.getLocalPointer();
+					if (p != null) {
+						PointerEvent pEvent = new PointerEvent(socket);
+						pEvent.x = p.x;
+						pEvent.y = p.y;
+						pEvent.setClick(p.left, p.right);
+						pEvent.sendMessage();
+						//requestWidth = 100;
+						//requestHeight = 100;
+						//requestX = p.x - 50;
+						//requestY = p.y - 50;
+						shouldRequest = true;
+					}
+				}
+				if (dataIn.available() == 0) {
+					continue;
 				}
 				int id = dataIn.readByte();
 				switch (id) {
@@ -116,18 +140,6 @@ public class VNCCanvas implements Runnable {
 					default:
 						System.out.println("Unknown: " + id);
 					break;
-				}
-				// Check to see if mouse has moved
-				if (frame.sendPointer()) {
-					PointerPoint p = frame.getLocalPointer();
-					if (p != null) {
-						PointerEvent pEvent = new PointerEvent(socket);
-						pEvent.x = p.x;
-						pEvent.y = p.y;
-						pEvent.setClick(p.left, p.right);
-						pEvent.sendMessage();
-						System.out.println("Sent mouse");
-					}
 				}
 			} catch (IOException e) {
 				if (e instanceof EOFException) {

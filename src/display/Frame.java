@@ -102,11 +102,11 @@ public class Frame extends Canvas implements IFrame {
 	}
 	
 	public short convertX(short x) {
-		return (short) Math.round((double) x / (double)this.getWidth()*frameBuffer.width);
+		return (short) Math.round((double) x / (double)(this.getWidth()*frameBuffer.width));
 	}
 	
 	public short convertY(short y) {
-		return (short) Math.round((double) y / (double)this.getHeight()*frameBuffer.height);
+		return (short) Math.round((double) y / (double)(this.getHeight()*frameBuffer.height));
 	}
 	
 	boolean shouldRender = true;
@@ -115,9 +115,7 @@ public class Frame extends Canvas implements IFrame {
 		int frames = 0;
 		frame.requestFocus();
 		while (running) {
-			if (frames == 0) {
-				shouldRender = true;
-			}
+			shouldRender = true;
 			if (shouldRender) {
 				shouldRender = false;
 				render();

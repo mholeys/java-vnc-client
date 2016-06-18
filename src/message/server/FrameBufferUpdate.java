@@ -8,6 +8,7 @@ import data.PixelFormat;
 import data.PixelRectangle;
 import encoding.CopyRectEncoding;
 import encoding.RawEncoding;
+import encoding.TightEncoding;
 import encoding.ZLibEncoding;
 import encoding.ZLibStream;
 
@@ -44,7 +45,9 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 			} else if (Encoding.COPY_RECT_ENCODING.sameID(r.encodingType)) {
 				r.encode = new CopyRectEncoding(r.x, r.y, r.width, r.height, format);
 			} else if (Encoding.ZLIB_ENCODING.sameID(r.encodingType)) {
-				r.encode = new ZLibEncoding(r.x, r.y, r.width, r.height, format, streams[0]);
+				r.encode = new ZLibEncoding(r.x, r.y, r.width, r.height, format, streams[4]);
+			} else if (Encoding.TIGHT_ENCODING.sameID(r.encodingType)) {
+				r.encode = new TightEncoding(r.x, r.y, r.width, r.height, format, streams);
 			}
 			if (r.encode != null) {
 				r.encode.readEncoding(in);

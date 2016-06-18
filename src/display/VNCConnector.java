@@ -59,7 +59,7 @@ public class VNCConnector {
 	}
 	
 	private boolean handshake() throws IOException {
-		String version = "RFB 003.007\n";
+		String version = "RFB 003.008\n";
 		dataOut.writeBytes(version);
 
 		//Get number of security types
@@ -95,7 +95,7 @@ public class VNCConnector {
 			case 4:
 				realvnc = true;
 			case 16:
-				tight_auth = true;
+				//tight_auth = true;
 				break;
 			}
 		}
@@ -118,6 +118,7 @@ public class VNCConnector {
 		if (auth == null) {
 			System.err.println("No common authentication");
 			dataOut.writeByte(-1);
+			socket.close();
 			return false;
 		}
 		dataOut.writeByte(auth.getSecurityId());
