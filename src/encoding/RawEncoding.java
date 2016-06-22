@@ -3,11 +3,9 @@ package encoding;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
-import data.PixelFormat;
-import display.FrameBuffer;
 import util.ByteUtil;
+import data.PixelFormat;
 
 public class RawEncoding extends Encode {
 
@@ -35,20 +33,11 @@ public class RawEncoding extends Encode {
 		int b = 0;
 		for (int i = 0; i < width * height; i++) {
 			byte[] pixel = new byte[format.bitsPerPixel/8];
-			dataIn.readFully(pixel);
+			dataIn.read(pixel);
 			// TODO add colour shifting based on format
 			pixels[i] = ByteUtil.bytesToInt(pixel);
 		}
-	}
-
-	@Override
-	public int[] getPixels() {
-		return pixels;
-	}
-
-	@Override
-	public void setFrameBuffer(FrameBuffer frameBuffer) {
-		
+		screen.drawPixels(x, y, width, height, pixels);
 	}
 
 }

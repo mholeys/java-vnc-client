@@ -38,7 +38,15 @@ public class ByteUtil {
 		return convertToBits(new byte[] {b});
 	}
 	
-	public static int bytesToInt(byte[] bytes) {
+	public static int bytesToInt(byte[] b) {
+		byte[] bytes = new byte[4];
+		if (b.length > 4) {
+			System.arraycopy(b, 0, bytes, 0, 4);
+		} else if (b.length < 4) {
+			System.arraycopy(b, 0, bytes, 0, b.length);
+		} else {
+			System.arraycopy(b, 0, bytes, 0, 4);
+		}
 		ByteBuffer bb = ByteBuffer.wrap(bytes);
 		int i = bb.getInt();
 		return i;

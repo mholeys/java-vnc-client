@@ -6,6 +6,7 @@ import java.net.Socket;
 import data.Encoding;
 import data.PixelFormat;
 import data.PixelRectangle;
+import display.IScreen;
 import encoding.CopyRectEncoding;
 import encoding.RawEncoding;
 import encoding.TightEncoding;
@@ -14,11 +15,13 @@ import encoding.ZLibStream;
 
 public class FrameBufferUpdate extends ClientReceiveMessage {
 
+	public IScreen screen;
 	public PixelFormat format;
 	public ZLibStream[] streams;
 	
-	public FrameBufferUpdate(Socket socket, PixelFormat format, ZLibStream[] streams) {
+	public FrameBufferUpdate(Socket socket, IScreen screen, PixelFormat format, ZLibStream[] streams) {
 		super(socket);
+		this.screen = screen;
 		this.format = format;
 		this.streams = streams;
 	}
@@ -31,7 +34,7 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 	@Override
 	public Object receiveMessage() throws IOException {
 		dataIn.readByte();
-		short rectangle = dataIn.readShort();
+		int rectangle = dataIn.readUnsignedShort();
 		PixelRectangle[] rectangles = new PixelRectangle[rectangle];
 		for (int i = 0; i < rectangle; i++) {
 			PixelRectangle r = new PixelRectangle();
@@ -50,6 +53,7 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 				r.encode = new TightEncoding(r.x, r.y, r.width, r.height, format, streams);
 			}
 			if (r.encode != null) {
+				r.encode.setScreen(screen);
 				r.encode.readEncoding(in);
 			}
 			rectangles[i] = r;

@@ -9,32 +9,45 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 
+import net.VNCProtocol;
 import data.PointerPoint;
 
-public class Frame extends Canvas implements IFrame {
+public class SwingDisplay extends Canvas implements IDisplay {
 
 	private static final long serialVersionUID = 1L;
 
 	public JFrame frame;
-	public FrameBuffer frameBuffer;
+	public IScreen screen;
 	boolean running = false;
 	private BufferStrategy bs;
 	private BufferedImage image;
 	private int[] pixels;
 	
+	private Thread thread;
+	
+	private int width, height;
+	
 	private short x, y;
 	private boolean left, right, middle;
 	private boolean mouseOnScreen = false;
 	private boolean mouseChanged = false;
-
+	
+	public SwingDisplay(SwingScreen screen) {
+		this.screen = screen;
+	}
+	
 	public void start() {
-		image = new BufferedImage(frameBuffer.width, frameBuffer.height, BufferedImage.TYPE_INT_RGB);
+		this.width = screen.getWidth();
+		this.height = screen.getHeight();
+		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		this.frame = new JFrame();
-		this.setPreferredSize(new Dimension(frameBuffer.width, frameBuffer.height));
+		this.setPreferredSize(new Dimension(width, height));
 		MouseAdapter mouse = new MouseAdapter() {
 			
 			@Override
@@ -95,40 +108,29 @@ public class Frame extends Canvas implements IFrame {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		running = true;
 		
-		
-		Thread fThread = new Thread(this);
-		fThread.setName("Frame buffer thread");
-		fThread.start();
+		thread = new Thread(this);
+		thread.setName("Frame buffer thread");
+		thread.start();
 	}
 	
 	public short convertX(short x) {
-		return (short) Math.round((double) x / (double)(this.getWidth())*frameBuffer.width);
+		return (short) Math.round(((double) x / (double)this.getWidth()) *width);
 	}
 	
 	public short convertY(short y) {
-		return (short) Math.round((double) y / (double)(this.getHeight())*frameBuffer.height);
+		return (short) Math.round(((double) y / (double)this.getHeight()) *height);
 	}
 	
-	boolean shouldRender = true;
 	public void run() {
 		long timer = System.currentTimeMillis();
 		int frames = 0;
-		frame.requestFocus();
 		while (running) {
-			shouldRender = true;
-			if (shouldRender) {
-				shouldRender = false;
-				render();
-				frames++;
-			}
+			render();
+			frames++;
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
 				frame.setTitle("FPS: " + frames);
 				frames = 0;
-			}
-			if (frameBuffer.changed) {
-				shouldRender = true;
-				frameBuffer.changed = false;
 			}
 		}
 	}
@@ -137,32 +139,23 @@ public class Frame extends Canvas implements IFrame {
 		bs = getBufferStrategy();
 		if (bs == null) {
 			createBufferStrategy(3);
-			shouldRender = true;
 			return;
 		}
-
-		for (int i = 0; i < pixels.length; i++) {
-			pixels[i] = frameBuffer.pixels[i];
+		
+		int[] newPixels = screen.getPixels();
+		
+		for (int i = 0; i < width*height; i++) {
+			pixels[i] = newPixels[i];
 		}
 		
 		Graphics g = bs.getDrawGraphics();
-
 		g.setColor(Color.black);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
-	
+		
+		g.drawImage(image, 0, 0, width, height, null);
+		
 		g.dispose();
 		bs.show();
-	}
-
-	@Override
-	public void setFrameBuffer(FrameBuffer frameBuffer) {
-		this.frameBuffer = frameBuffer;
-	}
-
-	@Override
-	public FrameBuffer getFrameBuffer() {
-		return frameBuffer;
 	}
 
 	@Override
@@ -183,6 +176,23 @@ public class Frame extends Canvas implements IFrame {
 		p.right = right;
 		return p;
 	}
-	
+
+	public static void main(String[] args) {
+		SwingInterface i = new SwingInterface();
+		try {
+			VNCProtocol vnc = new VNCProtocol("192.168.0.2", 5901, new FixedPassword(), i);
+			Thread t = new Thread(vnc);
+			t.start();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public Thread getThread() {
+		return thread;
+	}	
 
 }

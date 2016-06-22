@@ -7,8 +7,8 @@ import message.Capability;
 
 public class TightVNCAuthentication extends Authentication {
 
-	public TightVNCAuthentication(Socket socket, String[] args) throws IOException {
-		super(socket, args);
+	public TightVNCAuthentication(Socket socket, String password) throws IOException {
+		super(socket, password);
 	}
 
 	@Override
@@ -59,11 +59,11 @@ public class TightVNCAuthentication extends Authentication {
 		Authentication auth = null;
 		boolean authenticated = false;
 		if (vnc) {
-			auth = new VNCAuthentication(socket, args);
+			auth = new VNCAuthentication(socket, password);
 		} else if (none) {
-			auth = new NoAuthentication(socket, args);
+			auth = new NoAuthentication(socket, password);
 		} else if (authTypeCount == 0) {
-			auth = new NoAuthentication(socket, args);
+			auth = new NoAuthentication(socket, password);
 		}
 		if (auth != null) {
 			dataOut.writeInt(auth.getSecurityId());

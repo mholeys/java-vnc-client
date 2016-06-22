@@ -8,13 +8,12 @@ import java.util.zip.DataFormatException;
 
 import util.ByteUtil;
 import data.PixelFormat;
-import display.FrameBuffer;
+import display.IDisplay;
 
 public class ZLibEncoding extends Encode {
 
 	int x, y, width, height;
 	PixelFormat format;
-	FrameBuffer frameBuffer;
 	int[] pixels;
 	ZLibStream stream;
 	
@@ -28,11 +27,6 @@ public class ZLibEncoding extends Encode {
 		this.stream = stream;
 	}
 	
-	@Override
-	public int[] getPixels() {
-		return pixels;
-	}
-
 	@Override
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
@@ -48,23 +42,21 @@ public class ZLibEncoding extends Encode {
             }
             inOffset += inCount;
         }
+		//dataIn.read(b);
 		byte[] p = new byte[width*height*format.bitsPerPixel/8];
 		try {
 			stream.inflater.setInput(b);
-			int l = stream.inflater.inflate(p);
+			stream.inflater.inflate(p);
 		} catch (DataFormatException e) {
 			e.printStackTrace();
 		}
+		ByteArrayInputStream buff = new ByteArrayInputStream(p);
 		for (int i = 0; i < width*height; i++) {
 			byte[] pixel = new byte[format.bitsPerPixel/8];
-			System.arraycopy(p, i*pixel.length, pixel, 0, pixel.length);
+			buff.read(pixel);
 			pixels[i] = ByteUtil.bytesToInt(pixel);
 		}
-	}
-
-	@Override
-	public void setFrameBuffer(FrameBuffer frameBuffer) {
-		this.frameBuffer = frameBuffer;
+		screen.drawPixels(x, y, width, height, pixels);
 	}
 
 }

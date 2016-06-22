@@ -7,7 +7,6 @@ import java.util.zip.DataFormatException;
 
 import util.ByteUtil;
 import data.PixelFormat;
-import display.FrameBuffer;
 
 public class TightEncoding extends Encode {
 
@@ -17,7 +16,6 @@ public class TightEncoding extends Encode {
 	public int height;
 	public PixelFormat format;
 	public ZLibStream[] streams;
-	private int[] pixels;
 	
 	public TightEncoding(int x, int y, int width, int height, PixelFormat format, ZLibStream[] streams) {
 		this.x = x;
@@ -26,7 +24,6 @@ public class TightEncoding extends Encode {
 		this.height = height;
 		this.format = format;
 		this.streams = streams;
-		pixels = new int[width*height];
 	}
 	
 	@Override
@@ -53,11 +50,13 @@ public class TightEncoding extends Encode {
 				System.out.println("Fill");
 				byte[] data = new byte[width*height*3];
 				dataIn.read(data);
+				int[] pixels = new int[width*height];
 				for (int i = 0; i < width*height; i++) {
 					byte[] p = new byte[3];
 					System.arraycopy(data, i*3, p, 0, 3);
 					pixels[i] = ByteUtil.bytesToInt(p);
 				}
+				screen.drawPixels(x, y, width, height, pixels);
 			} else if (bit[7] && !bit[6] && !bit[5] && bit[4]) {
 				//Jpeg
 				int length = readCompactInt(in, 3);
@@ -65,6 +64,7 @@ public class TightEncoding extends Encode {
 				//Read JFIF stream and convert to pixel data
 				byte[] jpegData = new byte[length];
 				dataIn.read(jpegData);
+				screen.drawJPEG(x, y, width, height, jpegData);
 			} else {
 				//Problem
 				System.out.println("Wrong compressionbyte format");
@@ -104,11 +104,13 @@ public class TightEncoding extends Encode {
 				} else {
 					System.arraycopy(data, 0, p, 0, data.length);
 				}
+				int[] pixels = new int[width*height];
 				for (int i = 0; i < width*height; i++) {
 					byte[] pixel = new byte[3];
 					System.arraycopy(p, i*3, p, 0, 3);
 					pixels[i] = ByteUtil.bytesToInt(pixel);
 				}
+				screen.drawPixels(x, y, width, height, pixels);
 			} else if (palette) {
 				//Decode palette filter
 				System.out.println("Palette");
@@ -132,9 +134,11 @@ public class TightEncoding extends Encode {
 				} catch (DataFormatException e) {
 					e.printStackTrace();
 				}
+				int[] pixels = new int[width*height];
 				for (int i = 0; i < width*height; i++) {
 					pixels[i] = ByteUtil.unsignedByteToInt(data[i]);
 				}
+				screen.drawPixels(x, y, width, height, pixels);
 			} else if (gradient) {
 				//Decode gradient filter
 				System.out.println("Gradient");
@@ -176,16 +180,6 @@ public class TightEncoding extends Encode {
 		}
 		int length = ByteUtil.bytesToInts(lengthBytes, 0, 7, false);
 		return length;
-	}
-
-	@Override
-	public int[] getPixels() {
-		return null;
-	}
-
-	@Override
-	public void setFrameBuffer(FrameBuffer frameBuffer) {
-		
 	}
 
 }

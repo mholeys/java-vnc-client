@@ -13,16 +13,14 @@ import util.ByteUtil;
 
 public class VNCAuthentication extends Authentication {
 	
-	public VNCAuthentication(Socket socket, String[] args) throws IOException {
-		super(socket, args);
+	public VNCAuthentication(Socket socket, String password) throws IOException {
+		super(socket, password);
 	}
 
 	@Override
 	public boolean authenticate() throws IOException {
 		byte[] challenge = new byte[16];
 		dataIn.read(challenge);
-		
-		String password = args[0];
 		
 		byte [] key = new byte[8];
         System.arraycopy(password.getBytes(), 0, key, 0, Math.min(key.length, password.getBytes().length));

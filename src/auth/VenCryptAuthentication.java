@@ -9,8 +9,8 @@ public class VenCryptAuthentication extends Authentication {
 	public final static byte VERSION_MAJOR = 0;
 	public final static byte VERSION_MINOR = 2;
 	
-	public VenCryptAuthentication(Socket socket, String[] args) throws IOException {
-		super(socket, args);
+	public VenCryptAuthentication(Socket socket, String password) throws IOException {
+		super(socket, password);
 	}
 
 	@Override

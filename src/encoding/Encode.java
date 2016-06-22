@@ -3,14 +3,16 @@ package encoding;
 import java.io.IOException;
 import java.io.InputStream;
 
-import display.FrameBuffer;
+import display.IScreen;
 
 public abstract class Encode {
-
-	public abstract int[] getPixels();
+	
+	protected IScreen screen;
 
 	public abstract void readEncoding(InputStream in) throws IOException;
 	
-	public abstract void setFrameBuffer(FrameBuffer frameBuffer);
+	public void setScreen(IScreen screen) {
+		this.screen = screen;
+	}
 	
 }

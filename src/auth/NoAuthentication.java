@@ -5,8 +5,8 @@ import java.net.Socket;
 
 public class NoAuthentication extends Authentication {
 
-	public NoAuthentication(Socket socket, String[] args) throws IOException {
-		super(socket, args);
+	public NoAuthentication(Socket socket, String password) throws IOException {
+		super(socket, password);
 	}
 
 	@Override

@@ -14,15 +14,15 @@ public abstract class Authentication {
 	protected OutputStream out;
 	protected DataInputStream dataIn;
 	protected DataOutputStream dataOut;
-	protected String[] args;
+	protected String password;
 	
-	public Authentication(Socket socket, String[] args) throws IOException {
+	public Authentication(Socket socket, String password) throws IOException {
 		this.socket = socket;
 		in = this.socket.getInputStream();
 		out = this.socket.getOutputStream();
 		dataIn = new DataInputStream(in);
 		dataOut = new DataOutputStream(out);
-		this.args = args;
+		this.password = password;
 	}
 	
 	public abstract boolean authenticate() throws IOException;
