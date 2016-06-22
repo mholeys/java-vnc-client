@@ -253,13 +253,12 @@ public class VNCProtocol implements Runnable {
 
 	public void sendSetEncoding() throws IOException {
 		SetEncodings encodings = new SetEncodings(socket);
-		encodings.encodings = new int[6];
-		encodings.encodings[0] = Encoding.TIGHT_ENCODING.getStartID();
-		encodings.encodings[1] = Encoding.ZLIB_ENCODING.getStartID();
-		encodings.encodings[2] = Encoding.RAW_ENCODING.getStartID();
-		encodings.encodings[3] = Encoding.COPY_RECT_ENCODING.getStartID();
-		encodings.encodings[4] = Encoding.JPEG_QUALITY_LEVEL_PSEUDO_ENCODING.getEndID();
-		encodings.encodings[5] = Encoding.COMPRESSION_LEVEL_PSEUDO_ENCODING.getEndID();
+		encodings.encodings.add(Encoding.TIGHT_ENCODING.getStartID());
+		encodings.encodings.add(Encoding.ZLIB_ENCODING.getStartID());
+		encodings.encodings.add(Encoding.RAW_ENCODING.getStartID());
+		encodings.encodings.add(Encoding.COPY_RECT_ENCODING.getStartID());
+		encodings.encodings.add(Encoding.JPEG_QUALITY_LEVEL_PSEUDO_ENCODING.getEndID());
+		encodings.encodings.add(Encoding.COMPRESSION_LEVEL_PSEUDO_ENCODING.getEndID());
 		
 		encodings.sendMessage();
 	}

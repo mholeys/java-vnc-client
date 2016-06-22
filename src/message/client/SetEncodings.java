@@ -2,10 +2,11 @@ package message.client;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class SetEncodings extends ClientSendMessage {
 
-	public int[] encodings;
+	public ArrayList<Integer> encodings = new ArrayList<Integer>();
 	
 	public SetEncodings(Socket socket) {
 		super(socket);
@@ -13,14 +14,14 @@ public class SetEncodings extends ClientSendMessage {
 
 	@Override
 	public void sendMessage() throws IOException {
-		if (encodings == null || encodings.length == 0) {
+		if (encodings == null || encodings.size() == 0) {
 			return;
 		}
 		dataOut.writeByte((byte)getId());
 		dataOut.writeByte(0);
-		dataOut.writeShort(encodings.length);
-		for (int i = 0; i < encodings.length; i++) {
-			dataOut.writeInt(encodings[i]);
+		dataOut.writeShort(encodings.size());
+		for (int i = 0; i < encodings.size(); i++) {
+			dataOut.writeInt(encodings.get(i));
 		}
 	}
 

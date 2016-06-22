@@ -1,5 +1,6 @@
 package encoding;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +29,7 @@ public class TightEncoding extends Encode {
 	
 	@Override
 	public void readEncoding(InputStream in) throws IOException {
-		System.out.println("TIGHT");
+		System.out.println("TIGHT " + width + ", " + height);
 		DataInputStream dataIn = new DataInputStream(in);
 		byte compressionControl = dataIn.readByte();
 		boolean[] bit = ByteUtil.byteToBits(compressionControl);
@@ -158,7 +159,7 @@ public class TightEncoding extends Encode {
 	
 	private int readCompactInt(InputStream in, int bytes) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
-		if (bytes > 4) {
+		/*if (bytes > 4) {
 			bytes = 4;
 		} else if (bytes < 1) {
 			bytes = 1;
@@ -178,7 +179,30 @@ public class TightEncoding extends Encode {
 				break;
 			}
 		}
-		int length = ByteUtil.bytesToInts(lengthBytes, 0, 7, false);
+		int length = ByteUtil.bytesToInts(lengthBytes, 0, 7, false);*/
+		int length = 0;
+		byte b0 = dataIn.readByte();
+		//System.out.println("b0 " + Integer.toBinaryString(b0) + " " + ((b0 & 0x80)>>>7));
+		byte b1;
+		byte b2;
+		if ((b0 & 0x80)>>>7 == 0) {
+			length = b0 & 0x7F;
+		} else {
+			b1 = dataIn.readByte();
+			//System.out.println("b1 " + Integer.toBinaryString(b1) + " " + ((b1 & 0x80)>>>7));
+			if (((b1 & 0x80)>>>7) == 0) {
+				length = ((b1 & 0x7F)<<7) | (b0 & 0x7F) ;
+			} else {
+				b2 = dataIn.readByte();
+				//System.out.println("b2 " + Integer.toBinaryString((b2 & 0x80)>>>7));
+				if ((b2 & 0x80)>>>7 == 0) {
+					length =  ((b2 & 0x7F) << 14) | ((b1 & 0x7F) << 7) | (b0 & 0x7F);
+				} else {
+					return -1;
+				}
+			}
+		}
+		//System.out.println("L: " + length + " " + Integer.toBinaryString(length));
 		return length;
 	}
 

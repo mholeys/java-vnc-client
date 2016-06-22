@@ -1,5 +1,13 @@
 package display;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 public class SwingScreen implements IScreen {
 
 	public int width, height;
@@ -22,6 +30,20 @@ public class SwingScreen implements IScreen {
 
 	@Override
 	public void drawJPEG(int x, int y, int width, int height, byte[] jpegData) {
+		ByteArrayInputStream buff = new ByteArrayInputStream(jpegData); 
+		try {
+			BufferedImage img = ImageIO.read(buff);
+			if (img != null) {
+				BufferedImage convertedImg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			    Graphics g = convertedImg.getGraphics();
+			    g.drawImage(img, 0, 0, null);
+			    g.dispose();
+			    int[] imgPixels = ((DataBufferInt) convertedImg.getRaster().getDataBuffer()).getData();
+				drawPixels(x, y, width, height, imgPixels);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
