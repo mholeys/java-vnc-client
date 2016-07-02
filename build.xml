@@ -1,0 +1,42 @@
+<project name="vnc" default="dist">
+    <property name="build-vnc" location="bin/vnc"/>
+	<property name="build-swing" location="bin/swing"/>
+    <property name="dist" location="dist"/>
+	
+    <property name="main-swing" value="com.mholeys.vnc.swing.SwingDisplay"/>
+	
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+
+        <mkdir dir="${build-vnc}"/>
+    	<mkdir dir="${build-swing}"/>
+    </target>
+
+    <target name="compile-vnc" depends="init">
+    	<!-- Compiles the vnc code-->
+        <javac srcdir="src" destdir="${build-vnc}" classpath="${build-vnc}"/>
+    </target>
+	
+	<target name="compile-swing" depends="compile-vnc">
+	    	<!-- Compiles the swing vnc code-->
+	        <javac srcdir="swing" destdir="${build-swing}" classpath="${build-vnc}"/>
+	    </target>
+
+    <target name="dist" depends="compile-vnc,compile-swing">
+    	<!-- Saves all the code into jars -->
+        <mkdir dir="dist"/>
+        <jar jarfile="${dist}/vnc-${DSTAMP}.jar" basedir="${build-vnc}"/>
+        <jar jarfile="${dist}/swing-vnc-${DSTAMP}.jar" basedir="${build-swing}">
+        	<manifest>
+        	    <attribute name="Main-Class" value="${main-swing}" />
+    	    </manifest>
+    	</jar>
+    </target>
+	
+    <target name="clean">
+    	<delete dir="${build-vnc}"/>
+    	<delete dir="${build-swing}"/>
+    	<delete dir="${dist}"/>
+	</target>
+</project>

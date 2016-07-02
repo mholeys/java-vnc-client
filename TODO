@@ -1,13 +1,4 @@
 TODO
-	look at tight encoding for speed (zlib is not thread safe?)
-	
+	Look at copy mode of Tight, not reading enough data and so data is escaping and becoming messages
 TODO
-	Check if changes to force render createBufferStrat worked
-	
-TODO 
-	Check to see how to fix extra bit on byte to bits and back (ByteUtil)
-	10010000  (Java int to bits)
-	11001000  (My byte to bits)  ?
-	http://henkelmann.eu/2011/02/24/a_curse_on_java_bitwise_operators
-	Some sort of issues where the msb of a byte cannot be what you want?
-	No thoughts 
+	Palette problem with 2 bit (not implemented) 
