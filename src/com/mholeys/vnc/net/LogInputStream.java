@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 public class LogInputStream extends FilterInputStream {
 
-	public static boolean print = true;
+	public static boolean print = false;
 	
 	public LogInputStream(InputStream in) {
 		super(in);
@@ -16,7 +16,14 @@ public class LogInputStream extends FilterInputStream {
 	public int read() throws IOException {
 		int  i = super.read();
 		if (print) {
-			System.out.println(Integer.toHexString(i));
+			String h = Integer.toHexString(i);
+			int l = h.length();
+			if (l > 2) {
+				h = h.substring(l, l);
+			} else if (l == 1) {
+				h = "0"+h;
+			}
+			System.out.println(h);
 		}
 		return i;
 	}
@@ -26,7 +33,14 @@ public class LogInputStream extends FilterInputStream {
 		int i = super.read(b, off, len);
 		if (print) {
 			for (int k = off; k < len; k++) {
-				System.out.println(Integer.toHexString(b[k]));
+				String h = Integer.toHexString(b[k]);
+				int l = h.length();
+				if (l > 2) {
+					h = h.substring(l-2, l);
+				} else if (l == 1) {
+					h = "0"+h;
+				}
+				System.out.println(h);
 			}
 		}
 		return i;

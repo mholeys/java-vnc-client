@@ -19,6 +19,7 @@ import com.mholeys.vnc.data.PointerPoint;
 import com.mholeys.vnc.display.IPasswordRequester;
 import com.mholeys.vnc.display.IScreen;
 import com.mholeys.vnc.display.IUserInterface;
+import com.mholeys.vnc.encoding.CursorPseudoEncoding;
 import com.mholeys.vnc.encoding.ZLibStream;
 import com.mholeys.vnc.message.ClientInitMessage;
 import com.mholeys.vnc.message.ServerInitMessage;
@@ -126,7 +127,7 @@ public class VNCProtocol implements Runnable {
 					break;
 				default:
 					System.out.println("Unknown message id: " + id);
-					throw new IOException();
+					//throw new IOException();
 				}
 			}
 		} catch (IOException e) {
@@ -259,6 +260,7 @@ public class VNCProtocol implements Runnable {
 		//encodings.encodings.add(Encoding.COPY_RECT_ENCODING.getStartID());
 		encodings.encodings.add(Encoding.JPEG_QUALITY_LEVEL_PSEUDO_ENCODING.getEndID());
 		encodings.encodings.add(Encoding.COMPRESSION_LEVEL_PSEUDO_ENCODING.getEndID());
+		encodings.encodings.add(Encoding.CURSOR_PSEUDO_ENCODING.getStartID());
 		
 		encodings.sendMessage();
 	}

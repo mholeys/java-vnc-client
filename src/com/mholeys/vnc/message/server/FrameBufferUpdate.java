@@ -8,6 +8,7 @@ import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.data.PixelRectangle;
 import com.mholeys.vnc.display.IScreen;
 import com.mholeys.vnc.encoding.CopyRectEncoding;
+import com.mholeys.vnc.encoding.CursorPseudoEncoding;
 import com.mholeys.vnc.encoding.RawEncoding;
 import com.mholeys.vnc.encoding.TightEncoding;
 import com.mholeys.vnc.encoding.ZLibEncoding;
@@ -51,6 +52,8 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 				r.encode = new ZLibEncoding(r.x, r.y, r.width, r.height, format, streams[4]);
 			} else if (Encoding.TIGHT_ENCODING.sameID(r.encodingType)) {
 				r.encode = new TightEncoding(r.x, r.y, r.width, r.height, format, streams);
+			} else if (Encoding.CURSOR_PSEUDO_ENCODING.sameID(r.encodingType)) {
+				r.encode = new CursorPseudoEncoding(r.x, r.y, r.width, r.height, format);
 			}
 			if (r.encode != null) {
 				r.encode.setScreen(screen);

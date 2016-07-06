@@ -34,8 +34,8 @@ public class SwingScreen implements IScreen {
 	}
 	
 	@Override
-	public synchronized void drawPalette(int x, int y, int width, int height, int[] palette, byte[] data) {
-		if (2 == palette.length) {
+	public synchronized void drawPalette(int x, int y, int width, int height, int[] palette, int paletteSize, byte[] data) {
+		if (2 == paletteSize) {
             int dx, dy, n;
             int i = y * this.width + x;
             int rowBytes = (width + 7) / 8;
@@ -103,6 +103,17 @@ public class SwingScreen implements IScreen {
 			for (int xA = x; xA < width; xA++) {
 				this.pixels[xA + yA * this.width] = pixel;
 			}
+		}
+	}
+	
+	@Override
+	public void drawCursor(int x, int y, int width, int height, int[] cursorData) {
+		for (int yA = 0; yA < height; y++) {
+			for (int xA = 0; xA < width; x++) {
+				if ((cursorData[xA + yA * width] & 0xFF000000) != 0x00000000) {
+					pixels[(xA+x) + (yA+y) * this.width] = cursorData[xA + yA * width];
+				}
+			}	
 		}
 	}
 

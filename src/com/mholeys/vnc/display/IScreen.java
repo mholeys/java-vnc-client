@@ -4,7 +4,7 @@ public interface IScreen {
 
 	public void drawPixels(int x, int y, int width, int height, int[] pixels);
 	
-	public void drawPalette(int x, int y, int width, int height, int[] palette, byte[] data);
+	public void drawPalette(int x, int y, int width, int height, int[] palette, int paletteSize, byte[] data);
 	
 	public void drawJPEG(int x, int y, int width, int height, byte[] jpegData);
 	
@@ -12,12 +12,13 @@ public interface IScreen {
 	
 	public void fillPixels(int x, int y, int width, int height, int pixel);
 
+	public void drawCursor(int x, int y, int width, int height, int[] cursorData);
+
 	public int[] getPixels();
 	
 	public void setSize(int width, int height);
 	
 	public int getWidth();
 	public int getHeight();
-
 	
 }

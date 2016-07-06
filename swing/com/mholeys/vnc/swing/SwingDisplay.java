@@ -4,8 +4,6 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -35,10 +33,10 @@ public class SwingDisplay extends Canvas implements IDisplay {
 	
 	private int width, height;
 	
-	private short x, y;
-	private boolean left, right, middle;
-	private boolean mouseOnScreen = false;
-	private boolean mouseChanged = false;
+	short x, y;
+	boolean left, right, middle;
+	boolean mouseOnScreen = false;
+	boolean mouseChanged = false;
 	
 	public SwingDisplay(SwingScreen screen) {
 		this.screen = screen;
@@ -51,58 +49,7 @@ public class SwingDisplay extends Canvas implements IDisplay {
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		this.frame = new JFrame();
 		this.setPreferredSize(new Dimension(width, height));
-		MouseAdapter mouse = new MouseAdapter() {
-			
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON1) {
-					left = true;
-					mouseChanged = true;
-				}
-				if (e.getButton() == MouseEvent.BUTTON2) {
-					right = true;
-					mouseChanged = true;
-				}
-				if (e.getButton() == MouseEvent.BUTTON3) {
-					middle = true;
-					mouseChanged = true;
-				}
-			}
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON1) {
-					mouseChanged = true;
-					left = false;
-				}
-				if (e.getButton() == MouseEvent.BUTTON2) {
-					right = false;
-					mouseChanged = true;
-				}
-				if (e.getButton() == MouseEvent.BUTTON3) {
-					middle = false;
-					mouseChanged = true;
-				}
-			}
-			
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				x = convertX((short) e.getX());
-				y = convertY((short) e.getY());
-				mouseChanged = true;
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				mouseOnScreen = true;
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {
-				mouseOnScreen = false;
-			}
-			
-		};
+		Mouse mouse = new Mouse(this);
 		this.addMouseListener(mouse);
 		this.addMouseMotionListener(mouse);
 		frame.add(this);

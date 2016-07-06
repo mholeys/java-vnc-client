@@ -30,44 +30,48 @@ public class TightEncoding extends Encode {
 	
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(new LogInputStream(in));
-		System.out.println("Reading compression control byte");
-		int compressionControl = dataIn.readUnsignedByte();
+		int compressionControl = dataIn.read();//.readUnsignedByte();
 		boolean[] bit = ByteUtil.byteToBits((byte) compressionControl);
 		if (bit[0]) {
 			streams[0].inflater.reset();
+			//System.out.println("Reset stream 0");
 		}
 		if (bit[1]) {
 			streams[1].inflater.reset();
+			//System.out.println("Reset stream 1");
 		}
 		if (bit[2]) {
 			streams[2].inflater.reset();
+			//System.out.println("Reset stream 2");
 		}
 		if (bit[3]) {
 			streams[3].inflater.reset();
+			//System.out.println("Reset stream 3");
 		}
 		final int FILL = 0x80;
 		final int JPEG = 0x90;
 		int mode = compressionControl & 0xF0;
 		switch (mode) {
 		case FILL:
-			System.out.println("FILL");
+			//System.out.println("FILL");
 			int color = readTightPixel(dataIn);
 			screen.fillPixels(x, y, width, height, color);
 			break;
 		case JPEG:
-			System.out.println("JPEG");
-			System.out.println("Reading length (compact)");
+			//System.out.println("JPEG");
 			int length = readCompactInt(dataIn);
-			LogInputStream.print = false;
 			byte[] jpegData = new byte[length];
-			System.out.println("Reading data");
+			//System.out.println("Reading data");
 			dataIn.readFully(jpegData);
-			LogInputStream.print = true;
 			screen.drawJPEG(x, y, width, height, jpegData);
 			break;
 		default:
-			int stream = (compressionControl & 0x10) | (compressionControl & 0x8);
-			int filterId = dataIn.read();
+			int stream = (compressionControl & 0x30) >>> 4;
+			//System.out.println("Using stream: " + stream);
+			int filterId = 0;
+			if ((compressionControl & 0x40) >>> 6 == 1) {
+				filterId = dataIn.readByte();
+			}
 			
 			final int COPY = 0;
 			final int PALETTE = 1;
@@ -76,152 +80,37 @@ public class TightEncoding extends Encode {
 			switch (filterId) {
 			case PALETTE:
 				//Decode palette filter
-				System.out.println("Palette");
-				System.out.println("Reading palette size");
+				//System.out.println("Palette");
 				int paletteSize = dataIn.readUnsignedByte()+1;
-				System.out.println("Palette size: " + paletteSize);
+				//System.out.println("Palette size: " + paletteSize);
 				int[] palette = new int[256];
 				for (int i = 0; i < paletteSize; i++) {
-					System.out.println("Reading color palette");
 					palette[i] = readTightPixel(dataIn);
 				}
 				int paletteDataLength = paletteSize == 2 ?
 						height * ((width + 7) / 8) :
 						width * height;
-				System.out.println("Palette data length: " + paletteDataLength);
 				byte[] paletteData = new byte[paletteDataLength];
-				System.out.println("Reading palette color data");
-				dataIn.readFully(paletteData);
-				screen.drawPalette(x, y, width, height, palette, paletteData);
-				
+				paletteData = readCompressedData(dataIn, paletteDataLength, stream);
+				screen.drawPalette(x, y, width, height, palette, paletteSize, paletteData);
 				break;
 			case GRADIENT:
 				System.out.println("Gradient");
 				
 				break;
 			case COPY:
-				/*System.out.println("Copy");
+				//System.out.println("Copy");
 				//Read compressed TightPixels
 				byte[] copyData = readCompressedData(dataIn, width*height*3, stream);
 				int[] pixels = convertDataToTightPixels(copyData, width*height, 3);
-				screen.drawPixels(x, y, width, height, pixels);*/
 				//Decode copy filter
-				System.out.println("Copy");
 				//Read pixels
-				System.out.println("Reading copy data");
-				byte[] p = readCompressedData(dataIn, width*height*3, stream);
-				int[] pixels = new int[width*height];
-				for (int i = 0; i < width*height; i++) {
-					byte[] pixel = new byte[4];
-					System.arraycopy(p, i*3, pixel, 1, 3);
-					pixels[i] = ByteUtil.bytesToInt(pixel);
-				}
 				screen.drawPixels(x, y, width, height, pixels);
 				break;
 			default: 
 				break;
 			}
 			break;
-		}
-	}
-	
-	public void readncoding(InputStream in) throws IOException {
-		System.out.println("TIGHT " + width + ", " + height);
-		DataInputStream dataIn = new DataInputStream(in);
-		byte compressionControl = dataIn.readByte();
-		boolean[] bit = ByteUtil.byteToBits(compressionControl);
-		if (bit[0]) {
-			streams[0].inflater.reset();
-		}
-		if (bit[1]) {
-			streams[1].inflater.reset();
-		}
-		if (bit[2]) {
-			streams[2].inflater.reset();
-		}
-		if (bit[3]) {
-			streams[3].inflater.reset();
-		}
-		if (bit[7]) {
-			if (bit[7] && !bit[6] && !bit[5] && !bit[4]) {
-				//Fill
-				System.out.println("Fill");
-				byte[] pData = new byte[3];
-				dataIn.read(pData);
-				int pixel = ByteUtil.bytesToInt(pData);
-				screen.fillPixels(x, y, width, height, pixel);
-			} else if (bit[7] && !bit[6] && !bit[5] && bit[4]) {
-				//Jpeg
-				int length = readCompactInt(dataIn);
-				System.out.println("TIGHT JPEG LENGTH: " + length);
-				//Read JFIF stream and convert to pixel data
-				byte[] jpegData = new byte[length];
-				dataIn.read(jpegData);
-				screen.drawJPEG(x, y, width, height, jpegData);
-			} else {
-				//Problem
-				System.out.println("Wrong compressionbyte format");
-			}
-		} else {
-			//Basic
-			boolean copy = false, palette = false, gradient = false;
-			int stream = ((bit[5] ? 1 : 0) << 1) & ((bit[4] ? 1 : 0) << 1);
-			System.out.println("Stream: " + stream);
-			if (bit[6]) {
-				int filterId = dataIn.read();
-				if (filterId == 0) {
-					copy = true;
-				} else if (filterId == 1) {
-					palette = true;
-				} else if (filterId == 2) {
-					gradient = true;
-				}
-			} else {
-				copy = true;
-			}
-			if (copy) {
-				//Decode copy filter
-				System.out.println("Copy");
-				//Read pixels
-				byte[] p = readCompressedData(dataIn, width*height*3, stream);
-				int[] pixels = new int[width*height];
-				for (int i = 0; i < width*height; i++) {
-					byte[] pixel = new byte[4];
-					System.arraycopy(p, i*3, pixel, 1, 3);
-					pixels[i] = ByteUtil.bytesToInt(pixel);
-				}
-				screen.drawPixels(x, y, width, height, pixels);
-			} else if (palette) {
-				//Decode palette filter
-				System.out.println("Palette");
-				int paletteSize = dataIn.readUnsignedByte()+1;
-				System.out.println("Palette size: " + paletteSize);
-				int[] paletteColours = new int[256];
-				for (int i = 0; i < paletteSize; i++) {
-					paletteColours[i] = readTightPixel(dataIn);
-				}
-				int paletteDataLength = paletteSize == 2 ?
-						height * ((width + 7) / 8) :
-						width * height;
-				System.out.println("Palette data length: " + paletteDataLength);
-				byte[] paletteData = new byte[paletteDataLength];
-				dataIn.read(paletteData);
-				screen.drawPalette(x, y, width, height, paletteColours, paletteData);
-			} else if (gradient) {
-				//Decode gradient filter
-				System.out.println("Gradient");
-				byte[] p = new byte[width*height];
-				byte[] v = new byte[width*height];
-				//TODO NO IDEA
-				//Read pixels
-				readCompressedData(dataIn, width*height, stream);
-				/*int dataLength = readCompactInt(in);
-				byte[] data = new byte[dataLength];
-				dataIn.read(data);*/
-			} else {
-				//Failed to understand filter something is probably wrong
-				System.out.println("Could not determine format of tight message");
-			}
 		}
 	}
 	
@@ -278,9 +167,9 @@ public class TightEncoding extends Encode {
 	
 	public static int[] convertDataToTightPixels(byte[] data, int dataSize, int size) {
 		int[] pixels = new int[dataSize];
-		for (int i = 0; i < data.length; i+=size) {
+		for (int i = 0; i < dataSize; i++) {
 			byte[] p = new byte[4];
-			System.arraycopy(data, i, p, 4-size, size);
+			System.arraycopy(data, i*size, p, 4-size, size);
 			pixels[i] = ByteUtil.bytesToInt(p);
 		}
 		return pixels;

@@ -19,8 +19,8 @@ public class RawEncoding extends Encode {
 	public RawEncoding(int x, int y, int width, int height, PixelFormat format) {
 		this.x = x;
 		this.y = y;
-		this.width = width & 0xFFFFFF;
-		this.height = height & 0xFFFFFF;
+		this.width = Math.abs(width);
+		this.height = Math.abs(height);
 		this.format = format;
 		pixels = new int[this.width * this.height];
 	}
