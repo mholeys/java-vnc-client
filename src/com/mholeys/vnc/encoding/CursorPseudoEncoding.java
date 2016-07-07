@@ -25,7 +25,6 @@ public class CursorPseudoEncoding extends Encode {
 	
 	@Override
 	public void readEncoding(InputStream in) throws IOException {
-		System.out.println("Cursor");
 		DataInputStream dataIn = new DataInputStream(in);
 		byte[] cursorData = new byte[width*height*4];
 		dataIn.read(cursorData);

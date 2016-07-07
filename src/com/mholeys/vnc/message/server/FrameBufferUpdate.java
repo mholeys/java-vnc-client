@@ -2,6 +2,7 @@ package com.mholeys.vnc.message.server;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 import com.mholeys.vnc.data.Encoding;
 import com.mholeys.vnc.data.PixelFormat;
@@ -45,14 +46,19 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 			r.height = dataIn.readShort();
 			r.encodingType = dataIn.readInt();
 			if (Encoding.RAW_ENCODING.sameID(r.encodingType)) {
+				System.out.println("Raw");
 				r.encode = new RawEncoding(r.x, r.y, r.width, r.height, format);
 			} else if (Encoding.COPY_RECT_ENCODING.sameID(r.encodingType)) {
+				System.out.println("Copy encoding																																																");
 				r.encode = new CopyRectEncoding(r.x, r.y, r.width, r.height, format);
 			} else if (Encoding.ZLIB_ENCODING.sameID(r.encodingType)) {
+				System.out.println("Zlib");
 				r.encode = new ZLibEncoding(r.x, r.y, r.width, r.height, format, streams[4]);
 			} else if (Encoding.TIGHT_ENCODING.sameID(r.encodingType)) {
+				System.out.println("Tight");
 				r.encode = new TightEncoding(r.x, r.y, r.width, r.height, format, streams);
 			} else if (Encoding.CURSOR_PSEUDO_ENCODING.sameID(r.encodingType)) {
+				System.out.println("Cursor");
 				r.encode = new CursorPseudoEncoding(r.x, r.y, r.width, r.height, format);
 			}
 			if (r.encode != null) {

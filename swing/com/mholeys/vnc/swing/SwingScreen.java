@@ -107,7 +107,7 @@ public class SwingScreen implements IScreen {
 	}
 	
 	@Override
-	public void drawCursor(int x, int y, int width, int height, int[] cursorData) {
+	public void moveCursor(int x, int y, int width, int height, int[] cursorData) {
 		for (int yA = 0; yA < height; y++) {
 			for (int xA = 0; xA < width; x++) {
 				if ((cursorData[xA + yA * width] & 0xFF000000) != 0x00000000) {

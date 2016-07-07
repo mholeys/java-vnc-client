@@ -2,6 +2,7 @@ package com.mholeys.vnc.swing;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 public class Mouse extends MouseAdapter {
 	
@@ -40,6 +41,16 @@ public class Mouse extends MouseAdapter {
 		if (e.getButton() == MouseEvent.BUTTON3) {
 			display.middle = false;
 			display.mouseChanged = true;
+		}
+	}
+	
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e){
+		if (e.getWheelRotation() > 0) {
+			//scroll down
+		}
+		if (e.getWheelRotation() < 0) {
+			//scroll up
 		}
 	}
 	

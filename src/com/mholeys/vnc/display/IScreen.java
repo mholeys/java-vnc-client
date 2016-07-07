@@ -12,7 +12,7 @@ public interface IScreen {
 	
 	public void fillPixels(int x, int y, int width, int height, int pixel);
 
-	public void drawCursor(int x, int y, int width, int height, int[] cursorData);
+	public void moveCursor(int x, int y, int width, int height, int[] cursorData);
 
 	public int[] getPixels();
 	
