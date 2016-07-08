@@ -92,7 +92,11 @@ public class VNCProtocol implements Runnable {
 				System.exit(0);
 			}
 			ui.setSize(width, height);
-			ui.getDisplay().start();
+			if (ui.getDisplay() == null) {
+				ui.show();
+			} else {
+				ui.getDisplay().start();
+			}
 			sendFormat();
 			sendSetEncoding();
 			sendFrameBufferUpdateRequest(false);
