@@ -15,19 +15,19 @@
 
     <target name="compile-vnc" depends="init">
     	<!-- Compiles the vnc code-->
-        <javac srcdir="src" destdir="${build-vnc}" classpath="${build-vnc}"/>
+        <javac target="1.7" srcdir="src" destdir="${build-vnc}" classpath="${build-vnc}"/>
     </target>
 	
 	<target name="compile-swing" depends="compile-vnc">
 	    	<!-- Compiles the swing vnc code-->
-	        <javac srcdir="swing" destdir="${build-swing}" classpath="${build-vnc}"/>
+	        <javac target="1.7" srcdir="swing" destdir="${build-swing}" classpath="${build-vnc}"/>
 	    </target>
 
     <target name="dist" depends="compile-vnc,compile-swing">
     	<!-- Saves all the code into jars -->
         <mkdir dir="dist"/>
-        <jar jarfile="${dist}/vnc-${DSTAMP}.jar" basedir="${build-vnc}"/>
-        <jar jarfile="${dist}/swing-vnc-${DSTAMP}.jar" basedir="${build-swing}">
+        <jar jarfile="${dist}/vnc.jar" basedir="${build-vnc}"/>
+        <jar jarfile="${dist}/swing-vnc-.jar" basedir="${build-swing}">
         	<manifest>
         	    <attribute name="Main-Class" value="${main-swing}" />
     	    </manifest>
