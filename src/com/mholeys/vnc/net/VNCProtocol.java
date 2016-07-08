@@ -92,11 +92,7 @@ public class VNCProtocol implements Runnable {
 				System.exit(0);
 			}
 			ui.setSize(width, height);
-			if (ui.getDisplay() == null) {
-				ui.show();
-			} else {
-				ui.getDisplay().start();
-			}
+			ui.show();
 			sendFormat();
 			sendSetEncoding();
 			sendFrameBufferUpdateRequest(false);
@@ -293,6 +289,19 @@ public class VNCProtocol implements Runnable {
 	public void readFrameBufferUpdate() throws IOException {
 		FrameBufferUpdate update = new FrameBufferUpdate(socket, ui.getScreen(), format, streams);
 		update.receiveMessage();
+	}
+	
+	public void disconnect() {
+		ui.exit();
+		try {
+			out.close();
+			in.close();
+			dataOut.close();
+			dataIn.close();
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

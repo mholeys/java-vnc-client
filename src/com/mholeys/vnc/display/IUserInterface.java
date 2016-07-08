@@ -6,5 +6,6 @@ public interface IUserInterface {
 	public IScreen getScreen();
 	public void setSize(int width, int height);
 	public void show();
+	public void exit();
 	
 }

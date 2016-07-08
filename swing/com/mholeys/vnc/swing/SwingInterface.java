@@ -23,6 +23,11 @@ public class SwingInterface implements IUserInterface {
 	public void show() {
 		display.start();
 	}
+	
+	@Override
+	public void exit() {
+		display.frame.dispose();
+	}
 
 	@Override
 	public void setSize(int width, int height) {
