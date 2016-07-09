@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.zip.Inflater;
 
+import com.mholeys.vnc.VNCConnectionException;
 import com.mholeys.vnc.auth.Authentication;
 import com.mholeys.vnc.auth.NoAuthentication;
 import com.mholeys.vnc.auth.TightVNCAuthentication;
@@ -91,6 +92,10 @@ public class VNCProtocol implements Runnable {
 			if (!connected && retry == RETRY_LIMIT) {
 				System.exit(0);
 			}
+		} catch (IOException e) {
+			throw new VNCConnectionException("Failed to connect to server: \"" + address + ":" + port + "\"");
+		}
+		try {
 			ui.setSize(width, height);
 			ui.show();
 			sendFormat();
@@ -127,11 +132,10 @@ public class VNCProtocol implements Runnable {
 					break;
 				default:
 					System.out.println("Unknown message id: " + id);
-					//throw new IOException();
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new VNCConnectionException("Connection ended");
 		}
 	}
 
