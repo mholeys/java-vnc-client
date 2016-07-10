@@ -298,11 +298,21 @@ public class VNCProtocol implements Runnable {
 	public void disconnect() {
 		ui.exit();
 		try {
-			out.close();
-			in.close();
-			dataOut.close();
-			dataIn.close();
-			socket.close();
+			if (out != null) {
+				out.close();
+			}
+			if (in != null) {
+				in.close();
+			}
+			if (dataOut != null) {
+				dataOut.close();
+			}
+			if (dataIn != null) {
+				dataIn.close();
+			}
+			if (socket != null) {
+				socket.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
