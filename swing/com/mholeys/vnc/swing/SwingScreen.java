@@ -117,7 +117,6 @@ public class SwingScreen implements IScreen {
 		}
 	}
 
-	@Override
 	public synchronized int[] getPixels() {
 		return pixels;
 	}

@@ -23,7 +23,7 @@ public class SwingDisplay extends Canvas implements IDisplay {
 	private static final long serialVersionUID = 1L;
 
 	public JFrame frame;
-	public IScreen screen;
+	public SwingScreen screen;
 	boolean running = false;
 	private BufferStrategy bs;
 	private BufferedImage image;
@@ -146,7 +146,7 @@ public class SwingDisplay extends Canvas implements IDisplay {
 	public static void main(String[] args) {
 		SwingInterface i = new SwingInterface();
 		try {
-			VNCProtocol vnc = new VNCProtocol("192.168.0.2", 5901, new FixedPassword(), i);
+			VNCProtocol vnc = new VNCProtocol("192.168.0.2", 5901, new FixedPassword(""), i);
 			Thread t = new Thread(vnc);
 			t.start();
 		} catch (UnknownHostException e) {

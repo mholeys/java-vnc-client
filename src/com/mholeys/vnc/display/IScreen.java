@@ -14,8 +14,6 @@ public interface IScreen {
 
 	public void moveCursor(int x, int y, int width, int height, int[] cursorData);
 
-	public int[] getPixels();
-	
 	public void setSize(int width, int height);
 	
 	public int getWidth();
