@@ -2,9 +2,9 @@ package com.mholeys.vnc.display;
 
 public class FixedPassword implements IPasswordRequester {
 
-	private String password;
+	String password;
 	
-	public FixedPassword(String password) { 
+	public FixedPassword(String password) {
 		this.password = password;
 	}
 	

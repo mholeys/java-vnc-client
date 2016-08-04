@@ -9,10 +9,6 @@ public interface IDisplay extends Runnable {
 	 */
 	public void render();
 	
-	public boolean sendPointer();
-	
-	public PointerPoint getLocalPointer();
-	
 	public void start();
 	
 	public Thread getThread();

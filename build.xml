@@ -27,7 +27,7 @@
     	<!-- Saves all the code into jars -->
         <mkdir dir="dist"/>
         <jar jarfile="${dist}/vnc.jar" basedir="${build-vnc}"/>
-        <jar jarfile="${dist}/swing-vnc-.jar" basedir="${build-swing}">
+        <jar jarfile="${dist}/swing-vnc.jar" basedir="${build-swing}">
         	<manifest>
         	    <attribute name="Main-Class" value="${main-swing}" />
     	    </manifest>

@@ -3,44 +3,63 @@ package com.mholeys.vnc.swing;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.LinkedList;
+import java.util.Queue;
 
-public class Mouse extends MouseAdapter {
+import com.mholeys.vnc.data.PointerPoint;
+import com.mholeys.vnc.display.IMouseManager;
+
+public class Mouse extends MouseAdapter implements IMouseManager {
 	
 	SwingDisplay display;
+	
+	public Queue<PointerPoint> miceUpdates = new LinkedList<PointerPoint>();
+	
+	public boolean left, right, middle;
+	
+	public short localX, localY;
+	public short remoteX, remoteY;
+
+	public boolean mouseOnScreen;
 	
 	public Mouse(SwingDisplay display) {
 		this.display = display;
 	}
 	
 	@Override
-	public void mouseClicked(MouseEvent e) {
+	public void mousePressed(MouseEvent e) {
+		left = false;
+		right = false;
+		middle = false;
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			display.left = true;
-			display.mouseChanged = true;
+			left = true;
+		} else if (e.getButton() == MouseEvent.BUTTON2) {
+			right = true;
+		} else if (e.getButton() == MouseEvent.BUTTON3) {
+			middle = true;
 		}
-		if (e.getButton() == MouseEvent.BUTTON2) {
-			display.right = true;
-			display.mouseChanged = true;
-		}
-		if (e.getButton() == MouseEvent.BUTTON3) {
-			display.middle = true;
-			display.mouseChanged = true;
+		PointerPoint p = new PointerPoint(localX, localY);
+		p.left = left;
+		p.right = right;
+		p.middle = middle;
+		boolean allowed = miceUpdates.offer(p);
+		if (!allowed) {
+			System.out.println("Could not queue mouse");
 		}
 	}
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON1) {
-			display.mouseChanged = true;
-			display.left = false;
-		}
-		if (e.getButton() == MouseEvent.BUTTON2) {
-			display.right = false;
-			display.mouseChanged = true;
-		}
-		if (e.getButton() == MouseEvent.BUTTON3) {
-			display.middle = false;
-			display.mouseChanged = true;
+		left = false;
+		right = false;
+		middle = false;
+		PointerPoint p = new PointerPoint(localX, localY);
+		p.left = left;
+		p.right = right;
+		p.middle = middle;
+		boolean allowed = miceUpdates.offer(p);
+		if (!allowed) {
+			System.out.println("Could not queue mouse");
 		}
 	}
 	
@@ -56,19 +75,61 @@ public class Mouse extends MouseAdapter {
 	
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		display.x = display.convertX((short) e.getX());
-		display.y = display.convertY((short) e.getY());
-		display.mouseChanged = true;
+		localX = display.convertX((short) e.getX());
+		localY = display.convertY((short) e.getY());
+		PointerPoint p = new PointerPoint(localX, localY);
+		p.left = left;
+		p.right = right;
+		p.middle = middle;
+		boolean allowed = miceUpdates.offer(p);
+		if (!allowed) {
+			System.out.println("Could not queue mouse");
+		}
+	}
+	
+	public void mouseDragged(MouseEvent e) {
+		localX = display.convertX((short) e.getX());
+		localY = display.convertY((short) e.getY());
+		PointerPoint p = new PointerPoint(localX, localY);
+		p.left = left;
+		p.right = right;
+		p.middle = middle;
+		boolean allowed = miceUpdates.offer(p);
+		if (!allowed) {
+			System.out.println("Could not queue mouse");
+		}
 	}
 	
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		display.mouseOnScreen = true;
+		mouseOnScreen = true;
 	}
 	
 	@Override
 	public void mouseExited(MouseEvent e) {
-		display.mouseOnScreen = false;
+		mouseOnScreen = false;
+	}
+
+	@Override
+	public boolean sendLocalMouse() {
+		/*if (mouseChanged) {
+			mouseChanged = false;
+			return true;
+		}
+		return false;*/
+		return !miceUpdates.isEmpty();
+	}
+
+	@Override
+	public PointerPoint getLocalMouse() {
+		PointerPoint p = miceUpdates.poll();
+		return p;
+	}
+
+	@Override
+	public void setRemoteMouse(PointerPoint remote) {
+		remoteX = remote.x;
+		remoteY = remote.y;
 	}
 	
 }

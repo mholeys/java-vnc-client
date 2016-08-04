@@ -9,7 +9,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.zip.Inflater;
 
-import com.mholeys.vnc.VNCConnectionException;
 import com.mholeys.vnc.auth.Authentication;
 import com.mholeys.vnc.auth.NoAuthentication;
 import com.mholeys.vnc.auth.TightVNCAuthentication;
@@ -18,9 +17,7 @@ import com.mholeys.vnc.data.Encoding;
 import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.data.PointerPoint;
 import com.mholeys.vnc.display.IPasswordRequester;
-import com.mholeys.vnc.display.IScreen;
 import com.mholeys.vnc.display.IUserInterface;
-import com.mholeys.vnc.encoding.CursorPseudoEncoding;
 import com.mholeys.vnc.encoding.ZLibStream;
 import com.mholeys.vnc.message.ClientInitMessage;
 import com.mholeys.vnc.message.ServerInitMessage;
@@ -92,12 +89,8 @@ public class VNCProtocol implements Runnable {
 			if (!connected && retry == RETRY_LIMIT) {
 				System.exit(0);
 			}
-		} catch (IOException e) {
-			throw new VNCConnectionException("Failed to connect to server: \"" + address + ":" + port + "\"");
-		}
-		try {
 			ui.setSize(width, height);
-			ui.show();
+			ui.getDisplay().start();
 			sendFormat();
 			sendSetEncoding();
 			sendFrameBufferUpdateRequest(false);
@@ -115,7 +108,7 @@ public class VNCProtocol implements Runnable {
 				if (shouldRequest) {
 					sendFrameBufferUpdateRequest(true);
 				}
-				if (ui.getDisplay().sendPointer()) {
+				if (ui.getMouseManager().sendLocalMouse()) {
 					sendPointerUpdate();
 					//shouldRequest = true; //TODO implement local mouse to reduce bandwidth
 				}
@@ -132,10 +125,11 @@ public class VNCProtocol implements Runnable {
 					break;
 				default:
 					System.out.println("Unknown message id: " + id);
+					//throw new IOException();
 				}
 			}
 		} catch (IOException e) {
-			throw new VNCConnectionException("Connection ended");
+			e.printStackTrace();
 		}
 	}
 
@@ -264,7 +258,7 @@ public class VNCProtocol implements Runnable {
 		//encodings.encodings.add(Encoding.COPY_RECT_ENCODING.getStartID());
 		encodings.encodings.add(Encoding.JPEG_QUALITY_LEVEL_PSEUDO_ENCODING.getEndID());
 		encodings.encodings.add(Encoding.COMPRESSION_LEVEL_PSEUDO_ENCODING.getEndID());
-		encodings.encodings.add(Encoding.CURSOR_PSEUDO_ENCODING.getStartID());
+		//encodings.encodings.add(Encoding.CURSOR_PSEUDO_ENCODING.getStartID());
 		
 		encodings.sendMessage();
 	}
@@ -280,7 +274,7 @@ public class VNCProtocol implements Runnable {
 	}
 
 	public void sendPointerUpdate() throws IOException {
-		PointerPoint p = ui.getDisplay().getLocalPointer();
+		PointerPoint p = ui.getMouseManager().getLocalMouse();
 		if (p != null) {
 			PointerEvent pEvent = new PointerEvent(socket);
 			pEvent.x = p.x;
@@ -293,29 +287,6 @@ public class VNCProtocol implements Runnable {
 	public void readFrameBufferUpdate() throws IOException {
 		FrameBufferUpdate update = new FrameBufferUpdate(socket, ui.getScreen(), format, streams);
 		update.receiveMessage();
-	}
-	
-	public void disconnect() {
-		ui.exit();
-		try {
-			if (out != null) {
-				out.close();
-			}
-			if (in != null) {
-				in.close();
-			}
-			if (dataOut != null) {
-				dataOut.close();
-			}
-			if (dataIn != null) {
-				dataIn.close();
-			}
-			if (socket != null) {
-				socket.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 }

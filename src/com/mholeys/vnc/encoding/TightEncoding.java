@@ -96,6 +96,8 @@ public class TightEncoding extends Encode {
 				//Read compressed TightPixels
 				byte[] copyData = readCompressedData(dataIn, width*height*3, stream);
 				int[] pixels = convertDataToTightPixels(copyData, width*height, 3);
+				//Decode copy filter
+				//Read pixels
 				screen.drawPixels(x, y, width, height, pixels);
 				break;
 			default: 

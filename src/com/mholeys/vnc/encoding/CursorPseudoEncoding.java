@@ -27,7 +27,7 @@ public class CursorPseudoEncoding extends Encode {
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
 		byte[] cursorData = new byte[width*height*4];
-		dataIn.read(cursorData);
+		dataIn.readFully(cursorData);
 		int lineWidth = (width + 7) / 8;
 		byte[] bitmask = new byte[lineWidth * height];
 		dataIn.readFully(bitmask);

@@ -12,7 +12,6 @@ import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 
-import com.mholeys.vnc.data.PointerPoint;
 import com.mholeys.vnc.display.FixedPassword;
 import com.mholeys.vnc.display.IDisplay;
 import com.mholeys.vnc.display.IScreen;
@@ -23,23 +22,23 @@ public class SwingDisplay extends Canvas implements IDisplay {
 	private static final long serialVersionUID = 1L;
 
 	public JFrame frame;
-	public SwingScreen screen;
+	private SwingInterface intf;
+	public IScreen screen;
 	boolean running = false;
 	private BufferStrategy bs;
 	private BufferedImage image;
 	private int[] pixels;
 	
+	private Mouse mouse;
+	
 	private Thread thread;
 	
 	private int width, height;
+
 	
-	short x, y;
-	boolean left, right, middle;
-	boolean mouseOnScreen = false;
-	boolean mouseChanged = false;
-	
-	public SwingDisplay(SwingScreen screen) {
-		this.screen = screen;
+	public SwingDisplay(SwingInterface intf) {
+		this.intf = intf;
+		this.screen = intf.getScreen();
 	}
 	
 	public void start() {
@@ -49,7 +48,8 @@ public class SwingDisplay extends Canvas implements IDisplay {
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		this.frame = new JFrame();
 		this.setPreferredSize(new Dimension(width, height));
-		Mouse mouse = new Mouse(this);
+		mouse = new Mouse(this);
+		this.intf.mouse = mouse;
 		this.addMouseListener(mouse);
 		this.addMouseMotionListener(mouse);
 		frame.add(this);
@@ -124,29 +124,10 @@ public class SwingDisplay extends Canvas implements IDisplay {
 		bs.show();
 	}
 
-	@Override
-	public boolean sendPointer() {
-		if (mouseOnScreen) {
-			if (mouseChanged) {
-				mouseChanged = false;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public PointerPoint getLocalPointer() {
-		PointerPoint p = new PointerPoint(x, y);
-		p.left = left;
-		p.right = right;
-		return p;
-	}
-
 	public static void main(String[] args) {
 		SwingInterface i = new SwingInterface();
 		try {
-			VNCProtocol vnc = new VNCProtocol("192.168.0.2", 5901, new FixedPassword(""), i);
+			VNCProtocol vnc = new VNCProtocol("192.168.0.2", 5901, new SwingPassword(), i);
 			Thread t = new Thread(vnc);
 			t.start();
 		} catch (UnknownHostException e) {
