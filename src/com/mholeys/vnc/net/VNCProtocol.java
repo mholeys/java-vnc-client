@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.zip.Inflater;
 
+import com.mholeys.vnc.VNCConnectionException;
 import com.mholeys.vnc.auth.Authentication;
 import com.mholeys.vnc.auth.NoAuthentication;
 import com.mholeys.vnc.auth.TightVNCAuthentication;
@@ -89,8 +90,12 @@ public class VNCProtocol implements Runnable {
 			if (!connected && retry == RETRY_LIMIT) {
 				System.exit(0);
 			}
+		} catch (IOException e) {
+			throw new VNCConnectionException("Failed to connect to server: \"" + address + ":" + port + "\"");
+		}
+		try {
 			ui.setSize(width, height);
-			ui.getDisplay().start();
+			ui.show();
 			sendFormat();
 			sendSetEncoding();
 			sendFrameBufferUpdateRequest(false);
@@ -110,7 +115,6 @@ public class VNCProtocol implements Runnable {
 				}
 				if (ui.getMouseManager().sendLocalMouse()) {
 					sendPointerUpdate();
-					//shouldRequest = true; //TODO implement local mouse to reduce bandwidth
 				}
 				shouldRequest = true;
 				if (dataIn.available() == 0) {
@@ -125,11 +129,10 @@ public class VNCProtocol implements Runnable {
 					break;
 				default:
 					System.out.println("Unknown message id: " + id);
-					//throw new IOException();
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new VNCConnectionException("Connection ended");
 		}
 	}
 
@@ -289,4 +292,25 @@ public class VNCProtocol implements Runnable {
 		update.receiveMessage();
 	}
 	
+	public void disconnect() {
+		ui.exit();
+		try {
+			if (out != null) {
+				out.close();
+			}
+			if (in != null) {
+				in.close();
+			}
+			if (dataOut != null) {
+				dataOut.close();
+			}
+			if (dataIn != null) {
+				dataIn.close();
+			}
+			if (socket != null) {
+				socket.close();
+			}
+		} catch (IOException e) {
+		}
+	}
 }

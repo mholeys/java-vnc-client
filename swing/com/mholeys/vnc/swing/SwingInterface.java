@@ -44,4 +44,9 @@ public class SwingInterface implements IUserInterface {
 		}
 	}
 
+	@Override
+	public void exit() {
+		
+	}
+
 }
