@@ -255,7 +255,7 @@ public class VNCProtocol implements Runnable {
 
 	public void sendSetEncoding() throws IOException {
 		SetEncodings encodings = new SetEncodings(socket);
-		//encodings.encodings.add(Encoding.TIGHT_ENCODING.getStartID());
+		encodings.encodings.add(Encoding.TIGHT_ENCODING.getStartID());
 		encodings.encodings.add(Encoding.ZLIB_ENCODING.getStartID());
 		encodings.encodings.add(Encoding.RAW_ENCODING.getStartID());
 		//encodings.encodings.add(Encoding.COPY_RECT_ENCODING.getStartID());
