@@ -15,6 +15,7 @@ import com.mholeys.vnc.auth.NoAuthentication;
 import com.mholeys.vnc.auth.TightVNCAuthentication;
 import com.mholeys.vnc.auth.VNCAuthentication;
 import com.mholeys.vnc.data.Encoding;
+import com.mholeys.vnc.data.EncodingSettings;
 import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.data.PointerPoint;
 import com.mholeys.vnc.display.IPasswordRequester;
@@ -42,6 +43,9 @@ public class VNCProtocol implements Runnable {
 	public DataOutputStream dataOut;
 	public DataInputStream dataIn;
 	
+	public EncodingSettings supportedEncodings;
+	public EncodingSettings DEFAULT_ENCODINGS;
+	
 	public IPasswordRequester password;
 	
 	public PixelFormat format;
@@ -52,11 +56,12 @@ public class VNCProtocol implements Runnable {
 	
 	private boolean running = false;
 	
-	public VNCProtocol(String address, int port, IPasswordRequester password, IUserInterface ui) throws UnknownHostException, IOException {
+	public VNCProtocol(String address, int port, IPasswordRequester password, IUserInterface ui, EncodingSettings supportedEncodings) throws UnknownHostException, IOException {
 		this.address = address;
 		this.port = port;
 		this.password = password;
 		this.ui = ui;
+		this.supportedEncodings = supportedEncodings;
 		running = true;
 	}
 	
@@ -255,13 +260,8 @@ public class VNCProtocol implements Runnable {
 
 	public void sendSetEncoding() throws IOException {
 		SetEncodings encodings = new SetEncodings(socket);
-		encodings.encodings.add(Encoding.TIGHT_ENCODING.getStartID());
-		encodings.encodings.add(Encoding.ZLIB_ENCODING.getStartID());
-		encodings.encodings.add(Encoding.RAW_ENCODING.getStartID());
-		//encodings.encodings.add(Encoding.COPY_RECT_ENCODING.getStartID());
-		encodings.encodings.add(Encoding.JPEG_QUALITY_LEVEL_PSEUDO_ENCODING.getEndID());
-		encodings.encodings.add(Encoding.COMPRESSION_LEVEL_PSEUDO_ENCODING.getEndID());
-		encodings.encodings.add(Encoding.CURSOR_PSEUDO_ENCODING.getStartID());
+		
+		encodings.addEncodings(supportedEncodings);
 		
 		encodings.sendMessage();
 	}
