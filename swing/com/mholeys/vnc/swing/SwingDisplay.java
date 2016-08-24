@@ -16,6 +16,7 @@ import com.mholeys.vnc.data.Encoding;
 import com.mholeys.vnc.data.EncodingSettings;
 import com.mholeys.vnc.display.IDisplay;
 import com.mholeys.vnc.display.IScreen;
+import com.mholeys.vnc.display.input.IConnectionInformation;
 import com.mholeys.vnc.display.input.SimpleConnection;
 import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.net.VNCProtocol;
@@ -137,9 +138,10 @@ public class SwingDisplay extends Canvas implements IDisplay {
 		es.addEncoding(Encoding.COMPRESSION_LEVEL_0_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);
 		
-		SimpleConnection connection;
+		IConnectionInformation connection;
 		try {
-			connection = new SimpleConnection("192.168.0.2", 5901, es, null, new SwingPassword());
+			connection = new SwingConnection(es, new SwingPassword());
+			//connection = new SimpleConnection("192.168.0.2", 5901, es, null, new SwingPassword());
 			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_DEBUG));
 			Thread t = new Thread(vnc);
 			t.start();
