@@ -1,6 +1,8 @@
 package com.mholeys.vnc.message.client;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -11,8 +13,8 @@ public class SetEncodings extends ClientSendMessage {
 
 	public ArrayList<Integer> encodings = new ArrayList<Integer>();
 	
-	public SetEncodings(Socket socket) {
-		super(socket);
+	public SetEncodings(Socket socket, InputStream in, OutputStream out) {
+	super(socket, in, out);
 	}
 	
 	public void addEncoding(int e) {

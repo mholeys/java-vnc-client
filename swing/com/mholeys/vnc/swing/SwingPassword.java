@@ -5,7 +5,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
-import com.mholeys.vnc.display.IPasswordRequester;
+import com.mholeys.vnc.display.input.IPasswordRequester;
 
 public class SwingPassword implements IPasswordRequester {
 

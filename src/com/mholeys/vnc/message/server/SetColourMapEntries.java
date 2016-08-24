@@ -1,17 +1,20 @@
 package com.mholeys.vnc.message.server;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 import com.mholeys.vnc.data.ColourMap;
+import com.mholeys.vnc.log.Logger;
 
 public class SetColourMapEntries extends ClientReceiveMessage {
 
 	public short numberOfColors;
 	public short firstColor;
 	
-	public SetColourMapEntries(Socket socket) {
-		super(socket);
+	public SetColourMapEntries(Socket socket, InputStream in, OutputStream out) {
+		super(socket, in, out);
 	}
 
 	@Override
@@ -21,14 +24,20 @@ public class SetColourMapEntries extends ClientReceiveMessage {
 
 	@Override
 	public Object receiveMessage() throws IOException {
+		Logger.logger.debugLn("Reading padding");
 		dataIn.readByte();
+		Logger.logger.debugLn("Reading first color of colour map");
 		firstColor = dataIn.readShort();
+		Logger.logger.debugLn("Reading number of colours");
 		numberOfColors = dataIn.readShort();
 		ColourMap[] colours = new ColourMap[numberOfColors];
 		for (int i = 0; i < numberOfColors; i++) {
 			colours[i] = new ColourMap();
+			Logger.logger.debugLn("Reading red of colour map");
 			colours[i].red = dataIn.readShort();
+			Logger.logger.debugLn("Reading green of colour map");
 			colours[i].green = dataIn.readShort();
+			Logger.logger.debugLn("Reading blue of color map");
 			colours[i].blue = dataIn.readShort();
 		}
 		return null;

@@ -1,6 +1,8 @@
 package com.mholeys.vnc.message.client;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 public class FramebufferUpdateRequest extends ClientSendMessage {
@@ -8,8 +10,8 @@ public class FramebufferUpdateRequest extends ClientSendMessage {
 	public short x, y, width, height;
 	public byte incremental;
 	
-	public FramebufferUpdateRequest(Socket socket) {
-		super(socket);
+	public FramebufferUpdateRequest(Socket socket, InputStream in, OutputStream out) {
+		super(socket, in, out);
 	}
 
 	@Override

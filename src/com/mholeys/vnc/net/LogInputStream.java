@@ -3,13 +3,18 @@ package com.mholeys.vnc.net;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+
+import com.mholeys.vnc.log.Logger;
 
 public class LogInputStream extends FilterInputStream {
 
-	public static boolean print = false;
+	public static boolean print = true;
+	public Logger logger;
 	
 	public LogInputStream(InputStream in) {
 		super(in);
+		logger = Logger.logger;
 	}
 	
 	@Override
@@ -23,7 +28,8 @@ public class LogInputStream extends FilterInputStream {
 			} else if (l == 1) {
 				h = "0"+h;
 			}
-			System.out.println(h);
+			
+			logger.debug(h + "\n");
 		}
 		return i;
 	}
@@ -40,9 +46,10 @@ public class LogInputStream extends FilterInputStream {
 				} else if (l == 1) {
 					h = "0"+h;
 				}
-				System.out.println(h);
+				logger.debug(h);
 			}
 		}
+		logger.debugLn("");
 		return i;
 	}
 

@@ -1,4 +1,4 @@
-package com.mholeys.vnc.display;
+package com.mholeys.vnc.display.input;
 
 public class FixedPassword implements IPasswordRequester {
 

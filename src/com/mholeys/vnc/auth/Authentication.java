@@ -16,10 +16,10 @@ public abstract class Authentication {
 	protected DataOutputStream dataOut;
 	protected String password;
 	
-	public Authentication(Socket socket, String password) throws IOException {
+	public Authentication(Socket socket, InputStream in, OutputStream out, String password) throws IOException {
 		this.socket = socket;
-		in = this.socket.getInputStream();
-		out = this.socket.getOutputStream();
+		this.in = in;
+		this.out = out;
 		dataIn = new DataInputStream(in);
 		dataOut = new DataOutputStream(out);
 		this.password = password;

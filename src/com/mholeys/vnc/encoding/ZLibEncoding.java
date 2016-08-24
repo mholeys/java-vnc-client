@@ -8,6 +8,7 @@ import java.util.zip.DataFormatException;
 
 import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.display.IDisplay;
+import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.util.ByteUtil;
 
 public class ZLibEncoding extends Encode {
@@ -30,10 +31,12 @@ public class ZLibEncoding extends Encode {
 	@Override
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
+		Logger.logger.debugLn("Reading length of zlib compressed data");
 		int length = dataIn.readInt();
 		
 		byte[] b = new byte[length];
 		int inOffset = 0;
+		Logger.logger.debugLn("Reading zlib compressed data");
 		while (inOffset < length) {
             int inCount = in.read(b, inOffset, length - inOffset);
             if (inCount == -1) {

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.mholeys.vnc.data.PixelFormat;
+import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.util.ByteUtil;
 
 public class CursorPseudoEncoding extends Encode {
@@ -27,9 +28,11 @@ public class CursorPseudoEncoding extends Encode {
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
 		byte[] cursorData = new byte[width*height*4];
+		Logger.logger.debugLn("Reading cursor data");
 		dataIn.readFully(cursorData);
 		int lineWidth = (width + 7) / 8;
 		byte[] bitmask = new byte[lineWidth * height];
+		Logger.logger.debugLn("Reading bitmask");
 		dataIn.readFully(bitmask);
 		boolean[] bits = ByteUtil.bytesToBits(bitmask);
 		

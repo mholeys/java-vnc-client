@@ -1,12 +1,14 @@
 package com.mholeys.vnc.auth;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 public class NoAuthentication extends Authentication {
 
-	public NoAuthentication(Socket socket, String password) throws IOException {
-		super(socket, password);
+	public NoAuthentication(Socket socket, InputStream in, OutputStream out, String password) throws IOException {
+		super(socket, in, out, password);
 	}
 
 	@Override

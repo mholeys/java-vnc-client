@@ -1,14 +1,16 @@
 package com.mholeys.vnc.message.client;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 public class ClientCutText extends ClientSendMessage {
 
 	public String text;
 	
-	public ClientCutText(Socket socket) {
-		super(socket);
+	public ClientCutText(Socket socket, InputStream in, OutputStream out) {
+		super(socket, in, out);
 	}
 
 	@Override

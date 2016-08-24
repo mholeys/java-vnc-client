@@ -2,7 +2,6 @@ package com.mholeys.vnc.message;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -15,14 +14,10 @@ public abstract class Message {
 	protected DataInputStream dataIn;
 	protected DataOutputStream dataOut;
 	
-	public Message(Socket socket) {
+	public Message(Socket socket, InputStream in, OutputStream out) {
 		this.socket = socket;
-		try {
-			this.in = socket.getInputStream();
-			this.out = socket.getOutputStream();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.in = in;
+		this.out = out;
 		this.dataIn = new DataInputStream(in);
 		this.dataOut = new DataOutputStream(out);
 	}

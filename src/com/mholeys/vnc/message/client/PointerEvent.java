@@ -1,17 +1,17 @@
 package com.mholeys.vnc.message.client;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-
-import com.mholeys.vnc.util.ByteUtil;
 
 public class PointerEvent extends ClientSendMessage {
 
 	public byte button;
 	public short x, y;
 	
-	public PointerEvent(Socket socket) {
-		super(socket);
+	public PointerEvent(Socket socket, InputStream in, OutputStream out) {
+		super(socket, in, out);
 	}
 
 	@Override

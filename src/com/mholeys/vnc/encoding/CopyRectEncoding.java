@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.mholeys.vnc.data.PixelFormat;
+import com.mholeys.vnc.log.Logger;
 
 public class CopyRectEncoding extends Encode {
 
@@ -26,7 +27,9 @@ public class CopyRectEncoding extends Encode {
 	@Override
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
+		Logger.logger.debugLn("Reading source pos x");
 		xSrc = dataIn.readShort();
+		Logger.logger.debugLn("Reading source pos y");
 		ySrc = dataIn.readShort();
 		screen.copyPixels(xSrc, ySrc, width, height, x, y);
 	}

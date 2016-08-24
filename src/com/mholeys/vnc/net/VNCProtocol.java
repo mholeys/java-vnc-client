@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.zip.Inflater;
@@ -14,13 +15,14 @@ import com.mholeys.vnc.auth.Authentication;
 import com.mholeys.vnc.auth.NoAuthentication;
 import com.mholeys.vnc.auth.TightVNCAuthentication;
 import com.mholeys.vnc.auth.VNCAuthentication;
-import com.mholeys.vnc.data.Encoding;
 import com.mholeys.vnc.data.EncodingSettings;
 import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.data.PointerPoint;
-import com.mholeys.vnc.display.IPasswordRequester;
 import com.mholeys.vnc.display.IUserInterface;
+import com.mholeys.vnc.display.input.IConnectionInformation;
+import com.mholeys.vnc.display.input.IPasswordRequester;
 import com.mholeys.vnc.encoding.ZLibStream;
+import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.message.ClientInitMessage;
 import com.mholeys.vnc.message.ServerInitMessage;
 import com.mholeys.vnc.message.client.FramebufferUpdateRequest;
@@ -34,7 +36,7 @@ public class VNCProtocol implements Runnable {
 	public static final int FRAME_BUFFER_UDPATE = 0;
 	public static final int RETRY_LIMIT = 5;
 	
-	public String address;
+	public InetAddress address;
 	public int port;
 	
 	public Socket socket;
@@ -44,7 +46,6 @@ public class VNCProtocol implements Runnable {
 	public DataInputStream dataIn;
 	
 	public EncodingSettings supportedEncodings;
-	public EncodingSettings DEFAULT_ENCODINGS;
 	
 	public IPasswordRequester password;
 	
@@ -54,23 +55,41 @@ public class VNCProtocol implements Runnable {
 	public String name;
 	public ZLibStream[] streams = new ZLibStream[5];
 	
+	public Logger logger;
+	
 	private boolean running = false;
 	
-	public VNCProtocol(String address, int port, IPasswordRequester password, IUserInterface ui, EncodingSettings supportedEncodings) throws UnknownHostException, IOException {
-		this.address = address;
-		this.port = port;
-		this.password = password;
+	public VNCProtocol(IConnectionInformation connection, IUserInterface ui, Logger logger) throws UnknownHostException, IOException {
+		this.address = connection.getAddress();
+		this.port = connection.getPort();
+		this.password = connection.getPasswordRequester();
 		this.ui = ui;
-		this.supportedEncodings = supportedEncodings;
+		this.logger = logger;
+		if (connection.hasPrefferedFormat()) {
+			this.format = connection.getPrefferedFormat();
+			if (this.format == null) {
+				this.format = PixelFormat.DEFAULT_FORMAT;
+			}
+		} else {
+			this.format = PixelFormat.DEFAULT_FORMAT;
+		}
+		if (connection.hasPrefferedEncoding()) {
+			this.supportedEncodings = connection.getPrefferedEncoding();
+			if (this.supportedEncodings == null) {
+				this.supportedEncodings = EncodingSettings.DEFAULT_ENCODINGS;				
+			}
+		} else {
+			this.supportedEncodings = EncodingSettings.DEFAULT_ENCODINGS;
+		}
 		running = true;
 	}
 	
-	public void initSocket(String address, int port) throws IOException {
+	public void initSocket(InetAddress address, int port) throws IOException {
 		if (socket != null) {
 			socket.close();
 		}
 		this.socket = new Socket(address, port);
-		in = socket.getInputStream();
+		in = new LogInputStream(socket.getInputStream());
 		out = socket.getOutputStream();
 		dataIn = new DataInputStream(in);
 		dataOut = new DataOutputStream(out);
@@ -125,6 +144,7 @@ public class VNCProtocol implements Runnable {
 				if (dataIn.available() == 0) {
 					continue;
 				}
+				logger.debugLn("Reading message id");
 				int id = dataIn.readByte();
 				
 				switch (id) {
@@ -143,6 +163,7 @@ public class VNCProtocol implements Runnable {
 
 	public boolean handshake() throws IOException {
 		byte[] serverVersionBytes = new byte[12];
+		logger.verboseLn("Reading server version");
 		dataIn.read(serverVersionBytes);
 		String serverVersion = new String(serverVersionBytes);
 		System.out.println("Server supports version: " + serverVersion);
@@ -150,13 +171,17 @@ public class VNCProtocol implements Runnable {
 		dataOut.writeBytes(version);
 
 		//Get number of security types
+		logger.debugLn("Reading number of security types");
 		int number = dataIn.readByte();
 		System.out.println(number + " types of security");
 		
 		if (number == 0) {
+			//Server denied connection and should return message
 			System.out.println("Connection error");
+			logger.debugLn("Reading length of error message");
 			int length = dataIn.readInt();
 			byte[] message = new byte[length];
+			logger.debugLn("Reading error message");
 			dataIn.readFully(message);
 			System.out.println(new String(message));
 		}
@@ -165,6 +190,7 @@ public class VNCProtocol implements Runnable {
 		
 		//Get the different types
 		byte[] types = new byte[number];
+		logger.debugLn("Reading security types");
 		dataIn.read(types);
 		
 		for (int i = 0; i < types.length; i++) {
@@ -197,12 +223,12 @@ public class VNCProtocol implements Runnable {
 		boolean tight = false;
 		Authentication auth = null;
 		if (tight_auth) {
-			auth = new TightVNCAuthentication(socket, pass);
+			auth = new TightVNCAuthentication(socket, in, out, pass);
 			tight = true;
 		} else if (vnc_auth) {
-			auth = new VNCAuthentication(socket, pass);
+			auth = new VNCAuthentication(socket, in, out, pass);
 		} else if (none) {
-			auth = new NoAuthentication(socket, null);
+			auth = new NoAuthentication(socket, in, out, null);
 		}
 		if (auth == null) {
 			System.err.println("No common authentication");
@@ -218,14 +244,14 @@ public class VNCProtocol implements Runnable {
 			return false;
 		}
 		
-		ClientInitMessage clientInit = new ClientInitMessage(socket);
+		ClientInitMessage clientInit = new ClientInitMessage(socket, in, out);
 		clientInit.sendMessage();
 		
 		if (tight) {
 			System.out.println("Connected via tight");
 		}
 		
-		ServerInitMessage serverInit = new ServerInitMessage(socket, tight);
+		ServerInitMessage serverInit = new ServerInitMessage(socket, in, out, tight);
 		serverInit.receiveMessage();
 		name = serverInit.name;
 		width = serverInit.framebufferWidth;
@@ -242,24 +268,14 @@ public class VNCProtocol implements Runnable {
 	}
 	
 	public void sendFormat() throws IOException {
-		SetPixelFormatMessage pixelFormat = new SetPixelFormatMessage(socket);
-		PixelFormat format = new PixelFormat();
-		format.bitsPerPixel = 32;
-		format.depth = 24;
-		format.bigEndianFlag = true;
-		format.trueColorFlag = true;
-		format.redMax = 255;
-		format.greenMax = 255;
-		format.blueMax = 255;
-		format.redShift = 16;
-		format.greenShift = 8;
-		format.blueShift = 0;
+		SetPixelFormatMessage pixelFormat = new SetPixelFormatMessage(socket, in, out);
+		
 		pixelFormat.format = format;
 		pixelFormat.sendMessage();
 	}
 
 	public void sendSetEncoding() throws IOException {
-		SetEncodings encodings = new SetEncodings(socket);
+		SetEncodings encodings = new SetEncodings(socket, in, out);
 		
 		encodings.addEncodings(supportedEncodings);
 		
@@ -267,7 +283,7 @@ public class VNCProtocol implements Runnable {
 	}
 	
 	public void sendFrameBufferUpdateRequest(boolean incremental) throws IOException {
-		FramebufferUpdateRequest fbRequest = new FramebufferUpdateRequest(socket);
+		FramebufferUpdateRequest fbRequest = new FramebufferUpdateRequest(socket, in, out);
 		fbRequest.incremental = (byte) (incremental ? 1 : 0);
 		fbRequest.x = 0;
 		fbRequest.y = 0;
@@ -279,7 +295,7 @@ public class VNCProtocol implements Runnable {
 	public void sendPointerUpdate() throws IOException {
 		PointerPoint p = ui.getMouseManager().getLocalMouse();
 		if (p != null) {
-			PointerEvent pEvent = new PointerEvent(socket);
+			PointerEvent pEvent = new PointerEvent(socket, in, out);
 			pEvent.x = p.x;
 			pEvent.y = p.y;
 			pEvent.setClick(p.left, p.right);
@@ -288,7 +304,7 @@ public class VNCProtocol implements Runnable {
 	}
 
 	public void readFrameBufferUpdate() throws IOException {
-		FrameBufferUpdate update = new FrameBufferUpdate(socket, ui.getScreen(), format, streams);
+		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, ui.getScreen(), format, streams);
 		update.receiveMessage();
 	}
 	

@@ -1,26 +1,33 @@
 package com.mholeys.vnc.auth;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
+import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.message.Capability;
 
 public class TightVNCAuthentication extends Authentication {
 
-	public TightVNCAuthentication(Socket socket, String password) throws IOException {
-		super(socket, password);
+	public TightVNCAuthentication(Socket socket, InputStream in, OutputStream out, String password) throws IOException {
+		super(socket, in, out, password);
 	}
 
 	@Override
 	public boolean authenticate() throws IOException {
+		Logger.logger.debugLn("Reading tunnel count");
 		int tunnelCount = dataIn.readInt();
 		boolean noTunnel = false;
 		for (int i = 0 ; i < tunnelCount; i++) {
+			Logger.logger.debugLn("Reading tunnel code");
 			int code = dataIn.readInt();
 			byte[] d = new byte[4];
+			Logger.logger.debugLn("Reading vendor");
 			dataIn.read(d);
 			String vendor = new String(d);
 			d = new byte[8];
+			Logger.logger.debugLn("Reading signature");
 			dataIn.read(d);
 			String signature = new String(d);
 			if (code == 0) {
@@ -37,8 +44,10 @@ public class TightVNCAuthentication extends Authentication {
 			}
 		}
 		boolean none = false, vnc = false, vencrypt = false, sasl = false, unix = false, external = false;
+		Logger.logger.debugLn("Reading number of authentications");
 		int authTypeCount = dataIn.readInt();
 		for (int i = 0; i < authTypeCount; i++) {
+			Logger.logger.verboseLn("Reading capability");
 			Capability c = new Capability();
 			c.read(dataIn);
 			if (c.code == 1 && c.vendor.equals("STDV") && c.signature.equals("NOAUTH")) {
@@ -59,11 +68,11 @@ public class TightVNCAuthentication extends Authentication {
 		Authentication auth = null;
 		boolean authenticated = false;
 		if (vnc) {
-			auth = new VNCAuthentication(socket, password);
+			auth = new VNCAuthentication(socket, in, out, password);
 		} else if (none) {
-			auth = new NoAuthentication(socket, password);
+			auth = new NoAuthentication(socket, in, out, password);
 		} else if (authTypeCount == 0) {
-			auth = new NoAuthentication(socket, password);
+			auth = new NoAuthentication(socket, in, out, password);
 		}
 		if (auth != null) {
 			dataOut.writeInt(auth.getSecurityId());

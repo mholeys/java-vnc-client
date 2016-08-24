@@ -1,6 +1,8 @@
 package com.mholeys.vnc.message.client;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 public class SetDesktopSize extends ClientSendMessage {
@@ -9,8 +11,8 @@ public class SetDesktopSize extends ClientSendMessage {
 	//TODO add screens
 	// https://github.com/rfbproto/rfbproto/blob/master/rfbproto.rst#setdesktopsize
 	
-	public SetDesktopSize(Socket socket) {
-		super(socket);
+	public SetDesktopSize(Socket socket, InputStream in, OutputStream out) {
+		super(socket, in, out);
 	}
 
 	@Override

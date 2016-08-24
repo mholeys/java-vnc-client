@@ -1,7 +1,11 @@
 package com.mholeys.vnc.auth;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+
+import com.mholeys.vnc.log.Logger;
 
 public class VenCryptAuthentication extends Authentication {
 
@@ -9,23 +13,29 @@ public class VenCryptAuthentication extends Authentication {
 	public final static byte VERSION_MAJOR = 0;
 	public final static byte VERSION_MINOR = 2;
 	
-	public VenCryptAuthentication(Socket socket, String password) throws IOException {
-		super(socket, password);
+	public VenCryptAuthentication(Socket socket, InputStream in, OutputStream out, String password) throws IOException {
+		super(socket, in, out, password);
 	}
 
 	@Override
 	public boolean authenticate() throws IOException {
+		Logger.logger.verboseLn("Reading server version");
+		Logger.logger.debugLn("Reading server major version");
 		byte serverMajor = dataIn.readByte();
+		Logger.logger.debugLn("Reading server minor version");
 		byte serverMinor = dataIn.readByte();
 		if (serverMajor < VERSION_MAJOR || serverMinor < VERSION_MINOR) {
+			Logger.logger.printLn("Versions do not match so cannot authenticate");
 			return false;
 		}
 		dataOut.writeByte(VERSION_MAJOR);
 		dataOut.writeByte(VERSION_MINOR);
+		Logger.logger.debugLn("Reading acknowledgment");
 		byte ack = dataIn.readByte();
 		if (ack != 0) {
 			return false;
 		}
+		Logger.logger.debugLn("Reading subtype count");
 		byte subtypeCount = dataIn.readByte();
 		int[] subtypes = new int[subtypeCount];
 		
@@ -38,6 +48,7 @@ public class VenCryptAuthentication extends Authentication {
 		final int SASL = 3;
 		
 		for (int i = 0; i < subtypeCount; i++) {
+			Logger.logger.debugLn("Reading subtype");
 			subtypes[i] = dataIn.readInt();
 			switch (subtypes[i]) {
 			case 256:

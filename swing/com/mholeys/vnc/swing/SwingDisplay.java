@@ -14,9 +14,10 @@ import javax.swing.JFrame;
 
 import com.mholeys.vnc.data.Encoding;
 import com.mholeys.vnc.data.EncodingSettings;
-import com.mholeys.vnc.display.FixedPassword;
 import com.mholeys.vnc.display.IDisplay;
 import com.mholeys.vnc.display.IScreen;
+import com.mholeys.vnc.display.input.SimpleConnection;
+import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.net.VNCProtocol;
 
 public class SwingDisplay extends Canvas implements IDisplay {
@@ -129,15 +130,17 @@ public class SwingDisplay extends Canvas implements IDisplay {
 	public static void main(String[] args) {
 		SwingInterface i = new SwingInterface();
 		EncodingSettings es = new EncodingSettings();
-		//es.addEncoding(Encoding.TIGHT_ENCODING);
+		es.addEncoding(Encoding.TIGHT_ENCODING);
 		es.addEncoding(Encoding.ZLIB_ENCODING);
 		es.addEncoding(Encoding.RAW_ENCODING);
 		es.addEncoding(Encoding.JPEG_QUALITY_LEVEL_1_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.COMPRESSION_LEVEL_0_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);
 		
+		SimpleConnection connection;
 		try {
-			VNCProtocol vnc = new VNCProtocol("192.168.0.2", 5901, new SwingPassword(), i, es);
+			connection = new SimpleConnection("192.168.0.2", 5901, es, null, new SwingPassword());
+			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_DEBUG));
 			Thread t = new Thread(vnc);
 			t.start();
 		} catch (UnknownHostException e) {

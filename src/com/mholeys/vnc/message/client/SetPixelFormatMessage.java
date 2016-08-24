@@ -1,6 +1,8 @@
 package com.mholeys.vnc.message.client;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 import com.mholeys.vnc.data.PixelFormat;
@@ -9,8 +11,8 @@ public class SetPixelFormatMessage extends ClientSendMessage {
 
 	public PixelFormat format;
 	
-	public SetPixelFormatMessage(Socket socket) {
-		super(socket);
+	public SetPixelFormatMessage(Socket socket, InputStream in, OutputStream out) {
+		super(socket, in, out);
 	}
 
 	@Override
