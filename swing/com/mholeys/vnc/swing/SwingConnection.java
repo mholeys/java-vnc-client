@@ -1,5 +1,6 @@
 package com.mholeys.vnc.swing;
 
+<<<<<<< HEAD
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -7,6 +8,20 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+=======
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.text.JTextComponent;
+>>>>>>> branch 'master' of git@bitbucket.org:mholeys/external-vnc.git
 
 import com.mholeys.vnc.data.EncodingSettings;
 import com.mholeys.vnc.data.PixelFormat;
