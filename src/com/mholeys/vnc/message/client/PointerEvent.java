@@ -29,17 +29,32 @@ public class PointerEvent extends ClientSendMessage {
 		return 5;
 	}
 
-	public void setClick(boolean left, boolean right) {
+	public void setClick(boolean left, boolean right, boolean middle, boolean mwUp, boolean mwDown) {
 		button = 0;
 		if (left) {
 			button |= 1; 
 		} else {
 			button &= 0xFF-1;
 		}
-		if (right) {
+		if (middle) {
 			button |= 2; 
 		} else {
 			button &= 0xFF-2;
+		}
+		if (right) {
+			button |= 4; 
+		} else {
+			button &= 0xFF-4;
+		}
+		if (mwUp) {
+			button |= 8; 
+		} else {
+			button &= 0xFF-8;
+		}
+		if (mwDown) {
+			button |= 16; 
+		} else {
+			button &= 0xFF-16;
 		}
 	}
 

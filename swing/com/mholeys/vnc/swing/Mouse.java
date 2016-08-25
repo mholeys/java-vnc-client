@@ -15,7 +15,7 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 	
 	public Queue<PointerPoint> miceUpdates = new LinkedList<PointerPoint>();
 	
-	public boolean left, right, middle;
+	public boolean left, right, middle, mwUp, mwDown;
 	
 	public short localX, localY;
 	public short remoteX, remoteY;
@@ -34,9 +34,9 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			left = true;
 		} else if (e.getButton() == MouseEvent.BUTTON2) {
-			right = true;
-		} else if (e.getButton() == MouseEvent.BUTTON3) {
 			middle = true;
+		} else if (e.getButton() == MouseEvent.BUTTON3) {
+			right = true;
 		}
 		PointerPoint p = new PointerPoint(localX, localY);
 		p.left = left;
@@ -65,11 +65,20 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 	
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e){
-		if (e.getWheelRotation() > 0) {
-			//scroll down
-		}
-		if (e.getWheelRotation() < 0) {
-			//scroll up
+		if (e.getWheelRotation() != 0) {
+			if (e.getWheelRotation() > 0) {
+				mwDown = true;
+			}
+			if (e.getWheelRotation() < 0) {
+				mwUp = true;
+			}
+			PointerPoint p = new PointerPoint(localX, localY);
+			p.mwUp = mwUp;
+			p.mwDown = mwDown;
+			boolean allowed = miceUpdates.offer(p);
+			if (!allowed) {
+				System.out.println("Could not queue mouse");
+			}
 		}
 	}
 	

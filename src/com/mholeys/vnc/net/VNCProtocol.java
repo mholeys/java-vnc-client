@@ -298,7 +298,7 @@ public class VNCProtocol implements Runnable {
 			PointerEvent pEvent = new PointerEvent(socket, in, out);
 			pEvent.x = p.x;
 			pEvent.y = p.y;
-			pEvent.setClick(p.left, p.right);
+			pEvent.setClick(p.left, p.right, p.middle, p.mwUp, p.mwDown);
 			pEvent.sendMessage();
 		}
 	}

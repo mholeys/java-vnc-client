@@ -1,17 +1,12 @@
 package com.mholeys.vnc.swing;
 
-import java.awt.Component;
-import java.awt.FlowLayout;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
 
 import com.mholeys.vnc.data.EncodingSettings;
 import com.mholeys.vnc.data.PixelFormat;
