@@ -42,6 +42,8 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 		p.left = left;
 		p.right = right;
 		p.middle = middle;
+		p.mwUp = mwUp;
+		p.mwDown = mwDown;
 		boolean allowed = miceUpdates.offer(p);
 		if (!allowed) {
 			System.out.println("Could not queue mouse");
@@ -57,6 +59,8 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 		p.left = left;
 		p.right = right;
 		p.middle = middle;
+		p.mwUp = mwUp;
+		p.mwDown = mwDown;
 		boolean allowed = miceUpdates.offer(p);
 		if (!allowed) {
 			System.out.println("Could not queue mouse");
@@ -68,17 +72,24 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 		if (e.getWheelRotation() != 0) {
 			if (e.getWheelRotation() > 0) {
 				mwDown = true;
+				mwUp = false;
 			}
 			if (e.getWheelRotation() < 0) {
 				mwUp = true;
+				mwDown = false;
 			}
 			PointerPoint p = new PointerPoint(localX, localY);
+			p.left = left;
+			p.right = right;
+			p.middle = middle;
 			p.mwUp = mwUp;
 			p.mwDown = mwDown;
 			boolean allowed = miceUpdates.offer(p);
 			if (!allowed) {
 				System.out.println("Could not queue mouse");
 			}
+			mwUp = false;
+			mwDown = false;
 		}
 	}
 	
@@ -90,6 +101,8 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 		p.left = left;
 		p.right = right;
 		p.middle = middle;
+		p.mwUp = mwUp;
+		p.mwDown = mwDown;
 		boolean allowed = miceUpdates.offer(p);
 		if (!allowed) {
 			System.out.println("Could not queue mouse");
@@ -103,6 +116,8 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 		p.left = left;
 		p.right = right;
 		p.middle = middle;
+		p.mwUp = mwUp;
+		p.mwDown = mwDown;
 		boolean allowed = miceUpdates.offer(p);
 		if (!allowed) {
 			System.out.println("Could not queue mouse");

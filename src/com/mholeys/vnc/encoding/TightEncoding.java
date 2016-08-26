@@ -9,6 +9,7 @@ import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.net.LogInputStream;
 import com.mholeys.vnc.util.ByteUtil;
+import com.mholeys.vnc.util.ColorUtil;
 
 public class TightEncoding extends Encode {
 
@@ -53,7 +54,7 @@ public class TightEncoding extends Encode {
 		case FILL:
 			Logger.logger.verboseLn("Fill mode");
 			Logger.logger.debugLn("Reading tight pixel for fill");
-			int color = readTightPixel(dataIn);
+			int color = readTightPixel(dataIn, format);
 			screen.fillPixels(x, y, width, height, color);
 			break;
 		case JPEG:
@@ -86,7 +87,7 @@ public class TightEncoding extends Encode {
 				int[] palette = new int[256];
 				for (int i = 0; i < paletteSize; i++) {
 					Logger.logger.debugLn("Reading palette pixel");
-					palette[i] = readTightPixel(dataIn);
+					palette[i] = readTightPixel(dataIn, format);
 				}
 				int paletteDataLength = paletteSize == 2 ?
 						height * ((width + 7) / 8) :
@@ -97,16 +98,16 @@ public class TightEncoding extends Encode {
 				screen.drawPalette(x, y, width, height, palette, paletteSize, paletteData);
 				break;
 			case GRADIENT:
-				Logger.logger.verboseLn("Gradient. No code will cause problems if this is reached");
-				
+				Logger.logger.verboseLn("Gradient. No code. This will cause problems if this is reached");
+				System.exit(444);
 				break;
 			case COPY:
 				Logger.logger.verboseLn("Copy mode");
 				//Read compressed TightPixels
 				Logger.logger.debugLn("Reading copy mode TPixels");
-				byte[] copyData = readCompressedData(dataIn, width*height*3, stream);
+				byte[] copyData = readCompressedData(dataIn, width*height*format.depth/8, stream);
 				//Decode copy filter
-				int[] pixels = convertDataToTightPixels(copyData, width*height, 3);
+				int[] pixels = convertDataToTightPixels(copyData, width*height, format);
 				//Read pixels
 				screen.drawPixels(x, y, width, height, pixels);
 				break;
@@ -117,12 +118,18 @@ public class TightEncoding extends Encode {
 		}
 	}
 	
-	public static int readTightPixel(DataInputStream dataIn) throws IOException {
-		byte[] c = new byte[3];
-		dataIn.readFully(c);
+	public static int readTightPixel(DataInputStream dataIn, PixelFormat format) throws IOException {
 		byte[] b = new byte[4];
-		System.arraycopy(c, 0, b, 1, 3);
-		return ByteUtil.bytesToInt(b);
+		if (format.depth == 24 && format.bitsPerPixel == 32 && format.trueColorFlag) {
+			byte[] c = new byte[3];
+			dataIn.readFully(c);
+			b[3] = c[2];
+			b[2] = c[1];
+			b[1] = c[0];
+		} else {
+			dataIn.readFully(b);
+		}
+		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b));
 	}
 	
 	public static int readCompactInt(DataInputStream dataIn) throws IOException {
@@ -183,12 +190,24 @@ public class TightEncoding extends Encode {
 		return p;
 	}
 	
-	public static int[] convertDataToTightPixels(byte[] data, int dataSize, int size) {
+	public static int[] convertDataToTightPixels(byte[] data, int dataSize, PixelFormat format) {
+		int size = 4;
+		boolean reverse = false;
+		if (format.depth == 24 && format.bitsPerPixel == 32 && format.trueColorFlag) {
+			size = 3;
+			reverse = true;
+		}
 		int[] pixels = new int[dataSize];
 		for (int i = 0; i < dataSize; i++) {
 			byte[] p = new byte[4];
-			System.arraycopy(data, i*size, p, 4-size, size);
-			pixels[i] = ByteUtil.bytesToInt(p);
+			/*if (reverse) {
+				p[2] = data[i*size];
+				p[1] = data[i*size+1];
+				p[0] = data[i*size+2];
+			} else {*/
+				System.arraycopy(data, i*size, p, 4-size, size);
+			//}
+			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p));
 		}
 		return pixels;
 	}

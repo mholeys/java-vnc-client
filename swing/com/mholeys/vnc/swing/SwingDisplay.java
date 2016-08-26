@@ -18,8 +18,6 @@ import com.mholeys.vnc.display.IDisplay;
 import com.mholeys.vnc.display.IScreen;
 import com.mholeys.vnc.display.input.IConnectionInformation;
 
-import com.mholeys.vnc.display.input.SimpleConnection;
-
 import com.mholeys.vnc.log.Logger;
 
 import com.mholeys.vnc.net.VNCProtocol;
@@ -59,6 +57,7 @@ public class SwingDisplay extends Canvas implements IDisplay {
 		this.intf.mouse = mouse;
 		this.addMouseListener(mouse);
 		this.addMouseMotionListener(mouse);
+		this.addMouseWheelListener(mouse);
 		frame.add(this);
 		frame.pack();
 		frame.setVisible(true);
@@ -143,8 +142,8 @@ public class SwingDisplay extends Canvas implements IDisplay {
 		
 		IConnectionInformation connection;
 		try {
-			connection = new SwingConnection(es, new SwingPassword());
-			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_NONE));
+			connection = new SwingConnection(es, null, new SwingPassword());
+			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_DEBUG));
 			Thread t = new Thread(vnc);
 			t.start();
 		} catch (UnknownHostException e) {

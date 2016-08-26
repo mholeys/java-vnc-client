@@ -1,6 +1,9 @@
 package com.mholeys.vnc.util;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ByteUtil {
 
@@ -38,18 +41,38 @@ public class ByteUtil {
 		return convertToBits(new byte[] {b});
 	}
 	
+	
+	
 	public static int bytesToInt(byte[] b) {
 		byte[] bytes = new byte[4];
-		if (b.length > 4) {
-			System.arraycopy(b, 0, bytes, 0, 4);
-		} else if (b.length < 4) {
-			System.arraycopy(b, 0, bytes, 0, b.length);
-		} else {
-			System.arraycopy(b, 0, bytes, 0, 4);
+		if (b.length == 0) {
+			throw new ArrayIndexOutOfBoundsException();
 		}
-		ByteBuffer bb = ByteBuffer.wrap(bytes);
-		int i = bb.getInt();
-		return i;
+		if (b.length == 1) {
+			bytes[3] = b[0];
+		}
+		if (b.length == 2) {
+			bytes[3] = b[0];
+			bytes[2] = b[1];
+		}
+		if (b.length == 3) {
+			bytes[3] = b[0];
+			bytes[2] = b[1];
+			bytes[1] = b[2];
+		}
+		if (b.length == 4) {
+			bytes[3] = b[0];
+			bytes[2] = b[1];
+			bytes[1] = b[2];
+			bytes[0] = b[3];
+		}
+		
+		int result = 0;
+		for (int i = 0; i < bytes.length; i++) {
+			result = result | (bytes[bytes.length-1-i] & 0xff) << i*8;
+		}
+		
+		return result;
 	}
 	
 	public static short bytesToShort(byte[] bytes) {
@@ -163,5 +186,11 @@ public class ByteUtil {
 		}
 		return result;
 	}
+	
+	public static Object[] reverse(Object[] arr) {
+        List<Object> list = Arrays.asList(arr);
+        Collections.reverse(list);
+        return list.toArray();
+    }
 	
 }

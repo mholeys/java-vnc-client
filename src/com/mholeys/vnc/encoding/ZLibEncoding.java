@@ -10,6 +10,7 @@ import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.display.IDisplay;
 import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.util.ByteUtil;
+import com.mholeys.vnc.util.ColorUtil;
 
 public class ZLibEncoding extends Encode {
 
@@ -57,7 +58,7 @@ public class ZLibEncoding extends Encode {
 		for (int i = 0; i < width*height; i++) {
 			byte[] pixel = new byte[format.bitsPerPixel/8];
 			buff.read(pixel);
-			pixels[i] = ByteUtil.bytesToInt(pixel);
+			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel));
 		}
 		screen.drawPixels(x, y, width, height, pixels);
 	}

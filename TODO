@@ -1,4 +1,2 @@
 TODO
-	Look at copy mode of Tight, not reading enough data and so data is escaping and becoming messages
-TODO
-	Palette problem with 2 bit (not implemented) 
+	Add support for pixel format that isn't 32 bpp/24bit depth

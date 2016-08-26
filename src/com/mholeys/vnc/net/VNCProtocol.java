@@ -49,7 +49,7 @@ public class VNCProtocol implements Runnable {
 	
 	public IPasswordRequester password;
 	
-	public PixelFormat format;
+	public PixelFormat preferredFormat;
 	public int width, height;
 	public IUserInterface ui;
 	public String name;
@@ -66,12 +66,12 @@ public class VNCProtocol implements Runnable {
 		this.ui = ui;
 		this.logger = logger;
 		if (connection.hasPrefferedFormat()) {
-			this.format = connection.getPrefferedFormat();
-			if (this.format == null) {
-				this.format = PixelFormat.DEFAULT_FORMAT;
+			this.preferredFormat = connection.getPrefferedFormat();
+			if (this.preferredFormat == null) {
+				//this.preferredFormat = PixelFormat.DEFAULT_FORMAT;
 			}
 		} else {
-			this.format = PixelFormat.DEFAULT_FORMAT;
+			//this.preferredFormat = PixelFormat.DEFAULT_FORMAT;
 		}
 		if (connection.hasPrefferedEncoding()) {
 			this.supportedEncodings = connection.getPrefferedEncoding();
@@ -120,7 +120,9 @@ public class VNCProtocol implements Runnable {
 		try {
 			ui.setSize(width, height);
 			ui.show();
+			//if (preferredFormat != null) {
 			sendFormat();
+			//}
 			sendSetEncoding();
 			sendFrameBufferUpdateRequest(false);
 			long timer = System.currentTimeMillis();
@@ -153,7 +155,7 @@ public class VNCProtocol implements Runnable {
 					shouldRequest = true;
 					break;
 				default:
-					System.out.println("Unknown message id: " + id);
+					logger.verboseLn("Unknown message id: " + id);
 				}
 			}
 		} catch (IOException e) {
@@ -166,24 +168,24 @@ public class VNCProtocol implements Runnable {
 		logger.verboseLn("Reading server version");
 		dataIn.read(serverVersionBytes);
 		String serverVersion = new String(serverVersionBytes);
-		System.out.println("Server supports version: " + serverVersion);
+		logger.printLn("Server supports version: " + serverVersion);
 		String version = "RFB 003.008\n";
 		dataOut.writeBytes(version);
 
 		//Get number of security types
 		logger.debugLn("Reading number of security types");
 		int number = dataIn.readByte();
-		System.out.println(number + " types of security");
+		logger.printLn(number + " types of security");
 		
 		if (number == 0) {
 			//Server denied connection and should return message
-			System.out.println("Connection error");
+			logger.printLn("Connection error");
 			logger.debugLn("Reading length of error message");
 			int length = dataIn.readInt();
 			byte[] message = new byte[length];
 			logger.debugLn("Reading error message");
 			dataIn.readFully(message);
-			System.out.println(new String(message));
+			logger.printLn(new String(message));
 		}
 		
 		boolean invalid = false, none = false, vnc_auth = false, tight_auth = false, realvnc = false;
@@ -212,11 +214,11 @@ public class VNCProtocol implements Runnable {
 				break;
 			}
 		}
-		System.out.println("Invalid " + invalid);
-		System.out.println("None " + none);
-		System.out.println("VNC " + vnc_auth);
-		System.out.println("TightVNC " + tight_auth);
-		System.out.println("RealVNC " + realvnc);
+		logger.printLn("Invalid " + invalid);
+		logger.printLn("None " + none);
+		logger.printLn("VNC " + vnc_auth);
+		logger.printLn("TightVNC " + tight_auth);
+		logger.printLn("RealVNC " + realvnc);
 		
 		String pass = password.getPassword();
 		
@@ -231,7 +233,7 @@ public class VNCProtocol implements Runnable {
 			auth = new NoAuthentication(socket, in, out, null);
 		}
 		if (auth == null) {
-			System.err.println("No common authentication");
+			logger.printLn("No common authentication");
 			dataOut.writeByte(-1);
 			socket.close();
 			return false;
@@ -240,7 +242,7 @@ public class VNCProtocol implements Runnable {
 		boolean authenticated = auth.authenticate();
 		
 		if (!authenticated) {
-			System.out.println("Failed to authenticate");
+			logger.printLn("Failed to authenticate");
 			return false;
 		}
 		
@@ -248,7 +250,7 @@ public class VNCProtocol implements Runnable {
 		clientInit.sendMessage();
 		
 		if (tight) {
-			System.out.println("Connected via tight");
+			logger.printLn("Connected via tight");
 		}
 		
 		ServerInitMessage serverInit = new ServerInitMessage(socket, in, out, tight);
@@ -256,21 +258,22 @@ public class VNCProtocol implements Runnable {
 		name = serverInit.name;
 		width = serverInit.framebufferWidth;
 		height = serverInit.framebufferHeight;
-		format = serverInit.format;
+		preferredFormat = serverInit.format;
 		
-		System.out.println("Connected successfully to:");
-		System.out.println(serverInit.name);
-		System.out.println("Width: " + serverInit.framebufferWidth);
-		System.out.println("Height: " + serverInit.framebufferHeight);
-		System.out.println("Bits per pixel: " + format.bitsPerPixel);
-		System.out.println("Depth: " + format.depth);
+		logger.printLn("Connected successfully to:");
+		logger.printLn(serverInit.name);
+		logger.printLn("Width: " + serverInit.framebufferWidth);
+		logger.printLn("Height: " + serverInit.framebufferHeight);
+		logger.printLn("Bits per pixel: " + preferredFormat.bitsPerPixel);
+		logger.printLn("Depth: " + preferredFormat.depth);
 		return true;
 	}
 	
 	public void sendFormat() throws IOException {
 		SetPixelFormatMessage pixelFormat = new SetPixelFormatMessage(socket, in, out);
 		
-		pixelFormat.format = format;
+		pixelFormat.format = preferredFormat;
+		preferredFormat = preferredFormat;
 		pixelFormat.sendMessage();
 	}
 
@@ -304,7 +307,7 @@ public class VNCProtocol implements Runnable {
 	}
 
 	public void readFrameBufferUpdate() throws IOException {
-		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, ui.getScreen(), format, streams);
+		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, ui.getScreen(), preferredFormat, streams);
 		update.receiveMessage();
 	}
 	

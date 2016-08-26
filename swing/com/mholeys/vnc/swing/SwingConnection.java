@@ -19,9 +19,11 @@ public class SwingConnection implements IConnectionInformation {
 	private int port = -1;
 	private EncodingSettings settings;
 	private IPasswordRequester password;
+	private PixelFormat format;
 	
-	public SwingConnection(EncodingSettings settings, IPasswordRequester password) {
+	public SwingConnection(EncodingSettings settings, PixelFormat format, IPasswordRequester password) {
 		this.settings = settings;
+		this.format = format;
 		this.password = password;
 	}
 	
@@ -34,6 +36,8 @@ public class SwingConnection implements IConnectionInformation {
 			
 			panel.add(label);
 			panel.add(addressField);
+			
+			addressField.addAncestorListener(new RequestFocusListener());
 			
 			String[] options = new String[] { "OK", "Cancel" };
 			int option = JOptionPane.showOptionDialog(null, panel, "VNC Address", JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
@@ -60,6 +64,8 @@ public class SwingConnection implements IConnectionInformation {
 			panel.add(label);
 			panel.add(portField);
 			
+			portField.addAncestorListener(new RequestFocusListener());
+			
 			String[] options = new String[] { "OK", "Cancel" };
 			int option = JOptionPane.showOptionDialog(null, panel, "VNC Port", JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 			if (option == 0) {
@@ -73,12 +79,12 @@ public class SwingConnection implements IConnectionInformation {
 
 	@Override
 	public boolean hasPrefferedFormat() {
-		return false;
+		return format != null;
 	}
 
 	@Override
 	public PixelFormat getPrefferedFormat() {
-		return null;
+		return format;
 	}
 
 	@Override

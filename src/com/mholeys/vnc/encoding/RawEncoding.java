@@ -7,6 +7,7 @@ import java.io.InputStream;
 import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.util.ByteUtil;
+import com.mholeys.vnc.util.ColorUtil;
 
 public class RawEncoding extends Encode {
 
@@ -29,15 +30,12 @@ public class RawEncoding extends Encode {
 	@Override
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
-		int r = 0;
-		int g = 0;
-		int b = 0;
 		for (int i = 0; i < width * height; i++) {
 			byte[] pixel = new byte[format.bitsPerPixel/8];
 			Logger.logger.debugLn("Reading pixel");
 			dataIn.read(pixel);
-			// TODO add colour shifting based on format
-			pixels[i] = ByteUtil.bytesToInt(pixel);
+			int p = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel));
+			pixels[i] = p;
 		}
 		screen.drawPixels(x, y, width, height, pixels);
 	}

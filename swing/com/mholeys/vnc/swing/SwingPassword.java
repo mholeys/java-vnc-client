@@ -18,6 +18,8 @@ public class SwingPassword implements IPasswordRequester {
 		panel.add(label);
 		panel.add(passwordField);
 		
+		passwordField.addAncestorListener(new RequestFocusListener());
+		
 		String[] options = new String[] { "OK", "Cancel" };
 		int option = JOptionPane.showOptionDialog(null, panel, "VNC Password", JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		if (option == 0) {
