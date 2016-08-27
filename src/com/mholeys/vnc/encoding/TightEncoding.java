@@ -3,6 +3,8 @@ package com.mholeys.vnc.encoding;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.zip.DataFormatException;
 
 import com.mholeys.vnc.data.PixelFormat;
@@ -105,7 +107,11 @@ public class TightEncoding extends Encode {
 				Logger.logger.verboseLn("Copy mode");
 				//Read compressed TightPixels
 				Logger.logger.debugLn("Reading copy mode TPixels");
-				byte[] copyData = readCompressedData(dataIn, width*height*format.depth/8, stream);
+				int byteDataSize = format.bitsPerPixel/8; 
+				if (format.depth == 24 && format.bitsPerPixel == 32 && format.trueColorFlag) {
+					byteDataSize = format.depth/8;
+				}
+				byte[] copyData = readCompressedData(dataIn, width*height*byteDataSize, stream);
 				//Decode copy filter
 				int[] pixels = convertDataToTightPixels(copyData, width*height, format);
 				//Read pixels
@@ -119,17 +125,18 @@ public class TightEncoding extends Encode {
 	}
 	
 	public static int readTightPixel(DataInputStream dataIn, PixelFormat format) throws IOException {
-		byte[] b = new byte[4];
+		byte[] b = new byte[format.bitsPerPixel/8];
 		if (format.depth == 24 && format.bitsPerPixel == 32 && format.trueColorFlag) {
 			byte[] c = new byte[3];
 			dataIn.readFully(c);
-			b[3] = c[2];
+			System.arraycopy(c, 0, b, 0, 3);
+			/*b[3] = c[2];
 			b[2] = c[1];
-			b[1] = c[0];
+			b[1] = c[0];*/
 		} else {
 			dataIn.readFully(b);
 		}
-		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b));
+		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format));
 	}
 	
 	public static int readCompactInt(DataInputStream dataIn) throws IOException {
@@ -191,23 +198,16 @@ public class TightEncoding extends Encode {
 	}
 	
 	public static int[] convertDataToTightPixels(byte[] data, int dataSize, PixelFormat format) {
-		int size = 4;
-		boolean reverse = false;
+		//FIXME probably this causing the colour problem
+		int size = format.bitsPerPixel/8;
 		if (format.depth == 24 && format.bitsPerPixel == 32 && format.trueColorFlag) {
 			size = 3;
-			reverse = true;
 		}
 		int[] pixels = new int[dataSize];
 		for (int i = 0; i < dataSize; i++) {
 			byte[] p = new byte[4];
-			/*if (reverse) {
-				p[2] = data[i*size];
-				p[1] = data[i*size+1];
-				p[0] = data[i*size+2];
-			} else {*/
-				System.arraycopy(data, i*size, p, 4-size, size);
-			//}
-			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p));
+			System.arraycopy(data, i*size, p, 0, size);
+			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format));
 		}
 		return pixels;
 	}

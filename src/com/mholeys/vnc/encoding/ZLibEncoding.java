@@ -58,7 +58,7 @@ public class ZLibEncoding extends Encode {
 		for (int i = 0; i < width*height; i++) {
 			byte[] pixel = new byte[format.bitsPerPixel/8];
 			buff.read(pixel);
-			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel));
+			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format));
 		}
 		screen.drawPixels(x, y, width, height, pixels);
 	}

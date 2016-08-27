@@ -1,5 +1,7 @@
 package com.mholeys.vnc.util;
 
+import java.nio.ByteBuffer;
+
 import com.mholeys.vnc.data.PixelFormat;
 
 public class ColorUtil {
@@ -21,6 +23,13 @@ public class ColorUtil {
 		System.out.println(Integer.toHexString(cOut));
 		System.out.println(Integer.toBinaryString(cOut));
 		System.out.println(cOut);
+		
+		int test = 0x0000FF00;
+		byte[] testIntIn = ByteBuffer.allocate(4).putInt(test).array();
+		byte[] testIntOut = new byte[3];
+		System.arraycopy(testIntIn, 0, testIntOut, 0, 3);
+		int out = ByteBuffer.allocate(4).put(testIntOut).getInt();
+		System.out.println(Integer.toHexString(out));
 	}
 
 	public static int convertTo8888ARGB(PixelFormat format, int pixel) {

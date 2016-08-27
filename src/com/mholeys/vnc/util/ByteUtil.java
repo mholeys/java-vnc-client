@@ -1,9 +1,12 @@
 package com.mholeys.vnc.util;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import com.mholeys.vnc.data.PixelFormat;
 
 public class ByteUtil {
 
@@ -43,18 +46,19 @@ public class ByteUtil {
 	
 	
 	
-	public static int bytesToInt(byte[] b) {
-		byte[] bytes = new byte[4];
+	public static int bytesToInt(byte[] b, PixelFormat format) {
+		/*byte[] bytes = new byte[4];
 		if (b.length == 0) {
 			throw new ArrayIndexOutOfBoundsException();
-		}
+		}*/
 		if (b.length == 1) {
-			bytes[3] = b[0];
+			return (int) b[0] & 0xff;
 		}
 		if (b.length == 2) {
-			bytes[3] = b[0];
-			bytes[2] = b[1];
+			ByteOrder bo = format.bigEndianFlag ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+			return (int)((ByteBuffer) ByteBuffer.allocate(2).put(b).order(bo).flip()).getShort() & 0xFFFF;
 		}
+		/*
 		if (b.length == 3) {
 			bytes[3] = b[0];
 			bytes[2] = b[1];
@@ -72,7 +76,9 @@ public class ByteUtil {
 			result = result | (bytes[bytes.length-1-i] & 0xff) << i*8;
 		}
 		
-		return result;
+		return result;*/
+		ByteOrder bo = format.bigEndianFlag ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+		return ((ByteBuffer) ByteBuffer.allocate(4).put(b).order(bo).flip()).getInt();
 	}
 	
 	public static short bytesToShort(byte[] bytes) {

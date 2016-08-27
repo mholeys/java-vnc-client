@@ -1,2 +1,2 @@
 TODO
-	Add support for pixel format that isn't 32 bpp/24bit depth
+	Debug depth sizes that are none 8*n

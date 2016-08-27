@@ -34,7 +34,7 @@ public class RawEncoding extends Encode {
 			byte[] pixel = new byte[format.bitsPerPixel/8];
 			Logger.logger.debugLn("Reading pixel");
 			dataIn.read(pixel);
-			int p = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel));
+			int p = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format));
 			pixels[i] = p;
 		}
 		screen.drawPixels(x, y, width, height, pixels);
