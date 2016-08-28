@@ -37,25 +37,25 @@ public class ServerInitMessage extends RecieveMessage {
 		framebufferHeight = dataIn.readShort();
 		format = new PixelFormat();
 		Logger.logger.debugLn("Reading bits/pixel");
-		format.bitsPerPixel = dataIn.readByte();
+		format.setBitsPerPixel(dataIn.readByte());
 		Logger.logger.debugLn("Reading color depth");
-		format.depth = dataIn.readByte();
+		format.setDepth(dataIn.readByte());
 		Logger.logger.debugLn("Reading big endian flag");
-		format.bigEndianFlag = dataIn.readBoolean();
+		format.setBigEndianFlag(dataIn.readBoolean());
 		Logger.logger.debugLn("Reading true color flag");
-		format.trueColorFlag = dataIn.readBoolean();
+		format.setTrueColorFlag(dataIn.readBoolean());
 		Logger.logger.debugLn("Reading red max");
-		format.redMax = dataIn.readShort();
+		format.setRedMax(dataIn.readShort());
 		Logger.logger.debugLn("Reading green max");
-		format.greenMax = dataIn.readShort();
+		format.setGreenMax(dataIn.readShort());
 		Logger.logger.debugLn("Reading blue max");
-		format.blueMax = dataIn.readShort();
+		format.setBlueMax(dataIn.readShort());
 		Logger.logger.debugLn("Reading red shift");
-		format.redShift = dataIn.readByte();
+		format.setRedShift(dataIn.readByte());
 		Logger.logger.debugLn("Reading green shift");
-		format.greenShift = dataIn.readByte();
+		format.setGreenShift(dataIn.readByte());
 		Logger.logger.debugLn("Reading blue shift");
-		format.blueShift = dataIn.readByte();
+		format.setBlueShift(dataIn.readByte());
 		
 		//Padding
 		Logger.logger.debugLn("Reading 3 bytes of padding");

@@ -31,7 +31,7 @@ public class RawEncoding extends Encode {
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
 		for (int i = 0; i < width * height; i++) {
-			byte[] pixel = new byte[format.bitsPerPixel/8];
+			byte[] pixel = new byte[format.bytesPerPixel];
 			Logger.logger.debugLn("Reading pixel");
 			dataIn.read(pixel);
 			int p = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format));

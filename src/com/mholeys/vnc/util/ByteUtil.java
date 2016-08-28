@@ -51,6 +51,7 @@ public class ByteUtil {
 		if (b.length == 0) {
 			throw new ArrayIndexOutOfBoundsException();
 		}*/
+		ByteBuffer buff = ByteBuffer.allocate(4);
 		if (b.length == 1) {
 			return (int) b[0] & 0xff;
 		}
@@ -58,27 +59,17 @@ public class ByteUtil {
 			ByteOrder bo = format.bigEndianFlag ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
 			return (int)((ByteBuffer) ByteBuffer.allocate(2).put(b).order(bo).flip()).getShort() & 0xFFFF;
 		}
-		/*
 		if (b.length == 3) {
-			bytes[3] = b[0];
-			bytes[2] = b[1];
-			bytes[1] = b[2];
-		}
-		if (b.length == 4) {
-			bytes[3] = b[0];
-			bytes[2] = b[1];
-			bytes[1] = b[2];
-			bytes[0] = b[3];
+			byte[] c = new byte[4];
+			System.arraycopy(b, 0, c, 1, b.length);
+			b = c;
 		}
 		
-		int result = 0;
-		for (int i = 0; i < bytes.length; i++) {
-			result = result | (bytes[bytes.length-1-i] & 0xff) << i*8;
-		}
-		
-		return result;*/
-		ByteOrder bo = format.bigEndianFlag ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-		return ((ByteBuffer) ByteBuffer.allocate(4).put(b).order(bo).flip()).getInt();
+		ByteOrder bo = !format.bigEndianFlag ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+		buff.put(b);
+		buff.order(bo);
+		buff.flip();		
+		return buff.getInt();
 	}
 	
 	public static short bytesToShort(byte[] bytes) {

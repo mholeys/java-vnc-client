@@ -47,7 +47,7 @@ public class ZLibEncoding extends Encode {
             inOffset += inCount;
         }
 		//dataIn.read(b);
-		byte[] p = new byte[width*height*format.bitsPerPixel/8];
+		byte[] p = new byte[width*height*format.bytesPerPixel];
 		try {
 			stream.inflater.setInput(b);
 			stream.inflater.inflate(p);
@@ -56,7 +56,7 @@ public class ZLibEncoding extends Encode {
 		}
 		ByteArrayInputStream buff = new ByteArrayInputStream(p);
 		for (int i = 0; i < width*height; i++) {
-			byte[] pixel = new byte[format.bitsPerPixel/8];
+			byte[] pixel = new byte[format.bytesPerPixel];
 			buff.read(pixel);
 			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format));
 		}

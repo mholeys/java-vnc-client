@@ -35,7 +35,7 @@ public class TightEncoding extends Encode {
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
 		Logger.logger.debugLn("Reading compression control byte");
-		int compressionControl = dataIn.read();//.readUnsignedByte();
+		int compressionControl = dataIn.read();
 		boolean[] bit = ByteUtil.byteToBits((byte) compressionControl);
 		if (bit[0]) {
 			streams[0].inflater.reset();
@@ -107,10 +107,7 @@ public class TightEncoding extends Encode {
 				Logger.logger.verboseLn("Copy mode");
 				//Read compressed TightPixels
 				Logger.logger.debugLn("Reading copy mode TPixels");
-				int byteDataSize = format.bitsPerPixel/8; 
-				if (format.depth == 24 && format.bitsPerPixel == 32 && format.trueColorFlag) {
-					byteDataSize = format.depth/8;
-				}
+				int byteDataSize = format.bytesPerTPixel; 
 				byte[] copyData = readCompressedData(dataIn, width*height*byteDataSize, stream);
 				//Decode copy filter
 				int[] pixels = convertDataToTightPixels(copyData, width*height, format);
@@ -125,17 +122,8 @@ public class TightEncoding extends Encode {
 	}
 	
 	public static int readTightPixel(DataInputStream dataIn, PixelFormat format) throws IOException {
-		byte[] b = new byte[format.bitsPerPixel/8];
-		if (format.depth == 24 && format.bitsPerPixel == 32 && format.trueColorFlag) {
-			byte[] c = new byte[3];
-			dataIn.readFully(c);
-			System.arraycopy(c, 0, b, 0, 3);
-			/*b[3] = c[2];
-			b[2] = c[1];
-			b[1] = c[0];*/
-		} else {
-			dataIn.readFully(b);
-		}
+		byte[] b = new byte[format.bytesPerTPixel];
+		dataIn.readFully(b);
 		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format));
 	}
 	
@@ -198,14 +186,11 @@ public class TightEncoding extends Encode {
 	}
 	
 	public static int[] convertDataToTightPixels(byte[] data, int dataSize, PixelFormat format) {
-		//FIXME probably this causing the colour problem
-		int size = format.bitsPerPixel/8;
-		if (format.depth == 24 && format.bitsPerPixel == 32 && format.trueColorFlag) {
-			size = 3;
-		}
+		//FIXME probably this causing the colour problem (orange on bgr)
+		int size = format.bytesPerTPixel;
 		int[] pixels = new int[dataSize];
 		for (int i = 0; i < dataSize; i++) {
-			byte[] p = new byte[4];
+			byte[] p = new byte[size];
 			System.arraycopy(data, i*size, p, 0, size);
 			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format));
 		}
