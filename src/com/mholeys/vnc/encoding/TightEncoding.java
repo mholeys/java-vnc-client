@@ -57,7 +57,7 @@ public class TightEncoding extends Encode {
 			Logger.logger.verboseLn("Fill mode");
 			Logger.logger.debugLn("Reading tight pixel for fill");
 			int color = readTightPixel(dataIn, format);
-			screen.fillPixels(x, y, width, height, color);
+			render.drawFill(x, y, width, height, color);
 			break;
 		case JPEG:
 			Logger.logger.verboseLn("JPEG mode");
@@ -66,7 +66,7 @@ public class TightEncoding extends Encode {
 			byte[] jpegData = new byte[length];
 			Logger.logger.debugLn("Reading jpeg JFIF data");
 			dataIn.readFully(jpegData);
-			screen.drawJPEG(x, y, width, height, jpegData);
+			render.drawJPEG(x, y, width, height, jpegData);
 			break;
 		default:
 			int stream = (compressionControl & 0x30) >>> 4;
@@ -85,7 +85,7 @@ public class TightEncoding extends Encode {
 				//Decode palette filter
 				Logger.logger.debugLn("Reading palette size");
 				int paletteSize = dataIn.readUnsignedByte()+1;
-				Logger.logger.verboseLn("Palette Size: " + paletteSize);
+				Logger.logger.debugLn("Palette Size: " + paletteSize);
 				int[] palette = new int[256];
 				for (int i = 0; i < paletteSize; i++) {
 					Logger.logger.debugLn("Reading palette pixel");
@@ -97,7 +97,7 @@ public class TightEncoding extends Encode {
 				byte[] paletteData = new byte[paletteDataLength];
 				Logger.logger.debugLn("Reading compressed palette data");
 				paletteData = readCompressedData(dataIn, paletteDataLength, stream);
-				screen.drawPalette(x, y, width, height, palette, paletteSize, paletteData);
+				render.drawPalette(x, y, width, height, palette, paletteSize, paletteData);
 				break;
 			case GRADIENT:
 				Logger.logger.verboseLn("Gradient. No code. This will cause problems if this is reached");
@@ -112,7 +112,7 @@ public class TightEncoding extends Encode {
 				//Decode copy filter
 				int[] pixels = convertDataToTightPixels(copyData, width*height, format);
 				//Read pixels
-				screen.drawPixels(x, y, width, height, pixels);
+				render.drawRaw(x, y, width, height, pixels);
 				break;
 			default: 
 				break;
@@ -128,7 +128,7 @@ public class TightEncoding extends Encode {
 	}
 	
 	public static int readCompactInt(DataInputStream dataIn) throws IOException {
-		int b = dataIn.readUnsignedByte();
+		/*int b = dataIn.readUnsignedByte();
 		int size = b & 0x7F;
 		if ((b & 0x80) != 0) {
 			b = dataIn.readUnsignedByte();
@@ -137,10 +137,10 @@ public class TightEncoding extends Encode {
 				size += dataIn.readUnsignedByte() << 14;
 			}
 		}
-		return size;
+		return size;*/
 		
 		
-		/*int length = 0;
+		int length = 0;
 		byte b0 = dataIn.readByte();
 		byte b1;
 		byte b2;
@@ -160,7 +160,7 @@ public class TightEncoding extends Encode {
 			}
 		}
 		//System.out.println("L: " + length + " " + Integer.toBinaryString(length));
-		return length;*/
+		return length;
 	}
 
 	public byte[] readCompressedData(DataInputStream dataIn, int length, int stream) throws IOException {

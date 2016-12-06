@@ -60,7 +60,7 @@ public class ZLibEncoding extends Encode {
 			buff.read(pixel);
 			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format));
 		}
-		screen.drawPixels(x, y, width, height, pixels);
+		render.drawRaw(x, y, width, height, pixels);
 	}
 
 }

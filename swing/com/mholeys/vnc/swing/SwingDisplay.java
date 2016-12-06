@@ -1,36 +1,32 @@
 package com.mholeys.vnc.swing;
 
-import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import com.mholeys.vnc.data.Encoding;
 import com.mholeys.vnc.data.EncodingSettings;
 import com.mholeys.vnc.display.IDisplay;
 import com.mholeys.vnc.display.IScreen;
+import com.mholeys.vnc.display.UpdateManager;
 import com.mholeys.vnc.display.input.IConnectionInformation;
-
 import com.mholeys.vnc.log.Logger;
-
 import com.mholeys.vnc.net.VNCProtocol;
 
-public class SwingDisplay extends Canvas implements IDisplay {
+public class SwingDisplay extends JPanel implements IDisplay {
 
 	private static final long serialVersionUID = 1L;
 
 	public JFrame frame;
 	private SwingInterface intf;
 	public IScreen screen;
-	boolean running = false;
-	private BufferStrategy bs;
+	public UpdateManager updateManager;
 	private BufferedImage image;
 	private int[] pixels;
 	
@@ -43,6 +39,7 @@ public class SwingDisplay extends Canvas implements IDisplay {
 	
 	public SwingDisplay(SwingInterface intf) {
 		this.intf = intf;
+		this.updateManager = intf.getUpdateManager();
 		this.screen = intf.getScreen();
 	}
 	
@@ -62,7 +59,6 @@ public class SwingDisplay extends Canvas implements IDisplay {
 		frame.pack();
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		running = true;
 		
 		thread = new Thread(this);
 		thread.setName("Frame buffer thread");
@@ -78,56 +74,19 @@ public class SwingDisplay extends Canvas implements IDisplay {
 	}
 	
 	public void run() {
-		long lastTime = System.nanoTime();
-		long timer = System.currentTimeMillis();
-		final int MAX_UPDATES = 10;
-		final double NS = 1000000000.0 / MAX_UPDATES;
-		double delta = 0;
-		int frames = 0;
-		boolean alwaysRender = false;
-		boolean shouldRender = false;
-		while (running) {
-			shouldRender = false;
-			long now = System.nanoTime();
-			delta += (now - lastTime) / NS;
-			lastTime = now;
-			while (delta >= 1) {
-				delta--;
-				shouldRender = true;
-			}
-			if (shouldRender || alwaysRender) {
-				render();
-				frames++;
-			}
-			if (System.currentTimeMillis() - timer > 1000) {
-				timer += 1000;
-				frame.setTitle("FPS: " + frames);
-				frames = 0;
-			}
-		}
+
 	}
 
-	public void render() {
-		bs = getBufferStrategy();
-		if (bs == null) {
-			createBufferStrategy(3);
-			return;
-		}
-		
+	@Override
+	public void paint(Graphics g) {
+
 		int[] newPixels = screen.getPixels();
 		
 		for (int i = 0; i < width*height; i++) {
 			pixels[i] = newPixels[i];
 		}
 		
-		Graphics g = bs.getDrawGraphics();
-		g.setColor(Color.black);
-		g.fillRect(0, 0, getWidth(), getHeight());
-		
-		g.drawImage(image, 0, 0, width, height, null);
-		
-		g.dispose();
-		bs.show();
+		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 	}
 
 	public static void main(String[] args) {
@@ -136,14 +95,17 @@ public class SwingDisplay extends Canvas implements IDisplay {
 		es.addEncoding(Encoding.TIGHT_ENCODING);
 		es.addEncoding(Encoding.ZLIB_ENCODING);
 		es.addEncoding(Encoding.RAW_ENCODING);
+		es.addEncoding(Encoding.RRE_ENCODING);
+		es.addEncoding(Encoding.CORRE_ENCODING);
+		es.addEncoding(Encoding.COPY_RECT_ENCODING);
 		es.addEncoding(Encoding.JPEG_QUALITY_LEVEL_1_PSEUDO_ENCODING);
-		es.addEncoding(Encoding.COMPRESSION_LEVEL_0_PSEUDO_ENCODING);
+		es.addEncoding(Encoding.COMPRESSION_LEVEL_1_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);
 		
 		IConnectionInformation connection;
 		try {
 			connection = new SwingConnection(es, null, new SwingPassword());
-			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_DEBUG));
+			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_NONE));
 			Thread t = new Thread(vnc);
 			t.start();
 		} catch (UnknownHostException e) {

@@ -8,6 +8,8 @@ public class EncodingSettings {
 			.addEncoding(Encoding.TIGHT_ENCODING)
 			.addEncoding(Encoding.ZLIB_ENCODING)
 			.addEncoding(Encoding.RAW_ENCODING)
+			.addEncoding(Encoding.CORRE_ENCODING)
+			.addEncoding(Encoding.RRE_ENCODING)
 			.addEncoding(Encoding.JPEG_QUALITY_LEVEL_1_PSEUDO_ENCODING)
 			.addEncoding(Encoding.COMPRESSION_LEVEL_0_PSEUDO_ENCODING)
 			.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);

@@ -31,7 +31,7 @@ public class CopyRectEncoding extends Encode {
 		xSrc = dataIn.readShort();
 		Logger.logger.debugLn("Reading source pos y");
 		ySrc = dataIn.readShort();
-		screen.copyPixels(xSrc, ySrc, width, height, x, y);
+		render.drawCopy(xSrc, ySrc, width, height, x, y);
 	}
 
 }

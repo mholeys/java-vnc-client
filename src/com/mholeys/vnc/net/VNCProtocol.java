@@ -19,6 +19,7 @@ import com.mholeys.vnc.data.EncodingSettings;
 import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.data.PointerPoint;
 import com.mholeys.vnc.display.IUserInterface;
+import com.mholeys.vnc.display.UpdateManager;
 import com.mholeys.vnc.display.input.IConnectionInformation;
 import com.mholeys.vnc.display.input.IPasswordRequester;
 import com.mholeys.vnc.encoding.ZLibStream;
@@ -46,6 +47,8 @@ public class VNCProtocol implements Runnable {
 	public DataInputStream dataIn;
 	
 	public EncodingSettings supportedEncodings;
+	
+	public UpdateManager updateManager;
 	
 	public IPasswordRequester password;
 	
@@ -119,6 +122,8 @@ public class VNCProtocol implements Runnable {
 		}
 		try {
 			ui.setSize(width, height);
+			this.updateManager = new UpdateManager(width, height, ui.getScreen());
+			ui.setUpdateManager(updateManager);
 			ui.show();
 			//if (preferredFormat != null) {
 			sendFormat();
@@ -307,7 +312,7 @@ public class VNCProtocol implements Runnable {
 	}
 
 	public void readFrameBufferUpdate() throws IOException {
-		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, ui.getScreen(), preferredFormat, streams);
+		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, updateManager, preferredFormat, streams);
 		update.receiveMessage();
 	}
 	

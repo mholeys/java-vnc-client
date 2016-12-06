@@ -69,6 +69,10 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 	
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e){
+		PointerPoint reset = new PointerPoint(localX, localY);
+		reset.mwDown = false;
+		reset.mwUp = false;
+		miceUpdates.offer(reset);
 		if (e.getWheelRotation() != 0) {
 			if (e.getWheelRotation() > 0) {
 				mwDown = true;

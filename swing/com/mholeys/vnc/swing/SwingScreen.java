@@ -7,16 +7,23 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 
 import com.mholeys.vnc.display.IScreen;
+import com.mholeys.vnc.display.UpdateManager;
+import com.mholeys.vnc.display.data.CopyScreenUpdate;
+import com.mholeys.vnc.display.data.FillScreenUpdate;
+import com.mholeys.vnc.display.data.JPEGScreenUpdate;
+import com.mholeys.vnc.display.data.PaletteScreenUpdate;
+import com.mholeys.vnc.display.data.RawScreenUpdate;
+import com.mholeys.vnc.display.data.ScreenUpdate;
 
 public class SwingScreen implements IScreen {
 
 	public int width, height;
 	public int[] pixels;
+	public UpdateManager updateManager;
+	public SwingDisplay display;
+	
 	
 	public SwingScreen(int width, int height) {
 		this.width = width;
@@ -26,9 +33,9 @@ public class SwingScreen implements IScreen {
 	
 	@Override
 	public synchronized void drawPixels(int x, int y, int width, int height, int[] pixels) {
-		for (int yA = y; yA < y+height; yA++) {
-			for (int xA = x; xA < x+width; xA++) {
-				this.pixels[xA + yA * this.width] = pixels[(xA-x) + ((yA-y) * width)];
+		for (int yA = 0; yA < height; yA++) {
+			for (int xA = 0; xA < width; xA++) {
+				this.pixels[(xA+x) + (yA+y) * this.width] = pixels[xA + (yA * width)];
 			}
 		}
 	}
@@ -90,9 +97,10 @@ public class SwingScreen implements IScreen {
 
 	@Override
 	public synchronized void copyPixels(int xSrc, int ySrc, int width, int height, int xDest, int yDest) {
+		int[] copy = pixels.clone();
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				pixels[(x+xDest) + (y+yDest) * this.width] = pixels[(x+xSrc) + (y+ySrc) * this.width];
+				pixels[(x+xDest) + (y+yDest) * this.width] = copy[(x+xSrc) + (y+ySrc) * this.width];
 			}
 		}
 	}
@@ -116,7 +124,7 @@ public class SwingScreen implements IScreen {
 			}	
 		}
 	}
-
+	
 	@Override
 	public synchronized int[] getPixels() {
 		return pixels;
@@ -137,6 +145,34 @@ public class SwingScreen implements IScreen {
 	@Override
 	public int getHeight() {
 		return height;
+	}
+
+	public void process() {
+		while (updateManager.hasUpdates()) {
+			ScreenUpdate update = updateManager.getUpdate();
+			if (update == null) continue;
+			int x = update.x;
+			int y = update.y;
+			int width = update.width;
+			int height = update.height;
+			if (update instanceof RawScreenUpdate) {
+				RawScreenUpdate raw = (RawScreenUpdate) update;
+				drawPixels(x, y, width, height, raw.pixels);
+			} else if (update instanceof PaletteScreenUpdate) {
+				PaletteScreenUpdate palette = (PaletteScreenUpdate) update;
+				drawPalette(x, y, width, height, palette.palette, palette.paletteSize, palette.data);
+			} else if (update instanceof JPEGScreenUpdate) {
+				JPEGScreenUpdate jpeg = (JPEGScreenUpdate) update;
+				drawJPEG(x, y, width, height, jpeg.jpegData);
+			} else if (update instanceof CopyScreenUpdate) {
+				CopyScreenUpdate copy = (CopyScreenUpdate) update;
+				copyPixels(copy.xSrc, copy.ySrc, width, height, x, y);
+			} else if (update instanceof FillScreenUpdate) {
+				FillScreenUpdate fill = (FillScreenUpdate) update;
+				fillPixels(x, y, width, height, fill.pixel);
+			}
+		}
+		display.repaint();
 	}
 	
 }

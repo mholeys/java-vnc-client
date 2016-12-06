@@ -8,9 +8,11 @@ import java.net.Socket;
 import com.mholeys.vnc.data.Encoding;
 import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.data.PixelRectangle;
-import com.mholeys.vnc.display.IScreen;
+import com.mholeys.vnc.display.UpdateManager;
+import com.mholeys.vnc.encoding.CoRREEncoding;
 import com.mholeys.vnc.encoding.CopyRectEncoding;
 import com.mholeys.vnc.encoding.CursorPseudoEncoding;
+import com.mholeys.vnc.encoding.RREEncoding;
 import com.mholeys.vnc.encoding.RawEncoding;
 import com.mholeys.vnc.encoding.TightEncoding;
 import com.mholeys.vnc.encoding.ZLibEncoding;
@@ -19,13 +21,13 @@ import com.mholeys.vnc.log.Logger;
 
 public class FrameBufferUpdate extends ClientReceiveMessage {
 
-	public IScreen screen;
+	public UpdateManager updateManager;
 	public PixelFormat format;
 	public ZLibStream[] streams;
 	
-	public FrameBufferUpdate(Socket socket, InputStream in, OutputStream out, IScreen screen, PixelFormat format, ZLibStream[] streams) {
+	public FrameBufferUpdate(Socket socket, InputStream in, OutputStream out, UpdateManager updateManager, PixelFormat format, ZLibStream[] streams) {
 		super(socket, in, out);
-		this.screen = screen;
+		this.updateManager = updateManager;
 		this.format = format;
 		this.streams = streams;
 	}
@@ -60,18 +62,29 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 			Logger.logger.debugLn("Reading encoding type");
 			r.encodingType = dataIn.readInt();
 			if (Encoding.RAW_ENCODING.sameID(r.encodingType)) {
+				Logger.logger.debugLn("RAW");
 				r.encode = new RawEncoding(r.x, r.y, r.width, r.height, format);
 			} else if (Encoding.COPY_RECT_ENCODING.sameID(r.encodingType)) {
+				Logger.logger.debugLn("COPY_RECT");
 				r.encode = new CopyRectEncoding(r.x, r.y, r.width, r.height, format);
+			} else if (Encoding.RRE_ENCODING.sameID(r.encodingType)) {
+				Logger.logger.debugLn("RRE");
+				r.encode = new RREEncoding(r.x, r.y, r.width, r.height, format);
+			} else if (Encoding.CORRE_ENCODING.sameID(r.encodingType)) {
+				Logger.logger.debugLn("CORRE");
+				r.encode = new CoRREEncoding(r.x, r.y, r.width, r.height, format);
 			} else if (Encoding.ZLIB_ENCODING.sameID(r.encodingType)) {
+				Logger.logger.debugLn("ZLIB");
 				r.encode = new ZLibEncoding(r.x, r.y, r.width, r.height, format, streams[4]);
 			} else if (Encoding.TIGHT_ENCODING.sameID(r.encodingType)) {
+				Logger.logger.debugLn("TIGHT");
 				r.encode = new TightEncoding(r.x, r.y, r.width, r.height, format, streams);
 			} else if (Encoding.CURSOR_PSEUDO_ENCODING.sameID(r.encodingType)) {
+				Logger.logger.debugLn("CURSOR");
 				r.encode = new CursorPseudoEncoding(r.x, r.y, r.width, r.height, format);
 			}
 			if (r.encode != null) {
-				r.encode.setScreen(screen);
+				r.encode.setRender(updateManager);
 				r.encode.readEncoding(in);
 			} else {
 				Logger.logger.printLn("Does not support this encoding");
