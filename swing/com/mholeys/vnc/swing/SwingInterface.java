@@ -1,6 +1,7 @@
 package com.mholeys.vnc.swing;
 
 import com.mholeys.vnc.display.IDisplay;
+import com.mholeys.vnc.display.IKeyboardManager;
 import com.mholeys.vnc.display.IMouseManager;
 import com.mholeys.vnc.display.IScreen;
 import com.mholeys.vnc.display.IUserInterface;
@@ -12,6 +13,7 @@ public class SwingInterface implements IUserInterface {
 	private SwingScreen screen;
 	private UpdateManager updateManager;
 	public Mouse mouse;
+	public Keyboard keyboard;
 	
 	@Override
 	public IDisplay getDisplay() {
@@ -21,6 +23,10 @@ public class SwingInterface implements IUserInterface {
 	@Override
 	public IScreen getScreen() {
 		return screen;
+	}
+	
+	public IKeyboardManager getKeyboardManager() {
+		return keyboard;
 	}
 	
 	public IMouseManager getMouseManager() {
@@ -62,6 +68,5 @@ public class SwingInterface implements IUserInterface {
 	public void exit() {
 		
 	}
-
 
 }

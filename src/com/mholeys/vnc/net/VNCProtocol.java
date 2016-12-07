@@ -16,6 +16,7 @@ import com.mholeys.vnc.auth.NoAuthentication;
 import com.mholeys.vnc.auth.TightVNCAuthentication;
 import com.mholeys.vnc.auth.VNCAuthentication;
 import com.mholeys.vnc.data.EncodingSettings;
+import com.mholeys.vnc.data.KeyboardUpdate;
 import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.data.PointerPoint;
 import com.mholeys.vnc.display.IUserInterface;
@@ -27,6 +28,7 @@ import com.mholeys.vnc.log.Logger;
 import com.mholeys.vnc.message.ClientInitMessage;
 import com.mholeys.vnc.message.ServerInitMessage;
 import com.mholeys.vnc.message.client.FramebufferUpdateRequest;
+import com.mholeys.vnc.message.client.KeyEvent;
 import com.mholeys.vnc.message.client.PointerEvent;
 import com.mholeys.vnc.message.client.SetEncodings;
 import com.mholeys.vnc.message.client.SetPixelFormatMessage;
@@ -146,6 +148,9 @@ public class VNCProtocol implements Runnable {
 				}
 				if (ui.getMouseManager().sendLocalMouse()) {
 					sendPointerUpdate();
+				}
+				if (ui.getKeyboardManager().sendKeys()) {
+					sendKeyboardUpdate();
 				}
 				shouldRequest = true;
 				if (dataIn.available() == 0) {
@@ -311,6 +316,16 @@ public class VNCProtocol implements Runnable {
 		}
 	}
 
+	public void sendKeyboardUpdate() throws IOException {
+		KeyboardUpdate k = ui.getKeyboardManager().getNext();
+		if (k != null) {
+			KeyEvent kEvent = new KeyEvent(socket, in, out);
+			kEvent.key = k.key;
+			kEvent.pressed = k.pressed;
+			kEvent.sendMessage();
+		}
+	}
+	
 	public void readFrameBufferUpdate() throws IOException {
 		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, updateManager, preferredFormat, streams);
 		update.receiveMessage();

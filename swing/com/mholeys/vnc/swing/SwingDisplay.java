@@ -31,6 +31,7 @@ public class SwingDisplay extends JPanel implements IDisplay {
 	private int[] pixels;
 	
 	private Mouse mouse;
+	private Keyboard keyboard;
 	
 	private Thread thread;
 	
@@ -50,11 +51,16 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		this.frame = new JFrame();
 		this.setPreferredSize(new Dimension(width, height));
+		setFocusable(true);
+		requestFocus();
 		mouse = new Mouse(this);
+		keyboard = new Keyboard(this);
 		this.intf.mouse = mouse;
+		this.intf.keyboard = keyboard;
 		this.addMouseListener(mouse);
 		this.addMouseMotionListener(mouse);
 		this.addMouseWheelListener(mouse);
+		this.addKeyListener(keyboard);
 		frame.add(this);
 		frame.pack();
 		frame.setVisible(true);
