@@ -43,7 +43,7 @@ public class SwingInterface implements IUserInterface {
 		this.updateManager = updateManager; 
 		this.screen.updateManager = updateManager;
 	}
-
+	
 	@Override
 	public void show() {
 		display.start();

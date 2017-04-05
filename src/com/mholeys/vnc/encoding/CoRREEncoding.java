@@ -30,8 +30,7 @@ public class CoRREEncoding extends Encode {
 		int subRectangles = dataIn.readInt();
 		byte[] backgroundPixel = new byte[format.bytesPerPixel];
 		dataIn.read(backgroundPixel);
-		
-		
+		render.drawFill(x, y, width, height, ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(backgroundPixel, format)));
 		
 		for (int i = 0 ; i < subRectangles; i++) {
 			byte[] pixel = new byte[format.bytesPerPixel];
@@ -40,7 +39,7 @@ public class CoRREEncoding extends Encode {
 			int y = dataIn.read();
 			int width = dataIn.read();
 			int height = dataIn.read();
-			render.drawFill(x, y, width, height, ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format)));
+			render.drawFill(this.x+x, this.y+y, width, height, ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format)));
 		}
 	}
 

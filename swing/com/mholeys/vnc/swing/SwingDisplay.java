@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 
 import com.mholeys.vnc.data.Encoding;
 import com.mholeys.vnc.data.EncodingSettings;
+import com.mholeys.vnc.data.PixelFormat;
 import com.mholeys.vnc.display.IDisplay;
 import com.mholeys.vnc.display.IScreen;
 import com.mholeys.vnc.display.UpdateManager;
@@ -98,15 +99,17 @@ public class SwingDisplay extends JPanel implements IDisplay {
 	public static void main(String[] args) {
 		SwingInterface i = new SwingInterface();
 		EncodingSettings es = new EncodingSettings();
-		es.addEncoding(Encoding.TIGHT_ENCODING);
-		es.addEncoding(Encoding.ZLIB_ENCODING);
-		es.addEncoding(Encoding.RAW_ENCODING);
+		//es.addEncoding(Encoding.TIGHT_ENCODING);
+		//es.addEncoding(Encoding.ZLIB_ENCODING);
 		es.addEncoding(Encoding.RRE_ENCODING);
 		es.addEncoding(Encoding.CORRE_ENCODING);
 		es.addEncoding(Encoding.COPY_RECT_ENCODING);
+		es.addEncoding(Encoding.RAW_ENCODING);
 		es.addEncoding(Encoding.JPEG_QUALITY_LEVEL_1_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.COMPRESSION_LEVEL_1_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);
+		
+		//PixelFormat preferredFormat = PixelFormat.DEFAULT_FORMAT.clone();
 		
 		IConnectionInformation connection;
 		try {

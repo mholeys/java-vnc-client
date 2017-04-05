@@ -33,7 +33,7 @@ public class ColorUtil {
 	}
 
 	public static int convertTo8888ARGB(PixelFormat format, int pixel) {
-		if (format.bigEndianFlag) {
+		if (!format.bigEndianFlag) {
 			pixel = Integer.reverseBytes(pixel);
 		}
 		int mask = 0;

@@ -16,6 +16,23 @@ public class PixelFormat {
 	public byte greenShift;
 	public byte blueShift;
 	
+	public PixelFormat clone() {
+		PixelFormat copy = new PixelFormat();
+		copy.bytesPerPixel = this.bytesPerPixel;
+		copy.bytesPerTPixel = this.bytesPerTPixel;
+		copy.bitsPerPixel = this.bitsPerPixel;
+		copy.depth = this.depth;
+		copy.bigEndianFlag = this.bigEndianFlag;
+		copy.trueColorFlag = this.trueColorFlag;
+		copy.redMax = this.redMax;
+		copy.greenMax = this.greenMax;
+		copy.blueMax = this.blueMax;
+		copy.redShift = this.redShift;
+		copy.greenShift = this.greenShift;
+		copy.blueShift = this.blueShift;
+		return copy;
+	}
+	
 	public PixelFormat setBitsPerPixel(byte bitsPerPixel) {
 		this.bitsPerPixel = bitsPerPixel;
 		checkTight();
