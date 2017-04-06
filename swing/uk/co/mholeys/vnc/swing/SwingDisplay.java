@@ -99,8 +99,8 @@ public class SwingDisplay extends JPanel implements IDisplay {
 	public static void main(String[] args) {
 		SwingInterface i = new SwingInterface();
 		EncodingSettings es = new EncodingSettings();
-		//es.addEncoding(Encoding.TIGHT_ENCODING);
-		//es.addEncoding(Encoding.ZLIB_ENCODING);
+		es.addEncoding(Encoding.TIGHT_ENCODING);
+		es.addEncoding(Encoding.ZLIB_ENCODING);
 		es.addEncoding(Encoding.RRE_ENCODING);
 		es.addEncoding(Encoding.CORRE_ENCODING);
 		es.addEncoding(Encoding.COPY_RECT_ENCODING);
@@ -114,7 +114,7 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		IConnectionInformation connection;
 		try {
 			connection = new SwingConnection(es, null, new SwingPassword());
-			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_NONE));
+			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_VERBOSE));
 			Thread t = new Thread(vnc);
 			t.start();
 		} catch (UnknownHostException e) {

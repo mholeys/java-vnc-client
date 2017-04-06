@@ -3,13 +3,12 @@ package uk.co.mholeys.vnc.encoding;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.List;
 import java.util.zip.DataFormatException;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
 import uk.co.mholeys.vnc.log.Logger;
-import uk.co.mholeys.vnc.net.LogInputStream;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
 
@@ -97,7 +96,15 @@ public class TightEncoding extends Encode {
 				byte[] paletteData = new byte[paletteDataLength];
 				Logger.logger.debugLn("Reading compressed palette data");
 				paletteData = readCompressedData(dataIn, paletteDataLength, stream);
-				render.drawPalette(x, y, width, height, palette, paletteSize, paletteData);
+				
+				byte[] paletteDataNew = new byte[paletteDataLength];
+				for (int i = 0; i < paletteDataLength-format.bytesPerTPixel; i+= format.bytesPerTPixel) {
+					paletteDataNew[i] = paletteData[i+2];
+					paletteDataNew[i+1] = paletteData[i+1];
+					paletteDataNew[i+2] = paletteData[i];
+				}
+				
+				render.drawPalette(x, y, width, height, palette, paletteSize, paletteDataNew);
 				break;
 			case GRADIENT:
 				Logger.logger.verboseLn("Gradient. No code. This will cause problems if this is reached");
@@ -124,7 +131,7 @@ public class TightEncoding extends Encode {
 	public static int readTightPixel(DataInputStream dataIn, PixelFormat format) throws IOException {
 		byte[] b = new byte[format.bytesPerTPixel];
 		dataIn.readFully(b);
-		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format));
+		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format, true));
 	}
 	
 	public static int readCompactInt(DataInputStream dataIn) throws IOException {
@@ -192,7 +199,8 @@ public class TightEncoding extends Encode {
 		for (int i = 0; i < dataSize; i++) {
 			byte[] p = new byte[size];
 			System.arraycopy(data, i*size, p, 0, size);
-			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format));
+			
+			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format, true));
 		}
 		return pixels;
 	}

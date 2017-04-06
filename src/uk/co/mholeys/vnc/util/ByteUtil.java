@@ -44,7 +44,14 @@ public class ByteUtil {
 		return convertToBits(new byte[] {b});
 	}
 	
-	
+	public static int bytesToInt(byte[] b, PixelFormat format, boolean reverse) {
+		if (reverse) {
+			
+			//Reverse bytes
+			format = format.clone().setBigEndianFlag(!format.bigEndianFlag);
+		}
+		return bytesToInt(b, format);
+	}
 	
 	public static int bytesToInt(byte[] b, PixelFormat format) {
 		/*byte[] bytes = new byte[4];
