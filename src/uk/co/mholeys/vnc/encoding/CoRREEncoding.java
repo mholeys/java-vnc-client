@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
+import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
 
@@ -16,11 +17,11 @@ public class CoRREEncoding extends Encode {
 	public int height;
 	public PixelFormat format;
 	
-	public CoRREEncoding(int x, int y, int width, int height, PixelFormat format) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+	public CoRREEncoding(PixelRectangle r, PixelFormat format) {
+		this.x = r.x;
+		this.y = r.y;
+		this.width = r.width;
+		this.height = r.height;
 		this.format = format;
 	}
 	

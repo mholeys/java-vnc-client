@@ -12,7 +12,6 @@ import javax.swing.JPanel;
 
 import uk.co.mholeys.vnc.data.Encoding;
 import uk.co.mholeys.vnc.data.EncodingSettings;
-import uk.co.mholeys.vnc.data.PixelFormat;
 import uk.co.mholeys.vnc.display.IDisplay;
 import uk.co.mholeys.vnc.display.IScreen;
 import uk.co.mholeys.vnc.display.UpdateManager;

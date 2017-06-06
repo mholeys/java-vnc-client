@@ -1,15 +1,30 @@
 package uk.co.mholeys.vnc.data;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import uk.co.mholeys.vnc.encoding.CoRREEncoding;
+import uk.co.mholeys.vnc.encoding.CopyRectEncoding;
+import uk.co.mholeys.vnc.encoding.CursorPseudoEncoding;
+import uk.co.mholeys.vnc.encoding.Encode;
+import uk.co.mholeys.vnc.encoding.HextileEncoding;
+import uk.co.mholeys.vnc.encoding.RREEncoding;
+import uk.co.mholeys.vnc.encoding.RawEncoding;
+import uk.co.mholeys.vnc.encoding.TightEncoding;
+import uk.co.mholeys.vnc.encoding.ZLibEncoding;
+import uk.co.mholeys.vnc.encoding.ZLibStream;
+import uk.co.mholeys.vnc.log.Logger;
+
 public enum Encoding {
 
-	RAW_ENCODING(0),
-	COPY_RECT_ENCODING(1),
-	RRE_ENCODING(2),
-	CORRE_ENCODING(4),
-	HEXTILE_ENCODING(5),
-	ZLIB_ENCODING(6),
-	TIGHT_ENCODING(7),
-	ZLIB_HEX_ENCODING(8),
+	RAW_ENCODING(0, RawEncoding.class),
+	COPY_RECT_ENCODING(1, CopyRectEncoding.class),
+	RRE_ENCODING(2, RREEncoding.class),
+	CORRE_ENCODING(4, CoRREEncoding.class),
+	HEXTILE_ENCODING(5, HextileEncoding.class),
+	ZLIB_ENCODING(6, ZLibEncoding.class),
+	TIGHT_ENCODING(7, TightEncoding.class),
+	ZLIB_HEX_ENCODING(8, ZLibEncoding.class),
 	ULTRA_ENCODING(9),
 	ULTRA2_ENCODING(10),
 	TRLE_ENCODING(15),
@@ -34,7 +49,7 @@ public enum Encoding {
 	LAST_RECT_PSEUDO_ENCODING(-224),
 	POINTER_POS_ENCODING(-225),
 	TIGHT_OPTIONS3_ENCODING(-238, -226),
-	CURSOR_PSEUDO_ENCODING(-239),
+	CURSOR_PSEUDO_ENCODING(-239, CursorPseudoEncoding.class),
 	X_CURSOR_PSEUDO_ENCODING(-240),
 	TIGHT_OPTIONS4_ENCODING(-246, -241),
 	COMPRESSION_LEVEL_0_PSEUDO_ENCODING(-247),
@@ -67,10 +82,17 @@ public enum Encoding {
 	EXTENDED_CLIPBOARD_PSEUDO_ENCODING(0xc0a1e5ce);
 	
 	int startID, endID;
+	Class<? extends Encode> encodingClass;
 	
 	private Encoding(int id) {
 		startID = id;
 		endID = id;
+	}
+	
+	private Encoding(int id, Class<? extends Encode> encodingClass) {
+		startID = id;
+		endID = id;
+		this.encodingClass = encodingClass;
 	}
 	
 	private Encoding(int startId, int endId) {
@@ -100,6 +122,50 @@ public enum Encoding {
 	
 	public int getEndID() {
 		return endID;
+	}
+	
+	
+	private static final Class<?>[] ENCODE_PARAMS_TYPE1 = {PixelRectangle.class, PixelFormat.class, ZLibStream[].class};
+	private static final Class<?>[] ENCODE_PARAMS_TYPE2 = {PixelRectangle.class, PixelFormat.class};
+	
+	public Encode getDecoder(PixelRectangle r, PixelFormat format, ZLibStream[] streams) {
+		if (encodingClass == null) {
+			Logger.logger.debugLn("Encoding class wasn't set: " + this);
+		}
+		Constructor<?>[] constructors = encodingClass.getConstructors();
+		Encode e = null;
+		try {
+			if (constructors.length > 0) {
+				for (Constructor<?> c : constructors) {
+					if (c.getParameterTypes().length > 0) {
+						if (classListEquals(c.getParameterTypes(), ENCODE_PARAMS_TYPE1)) {
+							e = (Encode) c.newInstance(r, format, streams);
+						} else if (classListEquals(c.getParameterTypes(), ENCODE_PARAMS_TYPE2)) {
+							e = (Encode) c.newInstance(r, format);
+						} else {
+							Logger.logger.debugLn("Failed to create instance of " + encodingClass);
+						}
+					}
+				}
+			}
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+			ex.printStackTrace();
+		}
+		return e;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static boolean classListEquals(Class[] a, Class[] b) {
+		if (a.length != b.length) {
+			return false;
+		}
+		for (int i = 0; i < a.length; i++) {
+			if (a[i] != b[i]) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 }

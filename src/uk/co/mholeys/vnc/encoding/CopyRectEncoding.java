@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
+import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.log.Logger;
 
 public class CopyRectEncoding extends Encode {
@@ -16,11 +17,11 @@ public class CopyRectEncoding extends Encode {
 	private short xSrc;
 	private short ySrc;
 	
-	public CopyRectEncoding(short x, short y, short width, short height, PixelFormat format) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+	public CopyRectEncoding(PixelRectangle r, PixelFormat format) {
+		this.x = r.x;
+		this.y = r.y;
+		this.width = r.width;
+		this.height = r.height;
 		this.pixelFormat = format;
 	}
 

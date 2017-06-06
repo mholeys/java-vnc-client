@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
+import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
@@ -18,11 +19,11 @@ public class RawEncoding extends Encode {
 	public int height;
 	public PixelFormat format;
 	
-	public RawEncoding(int x, int y, int width, int height, PixelFormat format) {
-		this.x = x;
-		this.y = y;
-		this.width = Math.abs(width);
-		this.height = Math.abs(height);
+	public RawEncoding(PixelRectangle r, PixelFormat format) {
+		this.x = r.x;
+		this.y = r.y;
+		this.width = Math.abs(r.width);
+		this.height = Math.abs(r.height);
 		this.format = format;
 		pixels = new int[this.width * this.height];
 	}

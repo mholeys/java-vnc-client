@@ -3,11 +3,10 @@ package uk.co.mholeys.vnc.encoding;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.zip.DataFormatException;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
+import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
@@ -21,11 +20,11 @@ public class TightEncoding extends Encode {
 	public PixelFormat format;
 	public ZLibStream[] streams;
 	
-	public TightEncoding(int x, int y, int width, int height, PixelFormat format, ZLibStream[] streams) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+	public TightEncoding(PixelRectangle r, PixelFormat format, ZLibStream[] streams) {
+		this.x = r.x;
+		this.y = r.y;
+		this.width = r.width;
+		this.height = r.height;
 		this.format = format;
 		this.streams = streams;
 	}

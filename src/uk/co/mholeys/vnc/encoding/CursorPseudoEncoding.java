@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
+import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
 
@@ -16,11 +17,11 @@ public class CursorPseudoEncoding extends Encode {
 	public int height;
 	public PixelFormat format;
 	
-	public CursorPseudoEncoding(int x, int y, int width, int height, PixelFormat format) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+	public CursorPseudoEncoding(PixelRectangle r, PixelFormat format) {
+		this.x = r.x;
+		this.y = r.y;
+		this.width = r.width;
+		this.height = r.height;
 		this.format = format;
 	}
 	
@@ -36,6 +37,7 @@ public class CursorPseudoEncoding extends Encode {
 		dataIn.readFully(bitmask);
 		boolean[] bits = ByteUtil.bytesToBits(bitmask);
 		
+		// TODO: Finish decoding and drawing
 		/*for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				if (bits[y * lineWidth + x / 8 + x%8]) {

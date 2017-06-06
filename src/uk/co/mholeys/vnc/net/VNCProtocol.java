@@ -327,7 +327,7 @@ public class VNCProtocol implements Runnable {
 	}
 	
 	public void readFrameBufferUpdate() throws IOException {
-		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, updateManager, preferredFormat, streams);
+		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, updateManager, preferredFormat, streams, supportedEncodings);
 		update.receiveMessage();
 	}
 	

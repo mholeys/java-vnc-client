@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.util.zip.DataFormatException;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
-import uk.co.mholeys.vnc.display.IDisplay;
+import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
@@ -19,14 +19,14 @@ public class ZLibEncoding extends Encode {
 	int[] pixels;
 	ZLibStream stream;
 	
-	public ZLibEncoding(int x, int y, int width, int height, PixelFormat format, ZLibStream stream) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+	public ZLibEncoding(PixelRectangle r, PixelFormat format, ZLibStream[] streams) {
+		this.x = r.x;
+		this.y = r.y;
+		this.width = r.width;
+		this.height = r.height;
 		this.format = format;
 		pixels = new int[width * height];
-		this.stream = stream;
+		this.stream = streams[4];
 	}
 	
 	@Override

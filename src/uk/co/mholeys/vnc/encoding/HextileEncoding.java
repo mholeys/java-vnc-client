@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
+import uk.co.mholeys.vnc.data.PixelRectangle;
 
 public class HextileEncoding extends Encode {
 	
@@ -15,11 +16,11 @@ public class HextileEncoding extends Encode {
 	public int height;
 	public PixelFormat format;
 	
-	public HextileEncoding(int x, int y, int width, int height, PixelFormat format) {
-		this.x = x;
-		this.y = y;
-		this.width = Math.abs(width);
-		this.height = Math.abs(height);
+	public HextileEncoding(PixelRectangle r, PixelFormat format) {
+		this.x = r.x;
+		this.y = r.y;
+		this.width = Math.abs(r.width);
+		this.height = Math.abs(r.height);
 		this.format = format;
 		pixels = new int[this.width * this.height];
 	}

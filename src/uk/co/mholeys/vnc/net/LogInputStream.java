@@ -3,7 +3,6 @@ package uk.co.mholeys.vnc.net;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import uk.co.mholeys.vnc.log.Logger;
 
