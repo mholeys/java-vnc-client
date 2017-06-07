@@ -8,7 +8,7 @@ import uk.co.mholeys.vnc.data.PixelFormat;
 import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.log.Logger;
 
-public class CopyRectEncoding extends Encode {
+public class CopyRectEncoding extends Decoder {
 
 	public short x, y;
 	public short width, height;

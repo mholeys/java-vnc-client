@@ -11,7 +11,7 @@ import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
 
-public class TightEncoding extends Encode {
+public class TightEncoding extends Decoder {
 
 	public int x;
 	public int y;

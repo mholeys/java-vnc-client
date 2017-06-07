@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 import uk.co.mholeys.vnc.display.UpdateManager;
 
-public abstract class Encode {
+public abstract class Decoder {
 	
 	protected UpdateManager render;
 

@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import uk.co.mholeys.vnc.encoding.CoRREEncoding;
 import uk.co.mholeys.vnc.encoding.CopyRectEncoding;
 import uk.co.mholeys.vnc.encoding.CursorPseudoEncoding;
-import uk.co.mholeys.vnc.encoding.Encode;
+import uk.co.mholeys.vnc.encoding.Decoder;
 import uk.co.mholeys.vnc.encoding.HextileEncoding;
 import uk.co.mholeys.vnc.encoding.RREEncoding;
 import uk.co.mholeys.vnc.encoding.RawEncoding;
@@ -82,14 +82,14 @@ public enum Encoding {
 	EXTENDED_CLIPBOARD_PSEUDO_ENCODING(0xc0a1e5ce);
 	
 	int startID, endID;
-	Class<? extends Encode> encodingClass;
+	Class<? extends Decoder> encodingClass;
 	
 	private Encoding(int id) {
 		startID = id;
 		endID = id;
 	}
 	
-	private Encoding(int id, Class<? extends Encode> encodingClass) {
+	private Encoding(int id, Class<? extends Decoder> encodingClass) {
 		startID = id;
 		endID = id;
 		this.encodingClass = encodingClass;
@@ -128,20 +128,20 @@ public enum Encoding {
 	private static final Class<?>[] ENCODE_PARAMS_TYPE1 = {PixelRectangle.class, PixelFormat.class, ZLibStream[].class};
 	private static final Class<?>[] ENCODE_PARAMS_TYPE2 = {PixelRectangle.class, PixelFormat.class};
 	
-	public Encode getDecoder(PixelRectangle r, PixelFormat format, ZLibStream[] streams) {
+	public Decoder getDecoder(PixelRectangle r, PixelFormat format, ZLibStream[] streams) {
 		if (encodingClass == null) {
 			Logger.logger.debugLn("Encoding class wasn't set: " + this);
 		}
 		Constructor<?>[] constructors = encodingClass.getConstructors();
-		Encode e = null;
+		Decoder e = null;
 		try {
 			if (constructors.length > 0) {
 				for (Constructor<?> c : constructors) {
 					if (c.getParameterTypes().length > 0) {
 						if (classListEquals(c.getParameterTypes(), ENCODE_PARAMS_TYPE1)) {
-							e = (Encode) c.newInstance(r, format, streams);
+							e = (Decoder) c.newInstance(r, format, streams);
 						} else if (classListEquals(c.getParameterTypes(), ENCODE_PARAMS_TYPE2)) {
-							e = (Encode) c.newInstance(r, format);
+							e = (Decoder) c.newInstance(r, format);
 						} else {
 							Logger.logger.debugLn("Failed to create instance of " + encodingClass);
 						}

@@ -9,7 +9,7 @@ import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
 
-public class CursorPseudoEncoding extends Encode {
+public class CursorPseudoEncoding extends Decoder {
 
 	public int x;
 	public int y;

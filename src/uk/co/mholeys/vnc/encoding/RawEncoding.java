@@ -10,7 +10,7 @@ import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
 
-public class RawEncoding extends Encode {
+public class RawEncoding extends Decoder {
 
 	public int[] pixels;
 	public int x;

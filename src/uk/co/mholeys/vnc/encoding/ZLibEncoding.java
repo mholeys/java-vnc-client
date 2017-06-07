@@ -12,7 +12,7 @@ import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
 
-public class ZLibEncoding extends Encode {
+public class ZLibEncoding extends Decoder {
 
 	int x, y, width, height;
 	PixelFormat format;

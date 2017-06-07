@@ -9,7 +9,7 @@ import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
 
-public class CoRREEncoding extends Encode {
+public class CoRREEncoding extends Decoder {
 
 	public int x;
 	public int y;

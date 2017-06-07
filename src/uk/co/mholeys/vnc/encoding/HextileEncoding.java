@@ -7,7 +7,7 @@ import java.io.InputStream;
 import uk.co.mholeys.vnc.data.PixelFormat;
 import uk.co.mholeys.vnc.data.PixelRectangle;
 
-public class HextileEncoding extends Encode {
+public class HextileEncoding extends Decoder {
 	
 	public int[] pixels;
 	public int x;
