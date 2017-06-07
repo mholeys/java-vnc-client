@@ -5,10 +5,27 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+/**
+ * Authentication class representing the authentication type for the 
+ * connection that will always be authenticated.
+ * <p>
+ * This type of authentication does not read/write any data to the network
+ * and it will always authenticate as the server does not require anything
+ * method/process to authenticate.
+ * @author Matthew Holey
+ *
+ */
 public class NoAuthentication extends Authentication {
 
-	public NoAuthentication(Socket socket, InputStream in, OutputStream out, String password) throws IOException {
-		super(socket, in, out, password);
+	/**
+	 * 
+	 * @param socket
+	 * @param in
+	 * @param out
+	 * @throws IOException
+	 */
+	public NoAuthentication(Socket socket, InputStream in, OutputStream out) throws IOException {
+		super(socket, in, out, null);
 	}
 
 	@Override

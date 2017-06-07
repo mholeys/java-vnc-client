@@ -240,7 +240,7 @@ public class VNCProtocol implements Runnable {
 		} else if (vnc_auth) {
 			auth = new VNCAuthentication(socket, in, out, pass);
 		} else if (none) {
-			auth = new NoAuthentication(socket, in, out, null);
+			auth = new NoAuthentication(socket, in, out);
 		}
 		if (auth == null) {
 			logger.printLn("No common authentication");

@@ -84,9 +84,9 @@ public class TightVNCAuthentication extends Authentication {
 		if (vnc) {
 			auth = new VNCAuthentication(socket, in, out, password);
 		} else if (none) {
-			auth = new NoAuthentication(socket, in, out, password);
+			auth = new NoAuthentication(socket, in, out);
 		} else if (authTypeCount == 0) {
-			auth = new NoAuthentication(socket, in, out, password);
+			auth = new NoAuthentication(socket, in, out);
 		}
 		if (auth != null) {
 			dataOut.writeInt(auth.getSecurityId());
