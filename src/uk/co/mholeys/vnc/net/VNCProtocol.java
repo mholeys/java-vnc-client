@@ -34,42 +34,80 @@ import uk.co.mholeys.vnc.message.client.SetEncodings;
 import uk.co.mholeys.vnc.message.client.SetPixelFormatMessage;
 import uk.co.mholeys.vnc.message.server.FrameBufferUpdate;
 
+/**
+ * TODO:
+ * @author Matthew Holey
+ *
+ */
 public class VNCProtocol implements Runnable {
 
+	/** Header id for the frame buffer update message */
 	public static final int FRAME_BUFFER_UDPATE = 0;
+	/** Number of times to attempt to connect to the server */
 	public static final int RETRY_LIMIT = 5;
 	
+	/** The address of the vnc server */
 	public InetAddress address;
+	/** The port that the vnc server is running on */
 	public int port;
 	
+	/** The client's socket with the vnc server */
 	public Socket socket;
+	/** The connection's output stream */
 	public OutputStream out;
+	/** The connection's input stream */
 	public InputStream in;
+	/** The connection's output stream (DataOutputStream for ease of use) */
 	public DataOutputStream dataOut;
+	/** The connection's input stream (DataInputStream for ease of use) */
 	public DataInputStream dataIn;
 	
+	/** 
+	 * The encodings that the client supports.
+	 * These will be sent to the server to say what the client 
+	 * can support.
+	 */
 	public EncodingSettings supportedEncodings;
 	
 	public UpdateManager updateManager;
 	
+	/** The password holder/getter to allow the user to enter their password */
 	public IPasswordRequester password;
 	
+	/** The client's preferred "pixel" format */
 	public PixelFormat preferredFormat;
-	public int width, height;
+	/** The width of the server's display */
+	public int width;
+	/** The height of the server's display */
+	public int height;
+	/** The client's ui that will be drawing the server's display and provide input */
 	public IUserInterface ui;
+	/** The server's "name" something like "User's Desktop (Address:port)" */
 	public String name;
+	/** The ZLib compression stream used to encode/decode the data */
 	public ZLibStream[] streams = new ZLibStream[5];
 	
+	/** The logger that all the normal/verbose/debug output will be sent */
 	public Logger logger;
 	
+	/** Thread running status to kill the client */
 	private boolean running = false;
 	
+	/**
+	 * TODO:
+	 * @param connection
+	 * @param ui
+	 * @param logger
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
 	public VNCProtocol(IConnectionInformation connection, IUserInterface ui, Logger logger) throws UnknownHostException, IOException {
 		this.address = connection.getAddress();
 		this.port = connection.getPort();
 		this.password = connection.getPasswordRequester();
 		this.ui = ui;
 		this.logger = logger;
+		// Ensure that we have a supported/preferred pixel format
 		if (connection.hasPrefferedFormat()) {
 			this.preferredFormat = connection.getPrefferedFormat();
 			if (this.preferredFormat == null) {
@@ -78,6 +116,7 @@ public class VNCProtocol implements Runnable {
 		} else {
 			//this.preferredFormat = PixelFormat.DEFAULT_FORMAT;
 		}
+		// Ensure that we have a list of supported/preferred encodings
 		if (connection.hasPrefferedEncoding()) {
 			this.supportedEncodings = connection.getPrefferedEncoding();
 			if (this.supportedEncodings == null) {
@@ -86,9 +125,16 @@ public class VNCProtocol implements Runnable {
 		} else {
 			this.supportedEncodings = EncodingSettings.DEFAULT_ENCODINGS;
 		}
+		// Setup the thread to be ready to run
 		running = true;
 	}
 	
+	/**
+	 * TODO:
+	 * @param address
+	 * @param port
+	 * @throws IOException
+	 */
 	public void initSocket(InetAddress address, int port) throws IOException {
 		if (socket != null) {
 			socket.close();
@@ -283,6 +329,7 @@ public class VNCProtocol implements Runnable {
 		SetPixelFormatMessage pixelFormat = new SetPixelFormatMessage(socket, in, out);
 		
 		pixelFormat.format = preferredFormat;
+		// TODO: Fix prefered format for pixels. Look into colour maps+others
 		preferredFormat = preferredFormat;
 		pixelFormat.sendMessage();
 	}
