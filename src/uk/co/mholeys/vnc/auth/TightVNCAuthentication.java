@@ -10,6 +10,13 @@ import uk.co.mholeys.vnc.message.Capability;
 
 public class TightVNCAuthentication extends Authentication {
 
+	boolean none = false;
+	boolean vnc = false;
+	boolean vencrypt = false;
+	boolean sasl = false; 
+	boolean unix = false; 
+	boolean external = false;
+	
 	public TightVNCAuthentication(Socket socket, InputStream in, OutputStream out, String password) throws IOException {
 		super(socket, in, out, password);
 	}
@@ -43,9 +50,15 @@ public class TightVNCAuthentication extends Authentication {
 				dataOut.writeInt(0);
 			}
 		}
-		boolean none = false, vnc = false, vencrypt = false, sasl = false, unix = false, external = false;
+		
 		Logger.logger.debugLn("Reading number of authentications");
 		int authTypeCount = dataIn.readInt();
+		readAuthType(authTypeCount);
+		
+		return authenticateSubType(authTypeCount);
+	}
+	
+	public void readAuthType(int authTypeCount) throws IOException {
 		for (int i = 0; i < authTypeCount; i++) {
 			Logger.logger.verboseLn("Reading capability");
 			Capability c = new Capability();
@@ -64,9 +77,10 @@ public class TightVNCAuthentication extends Authentication {
 				external = true;
 			}
 		}
-		
+	}
+
+	public boolean authenticateSubType(int authTypeCount) throws IOException {
 		Authentication auth = null;
-		boolean authenticated = false;
 		if (vnc) {
 			auth = new VNCAuthentication(socket, in, out, password);
 		} else if (none) {
@@ -76,13 +90,12 @@ public class TightVNCAuthentication extends Authentication {
 		}
 		if (auth != null) {
 			dataOut.writeInt(auth.getSecurityId());
-			authenticated = auth.authenticate();
+			return auth.authenticate();
 		} else {
 			return false;
 		}
-		return authenticated;
 	}
-
+	
 	@Override
 	public int getSecurityId() {
 		return 16;
