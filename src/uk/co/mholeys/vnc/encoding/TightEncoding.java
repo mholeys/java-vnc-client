@@ -107,7 +107,6 @@ public class TightEncoding extends Decoder {
 				render.drawPalette(x, y, width, height, palette, paletteSize, paletteDataNew);
 				break;
 			case GRADIENT:
-				Logger.logger.verboseLn("Gradient. No code. This will cause problems if this is reached");
 				Logger.logger.debugLn("Gradient filter. Depth should be 24 it is: " + format.depth);
 				render.drawFill(x, y, width, height, 0x00FF00);
 				
@@ -117,72 +116,56 @@ public class TightEncoding extends Decoder {
 				int[] newPixels = new int[width*height];
 				System.arraycopy(gradientPixels, 0, newPixels, 0, width*height);
 				
-				/* 
-				 * Code based on 
-				 * https://github.com/BinaryAnalysisPlatform/deprecated-qemu-tracer/blob/master/ui/vnc-enc-tight.c#L547
-				 */
-				byte[] here = new byte[3]; // Array holding the colour components at the current x, y
-				byte[] upper = new byte[3]; // Array holding the colour components at the current x, y-1
-				byte[] left = new byte[3]; // Array holding the colour components at the current x-1, y
-				byte[] upperleft = new byte[3]; // Array holding the colour components at the current x-1, y-1
-				
 				int[] shift = new int[3]; // Array holding the colour shifts for each component. Copied for easy access
-				shift[0] = format.redShift;
-				shift[1] = format.greenShift;
-				shift[2] = format.blueShift;
-				
-				int d = 0;
-				int currentPixel = 0;
-				
-				int prev = 0;
-				int[] prevPixels = new int[width * height];
-				
-				int prediction = 0;
-				
-				for (int srcY = 0; srcY < height; srcY++) {
-					// Loop over each colour component
-/*					for (int c = 0; c < 3; c++) {
-						upper[c] = 0;
-						here[c] = 0;
-					}*/
-					for (int srcX = 0; srcX < width; srcX++) {
-						currentPixel = gradientPixels[d++];
-						Logger.logger.debugLn("Read " + Integer.toHexString(currentPixel));
-						
-						for (int c = 0; c < 3; c++) {
-							upperleft[c] = upper[c];
-							left[c] = here[c];				
-							if (srcX < 0 || srcX > width || (srcY-1) < 0 || (srcY-1) > height) {
-								upper[c] = 0;
-							} else {
-								upper[c] = (byte) prevPixels[prev]; //(byte) ((newPixels[srcX + (srcY-1)*width] & (0xFF << shift[c])) >> shift[c]);
-							}
-							// Get the component for the current pixel
-							here[c] = (byte) (currentPixel >> shift[c] & 0xFF);
-							prevPixels[prev++] = here[c];
-							
-							prediction = left[c] + upper[c] - upperleft[c];
-							if (prediction < 0) {
-								prediction = 0;
-							} else if (prediction > 0xFF) {
-								prediction = 0xFF;
-							} 
-							newPixels[srcX + srcY * width] |= (here[c] - prediction) << shift[c];
-							System.out.println(x + ", " + y);
-							render.drawRaw(x, y, width, height, newPixels);
-							render.drawFill(srcX+x+1, srcY+y+1, srcX+x+10, srcY+y+10, newPixels[srcX + srcY * width]);
-							try {
-								Thread.sleep(100);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-					}
-					
+				if (format.bigEndianFlag) {
+					shift[0] = format.blueShift;
+					shift[1] = format.greenShift;
+					shift[2] = format.redShift;
+				} else {
+					shift[0] = format.redShift;
+					shift[1] = format.greenShift;
+					shift[2] = format.blueShift;
 				}
-				render.drawRaw(x, y, width, height, newPixels);
 				
-				//System.exit(444);
+				int[] max = new int[3]; // Array holding the max values for each component. Copied for easy access
+				if (format.bigEndianFlag) {
+					max[0] = format.blueMax;
+					max[1] = format.greenMax;
+					max[2] = format.redMax;
+				} else {
+					max[0] = format.redMax;
+					max[1] = format.greenMax;
+					max[2] = format.blueMax;
+				}
+				
+				int[] currentRow = new int[width+2];
+				int[] previousRow = new int[width+2];
+				
+				for (int srcY = 1; srcY < height+1; srcY++) {
+					previousRow = currentRow;
+					currentRow = new int[width+2];
+					System.arraycopy(newPixels, (srcY-1) * width, currentRow, 1, width);
+					for (int srcX = 1; srcX < width+1; srcX++) {
+						int colour = 0;
+						for (int c = 0; c < 3; c++) {
+							int left = (currentRow[srcX-1] >> shift[c]) & max[c];
+							int upper = (previousRow[srcX]  >> shift[c]) & max[c];
+							int upperLeft = (previousRow[srcX-1] >> shift[c]) & max[c];
+							int here = (currentRow[srcX]  >> shift[c]) & max[c];
+							int predicted = upper + left - upperLeft;
+							if (predicted > max[c]) {
+								predicted = max[c];
+							} else if (predicted < 0) {
+								predicted = 0;
+							}
+							colour = colour | (((here + predicted) & max[c]) << shift[c]); 
+						}
+						currentRow[srcX] = colour;
+					}	
+					System.arraycopy(currentRow, 1, newPixels, (srcY-1)*width, width);
+				}
+				
+				render.drawRaw(x, y, width, height, newPixels);
 				break;
 			case COPY:
 				Logger.logger.verboseLn("Copy mode");
