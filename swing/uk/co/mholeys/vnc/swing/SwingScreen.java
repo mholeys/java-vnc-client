@@ -107,8 +107,8 @@ public class SwingScreen implements IScreen {
 
 	@Override
 	public synchronized void fillPixels(int x, int y, int width, int height, int pixel) {
-		for (int yA = y; yA < height; yA++) {
-			for (int xA = x; xA < width; xA++) {
+		for (int yA = y; yA < y+height; yA++) {
+			for (int xA = x; xA < x+width; xA++) {
 				this.pixels[xA + yA * this.width] = pixel;
 			}
 		}
