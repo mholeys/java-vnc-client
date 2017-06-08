@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import uk.co.mholeys.vnc.data.ColourMap;
+import uk.co.mholeys.vnc.data.ColourMapEntry;
 import uk.co.mholeys.vnc.log.Logger;
 
 public class SetColourMapEntries extends ClientReceiveMessage {
@@ -30,9 +30,9 @@ public class SetColourMapEntries extends ClientReceiveMessage {
 		firstColor = dataIn.readShort();
 		Logger.logger.debugLn("Reading number of colours");
 		numberOfColors = dataIn.readShort();
-		ColourMap[] colours = new ColourMap[numberOfColors];
+		ColourMapEntry[] colours = new ColourMapEntry[numberOfColors];
 		for (int i = 0; i < numberOfColors; i++) {
-			colours[i] = new ColourMap();
+			colours[i] = new ColourMapEntry();
 			Logger.logger.debugLn("Reading red of colour map");
 			colours[i].red = dataIn.readShort();
 			Logger.logger.debugLn("Reading green of colour map");
