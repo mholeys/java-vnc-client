@@ -3,6 +3,7 @@ package uk.co.mholeys.vnc.encoding;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.zip.DataFormatException;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
@@ -107,14 +108,87 @@ public class TightEncoding extends Decoder {
 				break;
 			case GRADIENT:
 				Logger.logger.verboseLn("Gradient. No code. This will cause problems if this is reached");
-				System.exit(444);
+				Logger.logger.debugLn("Gradient filter. Depth should be 24 it is: " + format.depth);
+				render.drawFill(x, y, width, height, 0x00FF00);
+				
+				byte[] data = readCompressedData(dataIn, width*height*format.bytesPerTPixel, stream);
+				int[] gradientPixels = convertDataToTightPixels(data, width*height, format);
+
+				int[] newPixels = new int[width*height];
+				System.arraycopy(gradientPixels, 0, newPixels, 0, width*height);
+				
+				/* 
+				 * Code based on 
+				 * https://github.com/BinaryAnalysisPlatform/deprecated-qemu-tracer/blob/master/ui/vnc-enc-tight.c#L547
+				 */
+				byte[] here = new byte[3]; // Array holding the colour components at the current x, y
+				byte[] upper = new byte[3]; // Array holding the colour components at the current x, y-1
+				byte[] left = new byte[3]; // Array holding the colour components at the current x-1, y
+				byte[] upperleft = new byte[3]; // Array holding the colour components at the current x-1, y-1
+				
+				int[] shift = new int[3]; // Array holding the colour shifts for each component. Copied for easy access
+				shift[0] = format.redShift;
+				shift[1] = format.greenShift;
+				shift[2] = format.blueShift;
+				
+				int d = 0;
+				int currentPixel = 0;
+				
+				int prev = 0;
+				int[] prevPixels = new int[width * height];
+				
+				int prediction = 0;
+				
+				for (int srcY = 0; srcY < height; srcY++) {
+					// Loop over each colour component
+/*					for (int c = 0; c < 3; c++) {
+						upper[c] = 0;
+						here[c] = 0;
+					}*/
+					for (int srcX = 0; srcX < width; srcX++) {
+						currentPixel = gradientPixels[d++];
+						Logger.logger.debugLn("Read " + Integer.toHexString(currentPixel));
+						
+						for (int c = 0; c < 3; c++) {
+							upperleft[c] = upper[c];
+							left[c] = here[c];				
+							if (srcX < 0 || srcX > width || (srcY-1) < 0 || (srcY-1) > height) {
+								upper[c] = 0;
+							} else {
+								upper[c] = (byte) prevPixels[prev]; //(byte) ((newPixels[srcX + (srcY-1)*width] & (0xFF << shift[c])) >> shift[c]);
+							}
+							// Get the component for the current pixel
+							here[c] = (byte) (currentPixel >> shift[c] & 0xFF);
+							prevPixels[prev++] = here[c];
+							
+							prediction = left[c] + upper[c] - upperleft[c];
+							if (prediction < 0) {
+								prediction = 0;
+							} else if (prediction > 0xFF) {
+								prediction = 0xFF;
+							} 
+							newPixels[srcX + srcY * width] |= (here[c] - prediction) << shift[c];
+							System.out.println(x + ", " + y);
+							render.drawRaw(x, y, width, height, newPixels);
+							render.drawFill(srcX+x+1, srcY+y+1, srcX+x+10, srcY+y+10, newPixels[srcX + srcY * width]);
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					
+				}
+				render.drawRaw(x, y, width, height, newPixels);
+				
+				//System.exit(444);
 				break;
 			case COPY:
 				Logger.logger.verboseLn("Copy mode");
 				//Read compressed TightPixels
 				Logger.logger.debugLn("Reading copy mode TPixels");
-				int byteDataSize = format.bytesPerTPixel; 
-				byte[] copyData = readCompressedData(dataIn, width*height*byteDataSize, stream);
+				byte[] copyData = readCompressedData(dataIn, width*height*format.bytesPerTPixel, stream);
 				//Decode copy filter
 				int[] pixels = convertDataToTightPixels(copyData, width*height, format);
 				//Read pixels
