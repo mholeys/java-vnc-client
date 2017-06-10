@@ -42,9 +42,9 @@ public class ColorUtil {
 			mask += 1;
 		}
 		pixel = pixel & mask;
-		int red = (int)(((pixel >>> format.redShift & format.redMax) / (double)format.redMax) * 255);
-		int green = (int)(((pixel >>> format.greenShift & format.greenMax) / (double)format.greenMax) * 255);
-		int blue = (int)(((pixel >>> format.blueShift & format.blueMax) / (double)format.blueMax) * 255);
+		int red = (int)((((pixel >>> format.redShift) & format.redMax) / (double)format.redMax) * 255);
+		int green = (int)((((pixel >>> format.greenShift) & format.greenMax) / (double)format.greenMax) * 255);
+		int blue = (int)((((pixel >>> format.blueShift) & format.blueMax) / (double)format.blueMax) * 255);
 		int color = (red << 16) | (green << 8) | blue;
 		return color;
 	}

@@ -76,6 +76,8 @@ public class VNCProtocol implements Runnable {
 	
 	/** The client's preferred "pixel" format */
 	public PixelFormat preferredFormat;
+	/** The server's preferred "pixel" format */
+	public PixelFormat serverPreferredFormat;
 	/** The width of the server's display */
 	public int width;
 	/** The height of the server's display */
@@ -314,24 +316,36 @@ public class VNCProtocol implements Runnable {
 		name = serverInit.name;
 		width = serverInit.framebufferWidth;
 		height = serverInit.framebufferHeight;
-		preferredFormat = serverInit.format;
+		serverPreferredFormat = serverInit.format;
 		
 		logger.printLn("Connected successfully to:");
 		logger.printLn(serverInit.name);
 		logger.printLn("Width: " + serverInit.framebufferWidth);
 		logger.printLn("Height: " + serverInit.framebufferHeight);
-		logger.printLn("Bits per pixel: " + preferredFormat.bitsPerPixel);
-		logger.printLn("Depth: " + preferredFormat.depth);
+		logger.printLn("Bits per pixel: " + serverPreferredFormat.bitsPerPixel);
+		logger.printLn("Depth: " + serverPreferredFormat.depth);
+		
+		logger.printLn("Red colour offset: " + serverPreferredFormat.redShift);
+		logger.printLn("Green colour offset: " + serverPreferredFormat.greenShift);
+		logger.printLn("Blue colour offset: " + serverPreferredFormat.blueShift);
+		
+		logger.printLn("Red colour max: " + serverPreferredFormat.redMax);
+		logger.printLn("Green colour max: " + serverPreferredFormat.greenMax);
+		logger.printLn("Blue colour max: " + serverPreferredFormat.blueMax);
+		
+		// Use the server's format if the client hasn't requested one
+		if (preferredFormat == null) {
+			preferredFormat = serverPreferredFormat;
+		}
 		return true;
 	}
 	
 	public void sendFormat() throws IOException {
+		if (preferredFormat != null) {
 		SetPixelFormatMessage pixelFormat = new SetPixelFormatMessage(socket, in, out);
-		
 		pixelFormat.format = preferredFormat;
-		// TODO: Fix prefered format for pixels. Look into colour maps+others
-		preferredFormat = preferredFormat;
-		pixelFormat.sendMessage();
+			pixelFormat.sendMessage();
+		}
 	}
 
 	public void sendSetEncoding() throws IOException {

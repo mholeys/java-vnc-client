@@ -3,7 +3,6 @@ package uk.co.mholeys.vnc.encoding;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.zip.DataFormatException;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
@@ -53,13 +52,13 @@ public class TightEncoding extends Decoder {
 		int mode = compressionControl & 0xF0;
 		switch (mode) {
 		case FILL:
-			Logger.logger.verboseLn("Fill mode");
+			Logger.logger.verboseLn("Tight Fill mode");
 			Logger.logger.debugLn("Reading tight pixel for fill");
-			int color = readTightPixel(dataIn, format);
+			int color = readTightPixel(dataIn, format, true);
 			render.drawFill(x, y, width, height, color);
 			break;
 		case JPEG:
-			Logger.logger.verboseLn("JPEG mode");
+			Logger.logger.verboseLn("Tight JPEG mode");
 			Logger.logger.debugLn("Reading length of jpeg data");
 			int length = readCompactInt(dataIn);
 			byte[] jpegData = new byte[length];
@@ -82,13 +81,14 @@ public class TightEncoding extends Decoder {
 			switch (filterId) {
 			case PALETTE:
 				//Decode palette filter
+				Logger.logger.verboseLn("Tight Palette mode");
 				Logger.logger.debugLn("Reading palette size");
 				int paletteSize = dataIn.readUnsignedByte()+1;
 				Logger.logger.debugLn("Palette Size: " + paletteSize);
 				int[] palette = new int[256];
 				for (int i = 0; i < paletteSize; i++) {
 					Logger.logger.debugLn("Reading palette pixel");
-					palette[i] = readTightPixel(dataIn, format);
+					palette[i] = readTightPixel(dataIn, format, true);
 				}
 				int paletteDataLength = paletteSize == 2 ?
 						height * ((width + 7) / 8) :
@@ -107,12 +107,12 @@ public class TightEncoding extends Decoder {
 				render.drawPalette(x, y, width, height, palette, paletteSize, paletteDataNew);
 				break;
 			case GRADIENT:
+				Logger.logger.verboseLn("Tight Gradient mode");
 				Logger.logger.debugLn("Gradient filter. Depth should be 24 it is: " + format.depth);
-				render.drawFill(x, y, width, height, 0x00FF00);
 				
 				byte[] data = readCompressedData(dataIn, width*height*format.bytesPerTPixel, stream);
-				int[] gradientPixels = convertDataToTightPixels(data, width*height, format);
-
+				int[] gradientPixels = convertDataToTightPixels(data, width*height, format, true);
+				
 				int[] newPixels = new int[width*height];
 				System.arraycopy(gradientPixels, 0, newPixels, 0, width*height);
 				
@@ -168,12 +168,12 @@ public class TightEncoding extends Decoder {
 				render.drawRaw(x, y, width, height, newPixels);
 				break;
 			case COPY:
-				Logger.logger.verboseLn("Copy mode");
+				Logger.logger.verboseLn("Tight Copy mode");
 				//Read compressed TightPixels
 				Logger.logger.debugLn("Reading copy mode TPixels");
 				byte[] copyData = readCompressedData(dataIn, width*height*format.bytesPerTPixel, stream);
 				//Decode copy filter
-				int[] pixels = convertDataToTightPixels(copyData, width*height, format);
+				int[] pixels = convertDataToTightPixels(copyData, width*height, format, true);
 				//Read pixels
 				render.drawRaw(x, y, width, height, pixels);
 				break;
@@ -184,10 +184,10 @@ public class TightEncoding extends Decoder {
 		}
 	}
 	
-	public static int readTightPixel(DataInputStream dataIn, PixelFormat format) throws IOException {
+	public static int readTightPixel(DataInputStream dataIn, PixelFormat format, boolean reverse) throws IOException {
 		byte[] b = new byte[format.bytesPerTPixel];
 		dataIn.readFully(b);
-		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format, true));
+		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format, reverse));
 	}
 	
 	public static int readCompactInt(DataInputStream dataIn) throws IOException {
@@ -248,7 +248,7 @@ public class TightEncoding extends Decoder {
 		return p;
 	}
 	
-	public static int[] convertDataToTightPixels(byte[] data, int dataSize, PixelFormat format) {
+	public static int[] convertDataToTightPixels(byte[] data, int dataSize, PixelFormat format, boolean reverse) {
 		//FIXME probably this causing the colour problem (orange on bgr)
 		int size = format.bytesPerTPixel;
 		int[] pixels = new int[dataSize];
@@ -256,7 +256,7 @@ public class TightEncoding extends Decoder {
 			byte[] p = new byte[size];
 			System.arraycopy(data, i*size, p, 0, size);
 			
-			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format, true));
+			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format, reverse));
 		}
 		return pixels;
 	}
