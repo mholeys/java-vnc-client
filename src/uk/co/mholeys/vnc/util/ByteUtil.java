@@ -46,7 +46,6 @@ public class ByteUtil {
 	
 	public static int bytesToInt(byte[] b, PixelFormat format, boolean reverse) {
 		if (reverse) {
-			
 			//Reverse bytes
 			format = format.clone().setBigEndianFlag(!format.bigEndianFlag);
 		}
@@ -68,7 +67,8 @@ public class ByteUtil {
 		}
 		if (b.length == 3) {
 			byte[] c = new byte[4];
-			System.arraycopy(b, 0, c, 1, b.length);
+			int offset = (format.bigEndianFlag ? 1 : 0); 
+			System.arraycopy(b, 0, c, offset, b.length);
 			b = c;
 		}
 		
