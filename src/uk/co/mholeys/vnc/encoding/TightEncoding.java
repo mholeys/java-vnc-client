@@ -250,8 +250,6 @@ public class TightEncoding extends Decoder {
 			System.arraycopy(data, i*size, p, 0, size);
 			
 			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format));
-			String s = Integer.toHexString(pixels[i]);
-			Math.round(2);
 		}
 		return pixels;
 	}
