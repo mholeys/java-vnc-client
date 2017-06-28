@@ -317,6 +317,7 @@ public class VNCProtocol implements Runnable {
 		width = serverInit.framebufferWidth;
 		height = serverInit.framebufferHeight;
 		serverPreferredFormat = serverInit.format;
+		ui.setServerFormat(serverPreferredFormat);
 		
 		logger.printLn("Connected successfully to:");
 		logger.printLn(serverInit.name);

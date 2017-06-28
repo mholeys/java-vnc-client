@@ -103,6 +103,24 @@ public class PixelFormat {
 		}
 	}
 
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("BytesPerPixel: " + bytesPerPixel + "\n");
+		sb.append("BytesPerTPixel: " + bytesPerTPixel + "\n");
+		sb.append("BitsPerPixel: " + bitsPerPixel + "\n");
+		sb.append("Colour Depth: " + depth + "\n");
+		sb.append("Big Endian: " + bigEndianFlag + "\n");
+		sb.append("True colour mode: " + trueColorFlag + "\n");
+		sb.append("Max red value: " + redMax + "\n");
+		sb.append("Red offset: " + redShift + "\n");
+		sb.append("Max green value: " + greenMax + "\n");
+		sb.append("Green offset: " + greenShift + "\n");
+		sb.append("Max blue value: " + blueMax + "\n");
+		sb.append("Blue offset: " + blueShift + "\n");
+		
+		return sb.toString();
+	}
+	
 	public static final PixelFormat DEFAULT_FORMAT = new PixelFormat()
 			.setBitsPerPixel((byte) 32)
 			.setDepth((byte) 24)

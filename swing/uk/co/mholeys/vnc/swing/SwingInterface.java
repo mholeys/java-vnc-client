@@ -1,5 +1,6 @@
 package uk.co.mholeys.vnc.swing;
 
+import uk.co.mholeys.vnc.data.PixelFormat;
 import uk.co.mholeys.vnc.display.IDisplay;
 import uk.co.mholeys.vnc.display.IKeyboardManager;
 import uk.co.mholeys.vnc.display.IMouseManager;
@@ -14,6 +15,7 @@ public class SwingInterface implements IUserInterface {
 	private UpdateManager updateManager;
 	public Mouse mouse;
 	public Keyboard keyboard;
+	public PixelFormat format;
 	
 	@Override
 	public IDisplay getDisplay() {
@@ -42,6 +44,16 @@ public class SwingInterface implements IUserInterface {
 	public void setUpdateManager(UpdateManager updateManager) {
 		this.updateManager = updateManager; 
 		this.screen.updateManager = updateManager;
+	}
+
+	@Override
+	public PixelFormat getServerFormat() {
+		return format;
+	}
+
+	@Override
+	public void setServerFormat(PixelFormat format) {
+		this.format = format;
 	}
 	
 	@Override

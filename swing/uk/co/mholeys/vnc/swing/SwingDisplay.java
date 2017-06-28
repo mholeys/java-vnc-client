@@ -1,17 +1,26 @@
 package uk.co.mholeys.vnc.swing;
 
+import java.awt.BorderLayout;
+import java.awt.Button;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import uk.co.mholeys.vnc.data.Encoding;
 import uk.co.mholeys.vnc.data.EncodingSettings;
+import uk.co.mholeys.vnc.data.PixelFormat;
 import uk.co.mholeys.vnc.display.IDisplay;
 import uk.co.mholeys.vnc.display.IScreen;
 import uk.co.mholeys.vnc.display.UpdateManager;
@@ -61,7 +70,23 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		this.addMouseMotionListener(mouse);
 		this.addMouseWheelListener(mouse);
 		this.addKeyListener(keyboard);
-		frame.add(this);
+		frame.setLayout(new BorderLayout());
+		
+		Panel buttonPanel = new Panel();
+		buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		JButton infoButton = new JButton("Info");
+		infoButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(null, intf.getServerFormat(), "Server format information", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+		
+		buttonPanel.add(infoButton);
+		
+		frame.add(buttonPanel, BorderLayout.NORTH);
+		frame.add(this, BorderLayout.CENTER);
 		frame.pack();
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -100,20 +125,25 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		EncodingSettings es = new EncodingSettings();
 		es.addEncoding(Encoding.TIGHT_ENCODING);
 		es.addEncoding(Encoding.ZLIB_ENCODING);
-		es.addEncoding(Encoding.RRE_ENCODING);
 		es.addEncoding(Encoding.CORRE_ENCODING);
+		es.addEncoding(Encoding.RRE_ENCODING);
 		es.addEncoding(Encoding.COPY_RECT_ENCODING);
 		es.addEncoding(Encoding.RAW_ENCODING);
-		es.addEncoding(Encoding.JPEG_QUALITY_LEVEL_1_PSEUDO_ENCODING);
-		es.addEncoding(Encoding.COMPRESSION_LEVEL_1_PSEUDO_ENCODING);
+
+		// Pseudo encodings
+		//es.addEncoding(Encoding.JPEG_QUALITY_LEVEL_1_PSEUDO_ENCODING); // Now optional as gradient "works"
+		//es.addEncoding(Encoding.COMPRESSION_LEVEL_1_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);
 		
-		//PixelFormat preferredFormat = PixelFormat.DEFAULT_FORMAT.clone();
+		PixelFormat preferredFormat = PixelFormat.DEFAULT_FORMAT.clone();
+		preferredFormat = null;
+		//preferredFormat.bigEndianFlag = false;
+		
 		
 		IConnectionInformation connection;
 		try {
-			connection = new SwingConnection(es, null, new SwingPassword());
-			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_VERBOSE));
+			connection = new SwingConnection(es, preferredFormat, new SwingPassword());
+			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_NONE));
 			Thread t = new Thread(vnc);
 			t.start();
 		} catch (UnknownHostException e) {
