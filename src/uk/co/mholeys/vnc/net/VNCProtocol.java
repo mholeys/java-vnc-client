@@ -322,6 +322,7 @@ public class VNCProtocol implements Runnable {
 		logger.printLn(serverInit.name);
 		logger.printLn("Width: " + serverInit.framebufferWidth);
 		logger.printLn("Height: " + serverInit.framebufferHeight);
+		logger.printLn("BigEndian: " + serverPreferredFormat.bigEndianFlag);
 		logger.printLn("Bits per pixel: " + serverPreferredFormat.bitsPerPixel);
 		logger.printLn("Depth: " + serverPreferredFormat.depth);
 		
@@ -388,7 +389,7 @@ public class VNCProtocol implements Runnable {
 	}
 	
 	public void readFrameBufferUpdate() throws IOException {
-		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, updateManager, preferredFormat, streams, supportedEncodings);
+		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, updateManager, serverPreferredFormat, streams, supportedEncodings);
 		update.receiveMessage();
 	}
 	
