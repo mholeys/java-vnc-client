@@ -43,20 +43,21 @@ public class ByteUtil {
 	public static String convertToBits(byte b) {
 		return convertToBits(new byte[] {b});
 	}
-	
+/*	
 	public static int bytesToInt(byte[] b, PixelFormat format, boolean reverse) {
 		if (reverse) {
 			//Reverse bytes
 			format = format.clone().setBigEndianFlag(!format.bigEndianFlag);
 		}
+		System.out.println(reverse);
 		return bytesToInt(b, format);
-	}
+	}*/
 	
-	public static int bytesToInt(byte[] b, PixelFormat format) {
-		/*byte[] bytes = new byte[4];
+	/*public static int bytesToInt(byte[] b, PixelFormat format) {
+		byte[] bytes = new byte[4];
 		if (b.length == 0) {
 			throw new ArrayIndexOutOfBoundsException();
-		}*/
+		}
 		ByteBuffer buff = ByteBuffer.allocate(4);
 		if (b.length == 1) {
 			return (int) b[0] & 0xff;
@@ -75,8 +76,105 @@ public class ByteUtil {
 		ByteOrder bo = !format.bigEndianFlag ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
 		buff.put(b);
 		buff.order(bo);
-		buff.flip();		
+		buff.flip();
 		return buff.getInt();
+	}*/
+	
+	public static int bytesToInt(byte[] b, PixelFormat format) {
+		//ByteBuffer buff = ByteBuffer.wrap(b);
+		//ByteOrder bo = !format.bigEndianFlag ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+		//buff = buff.order(bo);
+		//buff.flip();
+		
+		/*int result = 0;
+		int diff = -1;
+		int j = b.length-1;
+		if (format.bigEndianFlag) {
+			diff = -1;
+			j = 0;
+		}
+		
+		for (int i = 0; i < b.length;) {
+			int f = b[i] & 0xFF;
+			//System.out.println(Integer.toHexString(f));
+			result |= (b[i] & 0xFF) << j * 8;
+			i++;
+			j += diff;
+		}
+		//System.out.println(Integer.toHexString(result));
+		return result;*/
+		
+		
+		/*if (format.bigEndianFlag) {
+			if (b.length == 1) {
+				int i = 0;
+				i += (b[0] & 0xFF) << 24;
+				return i;
+			}
+			if (b.length == 2) {
+				int i = 0;
+				i += (b[0] & 0xFF) << 24;
+				i += (b[1] & 0xFF) << 16;
+				return i;
+			}
+			if (b.length == 3) {
+				int i = 0;
+				i += (b[0] & 0xFF) << 24;
+				i += (b[1] & 0xFF) << 16;
+				i += (b[2] & 0xFF) << 8;
+				return i;
+			}
+			if (b.length == 4) {
+				int i = 0;
+				i += (b[0] & 0xFF) << 24;
+				i += (b[1] & 0xFF) << 16;
+				i += (b[2] & 0xFF) << 8;
+				i += (b[3] & 0xFF) << 0;
+				return i;
+			}
+		} else {
+			if (b.length == 1) {
+				int i = 0;
+				i += (b[0] & 0xFF) << 0;
+				return i;
+			}
+			if (b.length == 2) {
+				int i = 0;
+				i += (b[0] & 0xFF) << 0;
+				i += (b[1] & 0xFF) << 8;
+				return i;
+			}
+			if (b.length == 3) {
+				int i = 0;
+				i += (b[0] & 0xFF) << 0;
+				i += (b[1] & 0xFF) << 8;
+				i += (b[2] & 0xFF) << 16;
+				return i;
+			}
+			if (b.length == 4) {
+				int i = 0;
+				i += (b[0] & 0xFF) << 0;
+				i += (b[1] & 0xFF) << 8;
+				i += (b[2] & 0xFF) << 16;
+				i += (b[3] & 0xFF) << 24;
+				return i;
+			}
+		}*/
+		/*int value = 0;
+	    for (int i = 4-b.length; i < b.length; i++) {
+	        int shift = (4 - 1 - i) * 8;
+	        value += (b[i] & 0x000000FF) << shift;
+	    }
+	    return value;
+		//return -1;
+		 */
+
+		byte[] intSized = new byte[4];
+		ByteBuffer bb = ByteBuffer.wrap(intSized);
+		System.arraycopy(b, 0, intSized, 0, b.length);
+		ByteOrder bo = format.bigEndianFlag ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+		bb = bb.order(bo);
+		return bb.getInt();
 	}
 	
 	public static short bytesToShort(byte[] bytes) {
