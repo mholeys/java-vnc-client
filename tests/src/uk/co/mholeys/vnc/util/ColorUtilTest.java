@@ -100,7 +100,7 @@ public class ColorUtilTest {
 		
 		byte[] colorIn = {(byte) 0xFF, (byte) 0xFE, (byte) 0xFD};
 		
-		int colorExpectedOut = 0xFDFEFF;
+		int colorExpectedOut = 0xFFFEFD;
 		int colorOut = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(colorIn, format));
 		
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + "\nExpected: " + Integer.toHexString(colorExpectedOut) + " got: " + Integer.toHexString(colorOut)); System.out.println();
@@ -116,7 +116,7 @@ public class ColorUtilTest {
 		
 		byte[] colorIn = {(byte) 0xFF, (byte) 0xFE, (byte) 0xFD};
 		
-		int colorExpectedOut = 0xFFFEFD;
+		int colorExpectedOut = 0xFDFEFF;
 		int colorOut = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(colorIn, format));
 		
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + "\nExpected: " + Integer.toHexString(colorExpectedOut) + " got: " + Integer.toHexString(colorOut)); System.out.println();

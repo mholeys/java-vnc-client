@@ -41,6 +41,9 @@ import uk.co.mholeys.vnc.message.server.FrameBufferUpdate;
  */
 public class VNCProtocol implements Runnable {
 
+	/** Exit status code for when a connection fails when the retry limit is reached */
+	public static final int CONNECTION_ATTEMPT_LIMIT_HIT_EXIT = 567;
+	
 	/** Header id for the frame buffer update message */
 	public static final int FRAME_BUFFER_UDPATE = 0;
 	/** Number of times to attempt to connect to the server */
@@ -112,11 +115,6 @@ public class VNCProtocol implements Runnable {
 		// Ensure that we have a supported/preferred pixel format
 		if (connection.hasPrefferedFormat()) {
 			this.preferredFormat = connection.getPrefferedFormat();
-			if (this.preferredFormat == null) {
-				//this.preferredFormat = PixelFormat.DEFAULT_FORMAT;
-			}
-		} else {
-			//this.preferredFormat = PixelFormat.DEFAULT_FORMAT;
 		}
 		// Ensure that we have a list of supported/preferred encodings
 		if (connection.hasPrefferedEncoding()) {
@@ -165,7 +163,7 @@ public class VNCProtocol implements Runnable {
 				retry++;
 			}
 			if (!connected && retry == RETRY_LIMIT) {
-				System.exit(0);
+				System.exit(CONNECTION_ATTEMPT_LIMIT_HIT_EXIT);
 			}
 		} catch (IOException e) {
 			throw new VNCConnectionException("Failed to connect to server: \"" + address + ":" + port + "\"");
@@ -337,7 +335,7 @@ public class VNCProtocol implements Runnable {
 		
 		// Use the server's format if the client hasn't requested one
 		if (preferredFormat == null) {
-			preferredFormat = serverPreferredFormat;
+			//preferredFormat = serverPreferredFormat;
 		}
 		return true;
 	}

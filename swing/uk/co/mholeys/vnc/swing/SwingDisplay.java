@@ -135,14 +135,10 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		//es.addEncoding(Encoding.COMPRESSION_LEVEL_1_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);
 		
-		PixelFormat preferredFormat = PixelFormat.DEFAULT_FORMAT.clone();
-		preferredFormat = null;
-		//preferredFormat.bigEndianFlag = false;
-		
 		
 		IConnectionInformation connection;
 		try {
-			connection = new SwingConnection(es, preferredFormat, new SwingPassword());
+			connection = new SwingConnection(es, null, new SwingPassword());
 			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_NONE));
 			Thread t = new Thread(vnc);
 			t.start();
