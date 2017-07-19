@@ -3,6 +3,7 @@
 	<property name="build-swing" location="bin/swing"/>
     <property name="dist" location="dist"/>
 	
+<<<<<<< HEAD
 	<property environment="env"/>
     <property name="main-swing" value="com.mholeys.vnc.swing.SwingDisplay"/>
 	
@@ -29,6 +30,33 @@
         <mkdir dir="dist"/>
     	<echo file="${build-vnc}/version" append="false">${env.BUILD_TAG}</echo>
         <jar destfile="${dist}/vnc-${env.BUILD_NUMBER}.jar" basedir="${build-vnc}"/>
+=======
+    <property name="main-swing" value="com.mholeys.vnc.swing.SwingDisplay"/>
+	
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+
+        <mkdir dir="${build-vnc}"/>
+    	<mkdir dir="${build-swing}"/>
+    </target>
+
+    <target name="compile-vnc" depends="init">
+    	<!-- Compiles the vnc code-->
+        <javac target="1.7" source="1.7" srcdir="src" destdir="${build-vnc}"/>
+    </target>
+	
+	<target name="compile-swing" depends="compile-vnc">
+	    	<!-- Compiles the swing vnc code-->
+	        <javac target="1.7" source="1.7" srcdir="swing" destdir="${build-swing}" classpath="${build-vnc}"/>
+	    </target>
+
+    <target name="dist" depends="compile-vnc,compile-swing">
+    	<!-- Saves all the code into jars -->
+        <mkdir dir="dist"/>
+    	<echo file="${build-vnc}/version" append="false">${BUILD_TAG}</echo>
+        <jar destfile="${dist}/vnc-${BUILD_NUMBER}.jar" basedir="${build-vnc}"/>
+>>>>>>> branch 'master' of git@bitbucket.org:mholeys/external-vnc.git
         <jar destfile="${dist}/swing-vnc.jar" basedir="${build-swing}">
         	<manifest>
         	    <attribute name="Main-Class" value="${main-swing}" />
