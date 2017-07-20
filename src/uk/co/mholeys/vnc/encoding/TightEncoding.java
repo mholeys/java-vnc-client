@@ -184,38 +184,23 @@ public class TightEncoding extends Decoder {
 	}
 	
 	public static int readCompactInt(DataInputStream dataIn) throws IOException {
-		/*int b = dataIn.readUnsignedByte();
-		int size = b & 0x7F;
-		if ((b & 0x80) != 0) {
-			b = dataIn.readUnsignedByte();
-			size += (b & 0x7F) << 7;
-			if ((b & 0x80) != 0) {
-				size += dataIn.readUnsignedByte() << 14;
-			}
-		}
-		return size;*/
-		
-		
+	
 		int length = 0;
 		byte b0 = dataIn.readByte();
 		byte b1;
 		byte b2;
 		length = b0 & 0x7F;
-		//System.out.println("b0 " + Integer.toBinaryString(b0) + " " + ((b0 & 0x80)>>>7) + " " + length);
 		if ((b0 & 0x80)>>>7 != 0) {
 			b1 = dataIn.readByte();
 			length += (b1 & 0x7F)<<7;
-			//System.out.println("b1 " + Integer.toBinaryString(b1) + " " + ((b1 & 0x80)>>>7) + " " + length);
 			if (((b1 & 0x80)>>>7) != 0) {
 				b2 = dataIn.readByte();
 				length += b2 << 14;
-				//System.out.println("b2 " + Integer.toBinaryString((b2 & 0x80)>>>7) + " " + ((b2 & 0x80)>>>7) + " " + length);
 				if ((b2 & 0x80)>>>7 != 0) {
 					return -1;
 				}
 			}
 		}
-		//System.out.println("L: " + length + " " + Integer.toBinaryString(length));
 		return length;
 	}
 
@@ -242,7 +227,6 @@ public class TightEncoding extends Decoder {
 	}
 	
 	public static int[] convertDataToTightPixels(byte[] data, int dataSize, PixelFormat format) {
-		//FIXME probably this causing the colour problem (orange on bgr) and other things
 		int size = format.bytesPerTPixel;
 		int[] pixels = new int[dataSize];
 		for (int i = 0; i < dataSize; i++) {
