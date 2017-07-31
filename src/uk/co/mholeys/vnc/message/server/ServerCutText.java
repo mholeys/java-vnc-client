@@ -34,6 +34,7 @@ public class ServerCutText extends ClientReceiveMessage {
 		for (int i = 0; i < length; i++) {
 			sb.append(new String(new byte[] {dataIn.readByte()}));
 		}
+		Logger.logger.verboseLn("ServerCutText message received");
 		return sb.toString();
 	}
 

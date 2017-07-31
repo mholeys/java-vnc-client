@@ -6,12 +6,13 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import uk.co.mholeys.vnc.data.PixelFormat;
+import uk.co.mholeys.vnc.log.Logger;
 
-public class SetPixelFormatMessage extends ClientSendMessage {
+public class SetPixelFormat extends ClientSendMessage {
 
 	public PixelFormat format;
 	
-	public SetPixelFormatMessage(Socket socket, InputStream in, OutputStream out) {
+	public SetPixelFormat(Socket socket, InputStream in, OutputStream out) {
 		super(socket, in, out);
 	}
 
@@ -35,6 +36,7 @@ public class SetPixelFormatMessage extends ClientSendMessage {
 		dataOut.writeByte((byte)0);
 		dataOut.writeByte((byte)0);
 		dataOut.writeByte((byte)0);
+		Logger.logger.verboseLn("SetPixelFormat message sent");
 	}
 	
 	@Override

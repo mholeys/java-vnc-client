@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 public class EnableContinuousUpdates extends ClientSendMessage {
 
 	public boolean enable;
@@ -29,6 +31,8 @@ public class EnableContinuousUpdates extends ClientSendMessage {
 		dataOut.writeShort(y);
 		dataOut.writeShort(width);
 		dataOut.writeShort(height);
+		
+		Logger.logger.verboseLn("EnbleContinuousUpdates message sent");
 	}
 
 }

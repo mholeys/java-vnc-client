@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 public class KeyEvent extends ClientSendMessage {
 
 	public boolean pressed;
@@ -21,6 +23,7 @@ public class KeyEvent extends ClientSendMessage {
 		dataOut.writeByte(0); // Padding
 		dataOut.writeByte(0); // Padding
 		dataOut.writeInt(key); // Key
+		Logger.logger.verboseLn("KeyEvent message sent");
 	}
 
 	@Override

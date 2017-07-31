@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 public class SetDesktopSize extends ClientSendMessage {
 	
 	public short width, height;
@@ -24,6 +26,7 @@ public class SetDesktopSize extends ClientSendMessage {
 	public void sendMessage() throws IOException {
 		dataOut.writeByte((byte)getId());
 		dataOut.writeByte((byte)0);
+		Logger.logger.verboseLn("SetDesktopSize message sent");
 		
 	}
 

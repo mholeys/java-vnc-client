@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 public class Bell extends ClientReceiveMessage {
 
 	public Bell(Socket socket, InputStream in, OutputStream out) {
@@ -18,6 +20,7 @@ public class Bell extends ClientReceiveMessage {
 
 	@Override
 	public Object receiveMessage() throws IOException {
+		Logger.logger.verboseLn("Bell message received");
 		return null;
 	}
 

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import uk.co.mholeys.vnc.data.Encoding;
 import uk.co.mholeys.vnc.data.EncodingSettings;
+import uk.co.mholeys.vnc.log.Logger;
 
 public class SetEncodings extends ClientSendMessage {
 
@@ -44,8 +45,10 @@ public class SetEncodings extends ClientSendMessage {
 		dataOut.writeByte((byte)getId());
 		dataOut.writeByte(0);
 		dataOut.writeShort(encodings.size());
+		Logger.logger.verboseLn("SetEncodings message sent");
 		for (int i = 0; i < encodings.size(); i++) {
 			dataOut.writeInt(encodings.get(i));
+			Logger.logger.debugLn("Sent encoding of " + encodings.get(i));
 		}
 	}
 

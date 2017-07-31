@@ -38,7 +38,7 @@ public class VNCAuthentication extends Authentication {
 			Logger.logger.debugLn("Sent response to challenge as " + ByteUtil.convertToBits(result));
 			dataOut.write(result);
 		} catch (Exception e) {
-			System.err.println("Failed to connect to server because of problem responding to connection challenge.");
+			Logger.logger.verboseLn("Failed to connect to server because of problem responding to connection challenge.");
 			e.printStackTrace();
 		}
 
@@ -46,8 +46,10 @@ public class VNCAuthentication extends Authentication {
         Logger.logger.debugLn("Reading result of authentication");
 		success = dataIn.readInt();
 		if (success == 0) {
+			Logger.logger.verboseLn("Authenticated using VNC Auth");
 			return true;
 		}
+		Logger.logger.verboseLn("Failed to autheticate using VNC");
 		return false;
 	}
 

@@ -26,40 +26,39 @@ public class UpdateManager {
 	Queue<ScreenUpdate> updates = new LinkedList<ScreenUpdate>();
 	
 	public void drawRaw(int x, int y, int width, int height, int[] pixels) {
-		Logger.logger.debugLn("Added Raw update");
+		Logger.logger.verboseLn("Added Raw update");
 		updates.offer(new RawScreenUpdate(x, y, width, height, pixels));
 		screen.process();
 	}
 	
 	public void drawPalette(int x, int y, int width, int height, int[] palette, int paletteSize, byte[] data) {
-		Logger.logger.debugLn("Added Palette update");
+		Logger.logger.verboseLn("Added Palette update");
 		updates.offer(new PaletteScreenUpdate(x, y, width, height, palette, paletteSize, data));
 		screen.process();
 	}
 	
 	public void drawJPEG(int x, int y, int width, int height, byte[] jpegData) {
-		Logger.logger.debugLn("Added JPEG update");
+		Logger.logger.verboseLn("Added JPEG update");
 		updates.offer(new JPEGScreenUpdate(x, y, width, height, jpegData));
 		screen.process();
 	}
 	
 	public void drawCopy(int xSrc, int ySrc, int width, int height, int xDest, int yDest) {
-		Logger.logger.debugLn("Added Copy update");
+		Logger.logger.verboseLn("Added Copy update");
 		updates.offer(new CopyScreenUpdate(xSrc, ySrc, width, height, xDest, yDest));
 		screen.process();
 	}
 	
 	public void drawFill(int x, int y, int width, int height, int pixel) {
-		Logger.logger.debugLn("Added Fill update");
+		Logger.logger.verboseLn("Added Fill update");
 		updates.offer(new FillScreenUpdate(x, y, width, height, pixel));
 		screen.process();
 	}
 
 	public void drawCursor(int x, int y, int width, int height, byte[] cursorData) {
-		Logger.logger.debugLn("Cursor updated ignored");
+		Logger.logger.verboseLn("Cursor updated ignored");
 		screen.process();
 	}
-	
 	
 	public boolean hasUpdates() {
 		return !updates.isEmpty();

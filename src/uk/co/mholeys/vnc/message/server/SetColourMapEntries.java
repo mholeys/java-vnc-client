@@ -40,6 +40,7 @@ public class SetColourMapEntries extends ClientReceiveMessage {
 			Logger.logger.debugLn("Reading blue of color map");
 			colours[i].blue = dataIn.readShort();
 		}
+		Logger.logger.verboseLn("SetColorMapEntry message received");
 		return null;
 	}
 

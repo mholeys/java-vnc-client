@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 public class EndOfContinuousUpdates extends ClientReceiveMessage {
 
 	public EndOfContinuousUpdates(Socket socket, InputStream in, OutputStream out) {
@@ -17,7 +19,8 @@ public class EndOfContinuousUpdates extends ClientReceiveMessage {
 	}
 
 	@Override
-	public Object receiveMessage() throws IOException {
+	public Object receiveMessage() throws IOException { 
+		Logger.logger.verboseLn("EndOfContinuousUpdates message received");
 		return null;
 	}
 

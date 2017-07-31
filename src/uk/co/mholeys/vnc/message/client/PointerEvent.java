@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 public class PointerEvent extends ClientSendMessage {
 
 	public byte button;
@@ -21,6 +23,7 @@ public class PointerEvent extends ClientSendMessage {
 			dataOut.writeByte(button);
 			dataOut.writeShort(x);
 			dataOut.writeShort(y);
+			Logger.logger.verboseLn("PointerEvent message sent");
 		}
 	}
 

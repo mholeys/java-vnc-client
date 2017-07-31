@@ -28,6 +28,7 @@ public class ServerInitMessage extends RecieveMessage {
 
 	@Override
 	public Object receiveMessage() throws IOException {
+		Logger.logger.verboseLn("ServerInit message received");
 		//Get the server init message
 		//Includes width(2), height(2), pixel-format(16),
 		//name-length(4), name

@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 public class ClientCutText extends ClientSendMessage {
 
 	public String text;
@@ -26,6 +28,7 @@ public class ClientCutText extends ClientSendMessage {
 		dataOut.writeByte(0);
 		dataOut.writeInt(text.length());
 		dataOut.writeBytes(text);
+		Logger.logger.verboseLn("ClientCutText message sent");
 	}
 
 	@Override

@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 /**
  * Authentication class representing the authentication type for the 
  * connection that will always be authenticated.
@@ -30,6 +32,7 @@ public class NoAuthentication extends Authentication {
 
 	@Override
 	public boolean authenticate() throws IOException {
+		Logger.logger.verboseLn("Autheticated using NoAuth");
 		return true;
 	}
 

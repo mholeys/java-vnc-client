@@ -93,6 +93,7 @@ public class VenCryptAuthentication extends Authentication {
 		// TODO add rest of authentication
 		// needs tls stuff?
 		
+		Logger.logger.verboseLn("Failed to autheticate using VenCryptAuth, cause unimplemented");
 		return false;
 	}
 

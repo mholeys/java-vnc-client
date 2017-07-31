@@ -35,12 +35,14 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 
 	@Override
 	public Object receiveMessage() throws IOException {
+		Logger.logger.verboseLn("EndOfContinuousUpdates message received");
+		
 		Logger.logger.debugLn("Reading padding");
 		dataIn.readByte();
 		Logger.logger.debugLn("Reading number of rectangles");
 		int rectangle = dataIn.readUnsignedShort();
 		PixelRectangle[] rectangles = new PixelRectangle[rectangle];
-		Logger.logger.verboseLn("Reading " + rectangle + " rectangles");
+		Logger.logger.debugLn("Reading " + rectangle + " rectangles");
 		for (int i = 0; i < rectangle; i++) {
 			PixelRectangle r = new PixelRectangle();
 			Logger.logger.debugLn("Reading x");

@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 public class ClientInitMessage extends SendMessage {
 
 	public ClientInitMessage(Socket socket, InputStream in, OutputStream out) {
@@ -13,6 +15,7 @@ public class ClientInitMessage extends SendMessage {
 
 	@Override
 	public void sendMessage() throws IOException {
+		Logger.logger.verboseLn("ClientInit message sent");
 		dataOut.writeByte(1);
 	}
 

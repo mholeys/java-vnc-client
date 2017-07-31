@@ -9,6 +9,7 @@ public class Logger {
 	
 	public static final int LOG_LEVEL_DEBUG = 0xFFF;
 	public static final int LOG_LEVEL_VERBOSE = 0xFFE;
+	public static final int LOG_LEVEL_DETAILED = 0xFFE;
 	public static final int LOG_LEVEL_NORMAL = 0xFFD;
 	public static final int LOG_LEVEL_NONE = 0xFFC;
 	
@@ -53,6 +54,10 @@ public class Logger {
 	public void verbose(String string) {
 		write(string, LOG_LEVEL_VERBOSE);
 	}
+
+	public void detailed(String string) {
+		write(string, LOG_LEVEL_DETAILED);
+	}
 	
 	public void print(String string) {
 		write(string, LOG_LEVEL_NORMAL);
@@ -64,6 +69,10 @@ public class Logger {
 	
 	public void verboseLn(String string) {
 		write(string+"\n", LOG_LEVEL_VERBOSE);
+	}
+	
+	public void detailedLn(String string) {
+		write(string+"\n", LOG_LEVEL_DETAILED);
 	}
 	
 	public void printLn(String string) {

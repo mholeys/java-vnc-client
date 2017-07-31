@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import uk.co.mholeys.vnc.log.Logger;
+
 public class FramebufferUpdateRequest extends ClientSendMessage {
 
 	public short x, y, width, height;
@@ -22,6 +24,7 @@ public class FramebufferUpdateRequest extends ClientSendMessage {
 		dataOut.writeShort(y); // y-pos
 		dataOut.writeShort(width); // width
 		dataOut.writeShort(height); // height
+		Logger.logger.verboseLn("FrameBufferUpdateRequest message sent");
 	}
 
 	@Override

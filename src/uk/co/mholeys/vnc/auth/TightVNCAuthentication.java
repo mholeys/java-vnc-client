@@ -90,8 +90,10 @@ public class TightVNCAuthentication extends Authentication {
 		}
 		if (auth != null) {
 			dataOut.writeInt(auth.getSecurityId());
+			Logger.logger.verboseLn("Authenticating using subtype");
 			return auth.authenticate();
 		} else {
+			Logger.logger.verboseLn("Failed to autheticate using TighVNC, cause sub-auth null");
 			return false;
 		}
 	}

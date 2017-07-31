@@ -31,7 +31,7 @@ import uk.co.mholeys.vnc.message.client.FramebufferUpdateRequest;
 import uk.co.mholeys.vnc.message.client.KeyEvent;
 import uk.co.mholeys.vnc.message.client.PointerEvent;
 import uk.co.mholeys.vnc.message.client.SetEncodings;
-import uk.co.mholeys.vnc.message.client.SetPixelFormatMessage;
+import uk.co.mholeys.vnc.message.client.SetPixelFormat;
 import uk.co.mholeys.vnc.message.server.FrameBufferUpdate;
 
 /**
@@ -270,11 +270,11 @@ public class VNCProtocol implements Runnable {
 				break;
 			}
 		}
-		logger.printLn("Invalid " + invalid);
-		logger.printLn("None " + none);
-		logger.printLn("VNC " + vnc_auth);
-		logger.printLn("TightVNC " + tight_auth);
-		logger.printLn("RealVNC " + realvnc);
+		logger.detailedLn("Invalid " + invalid);
+		logger.detailedLn("None " + none);
+		logger.detailedLn("VNC " + vnc_auth);
+		logger.detailedLn("TightVNC " + tight_auth);
+		logger.detailedLn("RealVNC " + realvnc);
 		
 		String pass = password.getPassword();
 		
@@ -306,7 +306,7 @@ public class VNCProtocol implements Runnable {
 		clientInit.sendMessage();
 		
 		if (tight) {
-			logger.printLn("Connected via tight");
+			logger.verboseLn("Connected via tight");
 		}
 		
 		ServerInitMessage serverInit = new ServerInitMessage(socket, in, out, tight);
@@ -319,19 +319,19 @@ public class VNCProtocol implements Runnable {
 		
 		logger.printLn("Connected successfully to:");
 		logger.printLn(serverInit.name);
-		logger.printLn("Width: " + serverInit.framebufferWidth);
-		logger.printLn("Height: " + serverInit.framebufferHeight);
-		logger.printLn("BigEndian: " + serverPreferredFormat.bigEndianFlag);
-		logger.printLn("Bits per pixel: " + serverPreferredFormat.bitsPerPixel);
-		logger.printLn("Depth: " + serverPreferredFormat.depth);
+		logger.detailedLn("Width: " + serverInit.framebufferWidth);
+		logger.detailedLn("Height: " + serverInit.framebufferHeight);
+		logger.detailedLn("BigEndian: " + serverPreferredFormat.bigEndianFlag);
+		logger.detailedLn("Bits per pixel: " + serverPreferredFormat.bitsPerPixel);
+		logger.detailedLn("Depth: " + serverPreferredFormat.depth);
 		
-		logger.printLn("Red colour offset: " + serverPreferredFormat.redShift);
-		logger.printLn("Green colour offset: " + serverPreferredFormat.greenShift);
-		logger.printLn("Blue colour offset: " + serverPreferredFormat.blueShift);
+		logger.detailedLn("Red colour offset: " + serverPreferredFormat.redShift);
+		logger.detailedLn("Green colour offset: " + serverPreferredFormat.greenShift);
+		logger.detailedLn("Blue colour offset: " + serverPreferredFormat.blueShift);
 		
-		logger.printLn("Red colour max: " + serverPreferredFormat.redMax);
-		logger.printLn("Green colour max: " + serverPreferredFormat.greenMax);
-		logger.printLn("Blue colour max: " + serverPreferredFormat.blueMax);
+		logger.detailedLn("Red colour max: " + serverPreferredFormat.redMax);
+		logger.detailedLn("Green colour max: " + serverPreferredFormat.greenMax);
+		logger.detailedLn("Blue colour max: " + serverPreferredFormat.blueMax);
 		
 		// Use the server's format if the client hasn't requested one
 		if (preferredFormat == null) {
@@ -342,7 +342,7 @@ public class VNCProtocol implements Runnable {
 	
 	public void sendFormat() throws IOException {
 		if (preferredFormat != null) {
-		SetPixelFormatMessage pixelFormat = new SetPixelFormatMessage(socket, in, out);
+		SetPixelFormat pixelFormat = new SetPixelFormat(socket, in, out);
 		pixelFormat.format = preferredFormat;
 			pixelFormat.sendMessage();
 		}
