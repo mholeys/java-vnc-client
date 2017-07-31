@@ -16,6 +16,7 @@ public class UpdateManager {
 	int width, height;
 	int[] pixels;
 	IScreen screen;
+	public boolean ready = false;
 	
 	public UpdateManager(int width, int height, IScreen screen) {
 		this.width = width;
@@ -84,6 +85,18 @@ public class UpdateManager {
 	
 	public ScreenUpdate getUpdate() {
 		return updates.poll();
+	}
+	
+	public boolean isReady() {
+		return ready & hasUpdates();
+	}
+	
+	public void setReady() {
+		ready = true;
+	}
+	
+	public void setComplete() {
+		ready = false;
 	}
 	
 }

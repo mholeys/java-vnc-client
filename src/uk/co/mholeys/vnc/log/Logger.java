@@ -9,9 +9,9 @@ public class Logger {
 	
 	public static final int LOG_LEVEL_DEBUG = 0xFFF;
 	public static final int LOG_LEVEL_VERBOSE = 0xFFE;
-	public static final int LOG_LEVEL_DETAILED = 0xFFE;
-	public static final int LOG_LEVEL_NORMAL = 0xFFD;
-	public static final int LOG_LEVEL_NONE = 0xFFC;
+	public static final int LOG_LEVEL_DETAILED = 0xFFD;
+	public static final int LOG_LEVEL_NORMAL = 0xFFC;
+	public static final int LOG_LEVEL_NONE = 0xFFB;
 	
 	public int logLevel = LOG_LEVEL_DEBUG;
 	

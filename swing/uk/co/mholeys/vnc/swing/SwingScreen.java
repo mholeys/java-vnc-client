@@ -148,29 +148,32 @@ public class SwingScreen implements IScreen {
 	}
 
 	public void process() {
-		while (updateManager.hasUpdates()) {
-			ScreenUpdate update = updateManager.getUpdate();
-			if (update == null) continue;
-			int x = update.x;
-			int y = update.y;
-			int width = update.width;
-			int height = update.height;
-			if (update instanceof RawScreenUpdate) {
-				RawScreenUpdate raw = (RawScreenUpdate) update;
-				drawPixels(x, y, width, height, raw.pixels);
-			} else if (update instanceof PaletteScreenUpdate) {
-				PaletteScreenUpdate palette = (PaletteScreenUpdate) update;
-				drawPalette(x, y, width, height, palette.palette, palette.paletteSize, palette.data);
-			} else if (update instanceof JPEGScreenUpdate) {
-				JPEGScreenUpdate jpeg = (JPEGScreenUpdate) update;
-				drawJPEG(x, y, width, height, jpeg.jpegData);
-			} else if (update instanceof CopyScreenUpdate) {
-				CopyScreenUpdate copy = (CopyScreenUpdate) update;
-				copyPixels(copy.xSrc, copy.ySrc, width, height, x, y);
-			} else if (update instanceof FillScreenUpdate) {
-				FillScreenUpdate fill = (FillScreenUpdate) update;
-				fillPixels(x, y, width, height, fill.pixel);
+		while (updateManager.isReady()) {
+			while (updateManager.hasUpdates()) {
+				ScreenUpdate update = updateManager.getUpdate();
+				if (update == null) continue;
+				int x = update.x;
+				int y = update.y;
+				int width = update.width;
+				int height = update.height;
+				if (update instanceof RawScreenUpdate) {
+					RawScreenUpdate raw = (RawScreenUpdate) update;
+					drawPixels(x, y, width, height, raw.pixels);
+				} else if (update instanceof PaletteScreenUpdate) {
+					PaletteScreenUpdate palette = (PaletteScreenUpdate) update;
+					drawPalette(x, y, width, height, palette.palette, palette.paletteSize, palette.data);
+				} else if (update instanceof JPEGScreenUpdate) {
+					JPEGScreenUpdate jpeg = (JPEGScreenUpdate) update;
+					drawJPEG(x, y, width, height, jpeg.jpegData);
+				} else if (update instanceof CopyScreenUpdate) {
+					CopyScreenUpdate copy = (CopyScreenUpdate) update;
+					copyPixels(copy.xSrc, copy.ySrc, width, height, x, y);
+				} else if (update instanceof FillScreenUpdate) {
+					FillScreenUpdate fill = (FillScreenUpdate) update;
+					fillPixels(x, y, width, height, fill.pixel);
+				}
 			}
+			updateManager.setComplete();
 		}
 		display.repaint();
 	}

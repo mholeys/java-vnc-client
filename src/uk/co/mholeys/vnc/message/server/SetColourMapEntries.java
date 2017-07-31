@@ -19,7 +19,7 @@ public class SetColourMapEntries extends ClientReceiveMessage {
 
 	@Override
 	public int getId() {
-		return 0;
+		return 1;
 	}
 
 	@Override

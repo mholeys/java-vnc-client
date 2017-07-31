@@ -27,12 +27,17 @@ import uk.co.mholeys.vnc.encoding.ZLibStream;
 import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.message.ClientInitMessage;
 import uk.co.mholeys.vnc.message.ServerInitMessage;
+import uk.co.mholeys.vnc.message.client.EnableContinuousUpdates;
 import uk.co.mholeys.vnc.message.client.FramebufferUpdateRequest;
 import uk.co.mholeys.vnc.message.client.KeyEvent;
 import uk.co.mholeys.vnc.message.client.PointerEvent;
 import uk.co.mholeys.vnc.message.client.SetEncodings;
 import uk.co.mholeys.vnc.message.client.SetPixelFormat;
+import uk.co.mholeys.vnc.message.server.Bell;
+import uk.co.mholeys.vnc.message.server.EndOfContinuousUpdates;
 import uk.co.mholeys.vnc.message.server.FrameBufferUpdate;
+import uk.co.mholeys.vnc.message.server.ServerCutText;
+import uk.co.mholeys.vnc.message.server.SetColourMapEntries;
 
 /**
  * TODO:
@@ -45,7 +50,17 @@ public class VNCProtocol implements Runnable {
 	public static final int CONNECTION_ATTEMPT_LIMIT_HIT_EXIT = 567;
 	
 	/** Header id for the frame buffer update message */
-	public static final int FRAME_BUFFER_UDPATE = 0;
+	public static final int FRAME_BUFFER_UDPATE_MESSAGE_ID = 0;
+	/** Header id for the Set color map entries message */
+	public static final int SET_COLOR_MAP_ENTRIES_MESSAGE_ID = 1;
+	/** Header id for the Bell message */
+	public static final int BELL_MESSAGE_ID = 2;
+	/** Header id for the Server cut text message */
+	public static final int SERVER_CUT_TEXT_MESSAGE_ID = 3;
+	/** Header id for the End of continuous updates message */
+	public static final int END_OF_CONTINOUS_UPDATES_MESSAGE_ID = 150;
+	
+	
 	/** Number of times to attempt to connect to the server */
 	public static final int RETRY_LIMIT = 5;
 	
@@ -180,12 +195,15 @@ public class VNCProtocol implements Runnable {
 			sendFrameBufferUpdateRequest(false);
 			long timer = System.currentTimeMillis();
 			boolean shouldRequest = false;
+			boolean autoUpdate = false;
+			//sendEnableContinousUpdates(autoUpdate);
+			
 			int updateRequests = 0;
 			while (running) {
 				if (System.currentTimeMillis() - timer > 1000) {
 					timer += 1000;
 					if (updateRequests < 2) {
-						shouldRequest = true;
+						shouldRequest = !autoUpdate;
 					}
 					updateRequests = 0;
 				}
@@ -198,7 +216,6 @@ public class VNCProtocol implements Runnable {
 				if (ui.getKeyboardManager().sendKeys()) {
 					sendKeyboardUpdate();
 				}
-				shouldRequest = true;
 				if (dataIn.available() == 0) {
 					continue;
 				}
@@ -206,10 +223,23 @@ public class VNCProtocol implements Runnable {
 				int id = dataIn.readByte();
 				
 				switch (id) {
-				case FRAME_BUFFER_UDPATE:
+				case FRAME_BUFFER_UDPATE_MESSAGE_ID:
 					readFrameBufferUpdate();
-					shouldRequest = true;
+					shouldRequest = !autoUpdate;
 					break;
+				case SET_COLOR_MAP_ENTRIES_MESSAGE_ID:
+					new SetColourMapEntries(socket, dataIn, dataOut).receiveMessage();
+					break;
+				case BELL_MESSAGE_ID:
+					new Bell(socket, dataIn, dataOut).receiveMessage();
+					break;
+				case SERVER_CUT_TEXT_MESSAGE_ID:
+					new ServerCutText(socket, dataIn, dataOut).receiveMessage();
+					break;
+				case END_OF_CONTINOUS_UPDATES_MESSAGE_ID:
+					EndOfContinuousUpdates ecu = new EndOfContinuousUpdates(socket, dataIn, dataOut);
+					ecu.receiveMessage();
+					autoUpdate = false;
 				default:
 					logger.verboseLn("Unknown message id: " + id);
 				}
@@ -364,6 +394,16 @@ public class VNCProtocol implements Runnable {
 		fbRequest.width = (short) width;
 		fbRequest.height = (short) height;
 		fbRequest.sendMessage();	
+	}
+	
+	public void sendEnableContinousUpdates(boolean enabled) throws IOException {
+		EnableContinuousUpdates ecuRequest = new EnableContinuousUpdates(socket, in, out);
+		ecuRequest.enable = true;
+		ecuRequest.x = 0;
+		ecuRequest.y = 0;
+		ecuRequest.width = (short) width;
+		ecuRequest.height = (short) height;
+		ecuRequest.sendMessage();
 	}
 
 	public void sendPointerUpdate() throws IOException {

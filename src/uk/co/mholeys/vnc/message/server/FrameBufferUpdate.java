@@ -72,6 +72,7 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 			}
 			rectangles[i] = r;
 		}
+		updateManager.setReady();
 		return rectangles;
 	}
 

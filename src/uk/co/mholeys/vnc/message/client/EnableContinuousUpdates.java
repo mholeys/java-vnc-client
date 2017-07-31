@@ -32,7 +32,7 @@ public class EnableContinuousUpdates extends ClientSendMessage {
 		dataOut.writeShort(width);
 		dataOut.writeShort(height);
 		
-		Logger.logger.verboseLn("EnbleContinuousUpdates message sent");
+		Logger.logger.verboseLn("EnableContinuousUpdates message sent");
 	}
 
 }
