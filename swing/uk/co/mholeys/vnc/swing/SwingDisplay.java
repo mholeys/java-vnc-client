@@ -142,7 +142,7 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		
 		try {
 			connection = new SwingConnection(es, null, new SwingPassword());
-			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_DEBUG));
+			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_NONE));
 			Thread t = new Thread(vnc);
 			t.start();
 		} catch (UnknownHostException e) {
