@@ -30,4 +30,14 @@ public class EncodingSettings {
 		return encodings;
 	}
 	
+	public boolean removeEncoding(Encoding e) {
+		return encodings.remove(e);
+	}
+	
+	public EncodingSettings clone() {
+		EncodingSettings e = new EncodingSettings();
+		e.addEncoding(encodings);
+		return e;
+	}
+	
 }

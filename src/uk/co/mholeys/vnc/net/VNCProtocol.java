@@ -85,7 +85,7 @@ public class VNCProtocol implements Runnable {
 	 * These will be sent to the server to say what the client 
 	 * can support.
 	 */
-	public EncodingSettings supportedEncodings;
+	private EncodingSettings supportedEncodings;
 	
 	public UpdateManager updateManager;
 	
@@ -431,6 +431,21 @@ public class VNCProtocol implements Runnable {
 	public void readFrameBufferUpdate() throws IOException {
 		FrameBufferUpdate update = new FrameBufferUpdate(socket, in, out, updateManager, serverPreferredFormat, streams, supportedEncodings);
 		update.receiveMessage();
+	}
+	
+	public void updateSupportedEncodings(EncodingSettings encodings) throws IOException {
+		if (encodings == null) {
+			throw new NullPointerException("New EncodingSettings was null, cannot be an empty list");
+		}
+		if (encodings.getEncodings().isEmpty()) {
+			throw new NullPointerException("Cannot set supported encodings to an empty list");
+		}
+		supportedEncodings = encodings.clone();
+		sendSetEncoding();
+	}
+	
+	public EncodingSettings getCurrentEncodings() {
+		return supportedEncodings.clone();
 	}
 	
 	public void disconnect() {
