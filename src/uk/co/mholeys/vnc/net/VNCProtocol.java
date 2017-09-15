@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 import uk.co.mholeys.vnc.VNCConnectionException;
@@ -24,6 +25,7 @@ import uk.co.mholeys.vnc.display.UpdateManager;
 import uk.co.mholeys.vnc.display.input.IConnectionInformation;
 import uk.co.mholeys.vnc.display.input.IPasswordRequester;
 import uk.co.mholeys.vnc.encoding.ZLibStream;
+import uk.co.mholeys.vnc.listeners.IVNCConnectionListener;
 import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.message.ClientInitMessage;
 import uk.co.mholeys.vnc.message.ServerInitMessage;
@@ -87,6 +89,14 @@ public class VNCProtocol implements Runnable {
 	 */
 	private EncodingSettings supportedEncodings;
 	
+	/**
+	 * List of listeners that will be notified on the various events that happen during the connection
+	 */
+	private ArrayList<IVNCConnectionListener> connectionListeners = new ArrayList<IVNCConnectionListener>();
+	
+	/**
+	 * The class managing how the updates are drawn and dealt with
+	 */
 	public UpdateManager updateManager;
 	
 	/** The password holder/getter to allow the user to enter their password */
@@ -139,6 +149,9 @@ public class VNCProtocol implements Runnable {
 			}
 		} else {
 			this.supportedEncodings = EncodingSettings.DEFAULT_ENCODINGS;
+		}
+		for (IVNCConnectionListener l : connectionListeners) {
+			l.onFormatChanged(preferredFormat);
 		}
 		// Setup the thread to be ready to run
 		running = true;
@@ -328,6 +341,14 @@ public class VNCProtocol implements Runnable {
 		dataOut.writeByte(auth.getSecurityId());
 		boolean authenticated = auth.authenticate();
 		
+		for (IVNCConnectionListener l : connectionListeners) {
+			if (authenticated) {
+				l.onAuthenticated();
+			} else {
+				l.onFailedAuthentication();
+			}
+		}
+		
 		if (!authenticated) {
 			logger.printLn("Failed to authenticate");
 			return false;
@@ -345,8 +366,11 @@ public class VNCProtocol implements Runnable {
 		name = serverInit.name;
 		width = serverInit.framebufferWidth;
 		height = serverInit.framebufferHeight;
-		serverPreferredFormat = serverInit.format;
+		serverPreferredFormat = serverInit.format;		
 		ui.setServerFormat(serverPreferredFormat);
+		for (IVNCConnectionListener l : connectionListeners) {
+			l.onFormatChanged(serverPreferredFormat);
+		}
 		
 		logger.printLn("Connected successfully to:");
 		logger.printLn(serverInit.name);
@@ -373,9 +397,12 @@ public class VNCProtocol implements Runnable {
 	
 	public void sendFormat() throws IOException {
 		if (preferredFormat != null) {
-		SetPixelFormat pixelFormat = new SetPixelFormat(socket, in, out);
-		pixelFormat.format = preferredFormat;
+			SetPixelFormat pixelFormat = new SetPixelFormat(socket, in, out);
+			pixelFormat.format = preferredFormat;
 			pixelFormat.sendMessage();
+			for (IVNCConnectionListener l : connectionListeners) {
+				l.onFormatChanged(preferredFormat);
+			}
 		}
 	}
 
@@ -467,6 +494,9 @@ public class VNCProtocol implements Runnable {
 				socket.close();
 			}
 		} catch (IOException e) {
+		}
+		for (IVNCConnectionListener l : connectionListeners) {
+			l.onDisconnect();
 		}
 	}
 }
