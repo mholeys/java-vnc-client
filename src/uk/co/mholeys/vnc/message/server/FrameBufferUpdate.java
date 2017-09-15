@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Base64.Decoder;
 
 import uk.co.mholeys.vnc.data.Encoding;
 import uk.co.mholeys.vnc.data.EncodingSettings;
@@ -19,6 +20,8 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 	public PixelFormat format;
 	public ZLibStream[] streams;
 	public EncodingSettings encodings;
+	private Encoding lastEncoding;
+	private int lastEncodingId; 
 	
 	public FrameBufferUpdate(Socket socket, InputStream in, OutputStream out, UpdateManager updateManager, PixelFormat format, ZLibStream[] streams, EncodingSettings encodings) {
 		super(socket, in, out);
@@ -35,7 +38,7 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 
 	@Override
 	public Object receiveMessage() throws IOException {
-		Logger.logger.verboseLn("EndOfContinuousUpdates message received");
+		Logger.logger.verboseLn("FrameBufferUpdate message received");
 		
 		Logger.logger.debugLn("Reading padding");
 		dataIn.readByte();
@@ -68,8 +71,10 @@ public class FrameBufferUpdate extends ClientReceiveMessage {
 				r.encode.setRender(updateManager);
 				r.encode.readEncoding(in);
 			} else {
-				Logger.logger.printLn("Does not support this encoding " + r.encodingType);
+				Logger.logger.printLn("Does not support this encoding " + r.encodingType + " cause was probably " + lastEncoding + " " + lastEncodingId);
 			}
+			lastEncoding = Encoding.find(r.encodingType);
+			lastEncodingId = r.encodingType;
 			rectangles[i] = r;
 		}
 		updateManager.setReady();

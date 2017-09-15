@@ -180,7 +180,7 @@ public class TightEncoding extends Decoder {
 	public static int readTightPixel(DataInputStream dataIn, PixelFormat format) throws IOException {
 		byte[] b = new byte[format.bytesPerTPixel];
 		dataIn.readFully(b);
-		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format));
+		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format, true));
 	}
 	
 	public static int readCompactInt(DataInputStream dataIn) throws IOException {
@@ -233,7 +233,7 @@ public class TightEncoding extends Decoder {
 			byte[] p = new byte[size];
 			System.arraycopy(data, i*size, p, 0, size);
 			
-			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format));
+			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format, true));
 		}
 		return pixels;
 	}

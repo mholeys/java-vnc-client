@@ -27,19 +27,12 @@ public class TightVNCAuthentication extends Authentication {
 		int tunnelCount = dataIn.readInt();
 		boolean noTunnel = false;
 		for (int i = 0 ; i < tunnelCount; i++) {
-			Logger.logger.debugLn("Reading tunnel code");
-			int code = dataIn.readInt();
-			byte[] d = new byte[4];
-			Logger.logger.debugLn("Reading vendor");
-			dataIn.read(d);
-			String vendor = new String(d);
-			d = new byte[8];
-			Logger.logger.debugLn("Reading signature");
-			dataIn.read(d);
-			String signature = new String(d);
-			if (code == 0) {
-				if (vendor.equals("TGHT")) {
-					if (signature.equals("NOTUNNEL")) {
+			Capability c = new Capability();
+			c.read(dataIn);
+			
+			if (c.code == 0) {
+				if (c.vendor.equals("TGHT")) {
+					if (c.signature.equals("NOTUNNEL")) {
 						noTunnel = true;
 					}
 				}

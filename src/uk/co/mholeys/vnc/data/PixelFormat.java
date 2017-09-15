@@ -16,6 +16,8 @@ public class PixelFormat {
 	public byte greenShift;
 	public byte blueShift;
 	
+	public int[] colorMap;
+	
 	public PixelFormat clone() {
 		PixelFormat copy = new PixelFormat();
 		copy.bytesPerPixel = this.bytesPerPixel;
@@ -100,6 +102,16 @@ public class PixelFormat {
 		} else {
 			bytesPerPixel = (byte)Math.ceil(bitsPerPixel/8D);
 			bytesPerTPixel = (byte)Math.ceil(bitsPerPixel/8D);
+		}
+	}
+	
+	public void setupColourMap(int size) {
+		colorMap = new int[size];
+	}
+	
+	public void addColourMapEntry(int i, int c) {
+		if (colorMap != null) {			
+			colorMap[i] = c;
 		}
 	}
 

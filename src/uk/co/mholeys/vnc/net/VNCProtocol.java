@@ -219,8 +219,8 @@ public class VNCProtocol implements Runnable {
 				if (dataIn.available() == 0) {
 					continue;
 				}
-				logger.debugLn("Reading message id");
 				int id = dataIn.readByte();
+				logger.debugLn("Reading message id " + id);
 				
 				switch (id) {
 				case FRAME_BUFFER_UDPATE_MESSAGE_ID:
@@ -228,7 +228,7 @@ public class VNCProtocol implements Runnable {
 					shouldRequest = !autoUpdate;
 					break;
 				case SET_COLOR_MAP_ENTRIES_MESSAGE_ID:
-					new SetColourMapEntries(socket, dataIn, dataOut).receiveMessage();
+					new SetColourMapEntries(socket, dataIn, dataOut, serverPreferredFormat).receiveMessage();
 					break;
 				case BELL_MESSAGE_ID:
 					new Bell(socket, dataIn, dataOut).receiveMessage();
@@ -240,6 +240,7 @@ public class VNCProtocol implements Runnable {
 					EndOfContinuousUpdates ecu = new EndOfContinuousUpdates(socket, dataIn, dataOut);
 					ecu.receiveMessage();
 					autoUpdate = false;
+					break;
 				default:
 					logger.verboseLn("Unknown message id: " + id);
 				}

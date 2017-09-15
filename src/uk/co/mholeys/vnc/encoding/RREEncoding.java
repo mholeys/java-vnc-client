@@ -42,7 +42,7 @@ public class RREEncoding extends Decoder {
 			short y = dataIn.readShort();
 			short width = dataIn.readShort();
 			short height = dataIn.readShort();
-			render.drawFill(this.x + x, this.y + y, width, height, ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format)));
+			render.drawFill(this.x + (x & 0xFFFF), this.y + (y & 0xFFFF), width & 0xFFFF, height & 0xFFFF, ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format)));
 		}
 	}
 

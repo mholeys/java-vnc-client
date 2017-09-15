@@ -81,17 +81,41 @@ public class ByteUtil {
 	}*/
 	
 	public static int bytesToInt(byte[] b, PixelFormat format) {
+		return bytesToInt(b, format, false);
+	}
+	
+	public static int bytesToInt(byte[] b, PixelFormat format, boolean tight) {
+		if (tight) {
+			if (b.length == 4) {
+				return (b[3] & 0xFF) | ((b[2] & 0xFF) << 8) | ((b[1] & 0xFF) << 16) | ((b[0] & 0xFF) << 24);
+			} else if (b.length == 3) {
+				return (b[2] & 0xFF) | ((b[1] & 0xFF) << 8) | ((b[0] & 0xFF) << 16);
+			}
+		}
 		if (b.length == 4) {
 			if (format.bigEndianFlag) {
-				return (b[0] & 0xFF) | ((b[1] & 0xFF) << 8) | ((b[2] & 0xFF) << 16) | ((b[3] & 0xFF) << 24);
-			} else {
 				return (b[3] & 0xFF) | ((b[2] & 0xFF) << 8) | ((b[1] & 0xFF) << 16) | ((b[0] & 0xFF) << 24);
+				//return (b[0] & 0xFF) | ((b[1] & 0xFF) << 8) | ((b[2] & 0xFF) << 16) | ((b[3] & 0xFF) << 24);
+			} else {
+				return (b[0] & 0xFF) | ((b[1] & 0xFF) << 8) | ((b[2] & 0xFF) << 16) | ((b[3] & 0xFF) << 24);
 			}
 		} else if (b.length == 3) {
 			if (format.bigEndianFlag) {
 				return (b[0] & 0xFF) | ((b[1] & 0xFF) << 8) | ((b[2] & 0xFF) << 16);
 			} else {
 				return (b[2] & 0xFF) | ((b[1] & 0xFF) << 8) | ((b[0] & 0xFF) << 16);
+			}
+		} else if (b.length == 2) {
+			if (format.bigEndianFlag) {
+				return (b[0] & 0xFF) | ((b[1] & 0xFF) << 8);
+			} else {
+				return ((b[1] & 0xFF) << 16) | ((b[0] & 0xFF) << 24);
+			}
+		} else if (b.length == 1) {
+			if (format.bigEndianFlag) {
+				return (b[0] & 0xFF);
+			} else {
+				return ((b[1] & 0xFF) << 24);
 			}
 		}
 		return -1;

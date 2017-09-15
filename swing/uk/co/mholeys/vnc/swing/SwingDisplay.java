@@ -124,22 +124,25 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		SwingInterface i = new SwingInterface();
 		EncodingSettings es = new EncodingSettings();
 		es.addEncoding(Encoding.TIGHT_ENCODING);
-		es.addEncoding(Encoding.ZLIB_ENCODING);
 		es.addEncoding(Encoding.CORRE_ENCODING);
-		es.addEncoding(Encoding.RRE_ENCODING);
+		es.addEncoding(Encoding.ZLIB_ENCODING);
 		es.addEncoding(Encoding.COPY_RECT_ENCODING);
 		es.addEncoding(Encoding.RAW_ENCODING);
+		es.addEncoding(Encoding.HEXTILE_ENCODING);
+		es.addEncoding(Encoding.RRE_ENCODING);
 
 		// Pseudo encodings
 		//es.addEncoding(Encoding.JPEG_QUALITY_LEVEL_1_PSEUDO_ENCODING); // Now optional as gradient "works"
-		//es.addEncoding(Encoding.COMPRESSION_LEVEL_1_PSEUDO_ENCODING);
+		es.addEncoding(Encoding.COMPRESSION_LEVEL_1_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);
 		
 		
 		IConnectionInformation connection;
+		
+		
 		try {
 			connection = new SwingConnection(es, null, new SwingPassword());
-			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_NONE));
+			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_DEBUG));
 			Thread t = new Thread(vnc);
 			t.start();
 		} catch (UnknownHostException e) {

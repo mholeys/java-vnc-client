@@ -39,7 +39,11 @@ public class ColorUtil {
 		int color = (red << 16) | (green << 8) | blue;
 		return color;*/
 		
-		return 255 * (pixel >> format.redShift & format.redMax) / format.redMax << 16 |  255 * (pixel >> format.greenShift & format.greenMax) / format.greenMax << 8 | 255 * (pixel >> format.blueShift & format.blueMax) / format.blueMax;
+		if (format.colorMap == null) {
+			return 255 * (pixel >> format.redShift & format.redMax) / format.redMax << 16 |  255 * (pixel >> format.greenShift & format.greenMax) / format.greenMax << 8 | 255 * (pixel >> format.blueShift & format.blueMax) / format.blueMax;
+		} else {			
+			return format.colorMap[pixel];
+		}
 	}
 		
 }

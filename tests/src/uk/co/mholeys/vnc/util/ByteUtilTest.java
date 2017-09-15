@@ -3,6 +3,7 @@ package src.uk.co.mholeys.vnc.util;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.junit.Test;
 
@@ -17,7 +18,7 @@ public class ByteUtilTest {
 		format.bigEndianFlag = false;
 		
 		byte[] input = {(byte) 0xA1, (byte) 0xB3};
-		int expected = 0xA1B3;
+		int expected = 0xA1B30000;
 		
 		int output = ByteUtil.bytesToInt(input, format);
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + "\nExpected: " + Integer.toHexString(expected) + " got: " + Integer.toHexString(output)); System.out.println();
@@ -43,7 +44,7 @@ public class ByteUtilTest {
 		format.bigEndianFlag = false;
 		
 		byte[] input = {(byte) 0xF3, (byte) 0xF2, (byte) 0xF1, (byte) 0xF0};
-		int expected = 0xF3F2F1F0;
+		int expected = 0xF0F1F2F3;
 		
 		int output = ByteUtil.bytesToInt(input, format);
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + "\nExpected: " + Integer.toHexString(expected) + " got: " + Integer.toHexString(output)); System.out.println();
@@ -56,7 +57,7 @@ public class ByteUtilTest {
 		format.bigEndianFlag = true;
 		
 		byte[] input = {(byte) 0xA1, (byte) 0xB3};
-		int expected = 0xA1B30000;
+		int expected = 0xB3A1;
 		
 		int output = ByteUtil.bytesToInt(input, format);
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + "\nExpected: " + Integer.toHexString(expected) + " got: " + Integer.toHexString(output)); System.out.println();
@@ -82,7 +83,7 @@ public class ByteUtilTest {
 		format.bigEndianFlag = true;
 		
 		byte[] input = {(byte) 0xF3, (byte) 0xF2, (byte) 0xF1, (byte) 0xF0};
-		int expected = 0xF0F1F2F3;
+		int expected = 0xF3F2F1F0;
 		
 		int output = ByteUtil.bytesToInt(input, format);
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + "\nExpected: " + Integer.toHexString(expected) + " got: " + Integer.toHexString(output)); System.out.println();
@@ -94,7 +95,7 @@ public class ByteUtilTest {
 		PixelFormat format = PixelFormat.DEFAULT_FORMAT.clone();
 		format.bigEndianFlag = false;
 		
-		byte[] input = ByteBuffer.allocate(4).putInt(0xF0F1F2F3).array();
+		byte[] input = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(0xF0F1F2F3).array();
 		int expected = 0xF0F1F2F3;
 		
 		int output = ByteUtil.bytesToInt(input, format);
@@ -107,8 +108,8 @@ public class ByteUtilTest {
 		PixelFormat format = PixelFormat.DEFAULT_FORMAT.clone();
 		format.bigEndianFlag = true;
 		
-		byte[] input = ByteBuffer.allocate(4).putInt(0xF0F1F2F3).array();
-		int expected = 0xF3F2F1F0;
+		byte[] input = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(0xF0F1F2F3).array();
+		int expected = 0xF0F1F2F3;
 		
 		int output = ByteUtil.bytesToInt(input, format);
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + "\nExpected: " + Integer.toHexString(expected) + " got: " + Integer.toHexString(output)); System.out.println(); 
