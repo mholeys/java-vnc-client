@@ -10,4 +10,8 @@ public class KeyboardUpdate {
 		this.pressed = pressed;
 	}
 	
+	public KeyboardUpdate clone() {
+		return new KeyboardUpdate(key, pressed);
+	}
+	
 }

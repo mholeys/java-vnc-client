@@ -44,5 +44,15 @@ public class PointerPoint {
 	public String toString() {
 		return "x: " + x + " y: " + y + " l: " + left + " r: " + right + " m: " + middle + " u: " + mwUp + " d: " + mwDown;
 	}
+	
+	public PointerPoint clone() {
+		PointerPoint p = new  PointerPoint(x, y);
+		p.left = left;
+		p.right = right;
+		p.middle = middle;
+		p.mwUp = mwUp;
+		p.mwDown = mwDown;
+		return p;
+	}
 
 }
