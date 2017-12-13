@@ -2,6 +2,9 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+// Disable the jar for this empty parent project
+jar.enabled = false
+
 repositories {
     jcenter()
 }
