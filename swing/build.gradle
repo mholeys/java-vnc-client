@@ -18,7 +18,3 @@ jar {
                    'Main-Class':'uk.co.mholeys.vnc.swing.SwingDisplay'
    	}
 }
-
-ext {
-  releaseVersion = System.getenv('BUILD_NUMBER')
-}

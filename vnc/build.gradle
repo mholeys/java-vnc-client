@@ -16,7 +16,3 @@ jar {
         	       'Implementation-Version': '0.0.0'    
     }
 }
-
-ext {
-  releaseVersion = System.getenv('BUILD_NUMBER')
-}
