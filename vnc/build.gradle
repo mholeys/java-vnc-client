@@ -1,0 +1,18 @@
+apply plugin: 'java'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
+
+
+jar {
+	baseName = 'VNC'
+	manifest {
+    	attributes 'Implementation-Title': 'vnc',
+        	       'Implementation-Version': '0.0.0'    
+    }
+}

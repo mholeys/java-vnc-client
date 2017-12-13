@@ -1,0 +1,20 @@
+apply plugin: 'java'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile project(':vnc')
+    testCompile 'junit:junit:4.12'
+}
+
+jar {
+    baseName = 'Swing'
+    
+    manifest {
+        attributes 'Implementation-Title': 'Swing',
+                   'Implementation-Version': '0.0.0',
+                   'Main-Class':'uk.co.mholeys.vnc.swing.SwingDisplay'
+   	}
+}
