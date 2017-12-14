@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
 repositories {
     jcenter()
@@ -18,3 +19,5 @@ jar {
                    'Main-Class':'uk.co.mholeys.vnc.swing.SwingDisplay'
    	}
 }
+
+mainClassName = "uk.co.mholeys.vnc.swing.SwingDisplay"

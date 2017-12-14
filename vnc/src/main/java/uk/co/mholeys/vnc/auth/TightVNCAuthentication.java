@@ -8,6 +8,14 @@ import java.net.Socket;
 import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.message.Capability;
 
+/**
+ * Authentication class representing the authentication type used
+ * for the tight authentication method. 
+ * <p>
+ * This type of authentication uses sub-types to authenticate. 
+ * @author Matthew Holey
+ *
+ */
 public class TightVNCAuthentication extends Authentication {
 
 	boolean none = false;

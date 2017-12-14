@@ -7,6 +7,11 @@ import java.net.Socket;
 
 import uk.co.mholeys.vnc.log.Logger;
 
+/**
+ * DO NOT USE. NOT IMPLEMENTED
+ * @author Matthew Holey
+ *
+ */
 public class VenCryptAuthentication extends Authentication {
 
 	

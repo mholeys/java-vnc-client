@@ -9,7 +9,7 @@ import uk.co.mholeys.vnc.log.Logger;
 
 /**
  * Authentication class representing the authentication type for the 
- * connection that will always be authenticated.
+ * connection that will always be authenticated successfully.
  * <p>
  * This type of authentication does not read/write any data to the network
  * and it will always authenticate as the server does not require anything
