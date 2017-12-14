@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.co.mholeys.vnc.auth.TightVNCAuthentication;
@@ -17,26 +18,31 @@ public class VNCAuthenticationTest {
 	final String ODD_PASSWORD = "!((&&:~@}+?>h!¬_-*";
 	final String[] TEST_PASSWORDS = {SHORT_PASSWORD, NORMAL_PASSWORD, LONG_PASSWORD, ODD_PASSWORD};
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testCorrectPassword() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testIncorrectPassword() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testNoData() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testCorrectData() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testIncorrectData() {
 		fail("not implemented");

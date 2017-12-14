@@ -18,46 +18,55 @@ public class TightVNVAuthenticationTest {
 	final String ODD_PASSWORD = "!((&&:~@}+?>h!¬_-*";
 	final String[] TEST_PASSWORDS = {SHORT_PASSWORD, NORMAL_PASSWORD, LONG_PASSWORD, ODD_PASSWORD};
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testCorrectPassword() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testIncorrectPassword() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testNoData() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testReadAuthTypeNone() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testReadAuthTypeVNC() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testReadAuthTypeVenCrypt() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testAuthenticateSubTypeNone() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testAuthenticateSubTypeVNC() {
 		fail("not implemented");
 	}
 	
+	@Ignore("Not implemented")
 	@Test
 	public void testAuthenticateSubTypeVenCrypt() {
 		fail("not implemented");
