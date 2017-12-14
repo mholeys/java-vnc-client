@@ -1,4 +1,4 @@
-package src.uk.co.mholeys.vnc.display.data;
+package uk.co.mholeys.vnc.display.data;
 
 import static org.junit.Assert.*;
 
