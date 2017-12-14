@@ -10,7 +10,7 @@ dependencies {
 
 
 jar {
-	baseName = 'VNC'
+	baseName = 'vnc'
 	manifest {
     	attributes 'Implementation-Title': 'vnc',
         	       'Implementation-Version': '0.0.0'    
