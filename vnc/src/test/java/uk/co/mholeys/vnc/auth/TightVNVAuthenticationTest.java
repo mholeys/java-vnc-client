@@ -15,7 +15,7 @@ public class TightVNVAuthenticationTest {
 	final String SHORT_PASSWORD = "password";
 	final String NORMAL_PASSWORD = "password";
 	final String LONG_PASSWORD = "passward with length > 8";
-	final String ODD_PASSWORD = "!((&&:~@}+?>h!¬_-*";
+	final String ODD_PASSWORD = "!((&&:~@}+?>h!_-*";
 	final String[] TEST_PASSWORDS = {SHORT_PASSWORD, NORMAL_PASSWORD, LONG_PASSWORD, ODD_PASSWORD};
 	
 	@Ignore("Not implemented")
