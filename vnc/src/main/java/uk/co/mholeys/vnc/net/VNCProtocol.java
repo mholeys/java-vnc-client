@@ -486,6 +486,7 @@ public class VNCProtocol implements Runnable {
 	
 	public void disconnect() {
 		ui.exit();
+		running = false;
 		try {
 			if (out != null) {
 				out.close();
