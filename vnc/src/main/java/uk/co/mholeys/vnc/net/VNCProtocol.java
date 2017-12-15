@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
@@ -264,6 +265,8 @@ public class VNCProtocol implements Runnable {
 					logger.verboseLn("Unknown message id: " + id);
 				}
 			}
+		} catch (SocketException e) {
+			throw new VNCConnectionException("Connection ended");
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new VNCConnectionException("Connection ended");
