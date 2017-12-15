@@ -213,6 +213,12 @@ public class VNCProtocol implements Runnable {
 			
 			int updateRequests = 0;
 			while (running) {
+				// Stop if we have disconnected
+				if (socket.isClosed()) {
+					running = false;
+					break;
+				}
+				// Make sure there is at least 1 request every second 
 				if (System.currentTimeMillis() - timer > 1000) {
 					timer += 1000;
 					if (updateRequests < 2) {
