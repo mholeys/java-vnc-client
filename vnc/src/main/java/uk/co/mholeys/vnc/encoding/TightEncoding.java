@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.DataFormatException;
 
+import javax.swing.JEditorPane;
+
 import uk.co.mholeys.vnc.data.PixelFormat;
 import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.log.Logger;
@@ -104,12 +106,14 @@ public class TightEncoding extends Decoder {
 				Logger.logger.debugLn("Gradient filter. Depth should be 24 it is: " + format.depth);
 				
 				byte[] data = readCompressedData(dataIn, width*height*format.bytesPerTPixel, stream);
-				int[] gradientPixels = convertDataToTightPixels(data, width*height, format);
+				//int[] gradientPixels = ByteUtil.unsignedBytesToInts(data);
+				int[] gradientPixels = convertDataToTightPixelsAsIs(data, width*height, format);
 				
 				int[] newPixels = new int[width*height];
 				System.arraycopy(gradientPixels, 0, newPixels, 0, width*height);
 				
 				int[] shift = new int[3]; // Array holding the colour shifts for each component. Copied for easy access
+				shift = new int[] {0, 8, 16};
 				if (format.bigEndianFlag) {
 					shift[0] = format.blueShift;
 					shift[1] = format.greenShift;
@@ -120,8 +124,8 @@ public class TightEncoding extends Decoder {
 					shift[2] = format.blueShift;
 				}
 				
-				int[] max = new int[3]; // Array holding the max values for each component. Copied for easy access
-				if (format.bigEndianFlag) {
+				int[] max = new int[] {255, 255, 255}; // Array holding the max values for each component. Copied for easy access
+				if (!format.bigEndianFlag) {
 					max[0] = format.blueMax;
 					max[1] = format.greenMax;
 					max[2] = format.redMax;
@@ -158,6 +162,11 @@ public class TightEncoding extends Decoder {
 					System.arraycopy(currentRow, 1, newPixels, (srcY-1)*width, width);
 				}
 				
+				
+				for (int i = 0 ; i < newPixels.length; i++) {
+					newPixels[i] = ColorUtil.convertTo8888ARGB(format, newPixels[i]);
+				}
+				
 				render.drawRaw(x, y, width, height, newPixels);
 				break;
 			case COPY:
@@ -180,7 +189,7 @@ public class TightEncoding extends Decoder {
 	public static int readTightPixel(DataInputStream dataIn, PixelFormat format) throws IOException {
 		byte[] b = new byte[format.bytesPerTPixel];
 		dataIn.readFully(b);
-		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format, true));
+		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format));
 	}
 	
 	public static int readCompactInt(DataInputStream dataIn) throws IOException {
@@ -233,7 +242,19 @@ public class TightEncoding extends Decoder {
 			byte[] p = new byte[size];
 			System.arraycopy(data, i*size, p, 0, size);
 			
-			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format, true));
+			pixels[i] = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(p, format));
+		}
+		return pixels;
+	}
+	
+	public static int[] convertDataToTightPixelsAsIs(byte[] data, int dataSize, PixelFormat format) {
+		int size = format.bytesPerTPixel;
+		int[] pixels = new int[dataSize];
+		for (int i = 0; i < dataSize; i++) {
+			byte[] p = new byte[size];
+			System.arraycopy(data, i*size, p, 0, size);
+			
+			pixels[i] = ColorUtil.convertToOther(format, format, ByteUtil.bytesToInt(p, format));
 		}
 		return pixels;
 	}
