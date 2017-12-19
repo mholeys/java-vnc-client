@@ -18,7 +18,7 @@ public class ByteUtilTest {
 		format.bigEndianFlag = false;
 		
 		byte[] input = {(byte) 0xA1, (byte) 0xB3};
-		int expected = 0xA1B30000;
+		int expected = 0xB3A1;
 		
 		int output = ByteUtil.bytesToInt(input, format);
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + "\nExpected: " + Integer.toHexString(expected) + " got: " + Integer.toHexString(output)); System.out.println();
@@ -57,7 +57,7 @@ public class ByteUtilTest {
 		format.bigEndianFlag = true;
 		
 		byte[] input = {(byte) 0xA1, (byte) 0xB3};
-		int expected = 0xB3A1;
+		int expected = 0xA1B3;
 		
 		int output = ByteUtil.bytesToInt(input, format);
 		System.out.println(Thread.currentThread().getStackTrace()[1].getMethodName() + "\nExpected: " + Integer.toHexString(expected) + " got: " + Integer.toHexString(output)); System.out.println();

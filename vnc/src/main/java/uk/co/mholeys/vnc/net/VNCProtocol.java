@@ -390,6 +390,7 @@ public class VNCProtocol implements Runnable {
 		logger.printLn(serverInit.name);
 		logger.detailedLn("Width: " + serverInit.framebufferWidth);
 		logger.detailedLn("Height: " + serverInit.framebufferHeight);
+		logger.detailedLn("TrueColour: " + serverPreferredFormat.trueColorFlag);
 		logger.detailedLn("BigEndian: " + serverPreferredFormat.bigEndianFlag);
 		logger.detailedLn("Bits per pixel: " + serverPreferredFormat.bitsPerPixel);
 		logger.detailedLn("Depth: " + serverPreferredFormat.depth);

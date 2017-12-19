@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import uk.co.mholeys.vnc.display.IScreen;
 import uk.co.mholeys.vnc.display.UpdateManager;
 import uk.co.mholeys.vnc.display.data.CopyScreenUpdate;
+import uk.co.mholeys.vnc.display.data.CursorScreenUpdate;
 import uk.co.mholeys.vnc.display.data.FillScreenUpdate;
 import uk.co.mholeys.vnc.display.data.JPEGScreenUpdate;
 import uk.co.mholeys.vnc.display.data.PaletteScreenUpdate;
@@ -115,11 +116,16 @@ public class SwingScreen implements IScreen {
 	}
 	
 	@Override
-	public void drawCursor(int x, int y, int width, int height, byte[] cursorData) {
-		for (int yA = 0; yA < height; y++) {
-			for (int xA = 0; xA < width; x++) {
-				if ((cursorData[xA + yA * width] & 0xFF000000) != 0x00000000) {
-					pixels[(xA+x) + (yA+y) * this.width] = cursorData[xA + yA * width];
+	public void drawCursor(int x, int y, int width, int height, int[] pixels) {
+		if (x > this.width) { return; }
+		if (y > this.height) { return; }
+		for (int yA = 0; yA < height; yA++) {
+			for (int xA = 0; xA < width; xA++) {
+				if ((y + yA < 0) || (y + yA > this.width) || (x + xA > this.width) || (x + xA < 0)) {
+					continue;
+				}
+				if (pixels[xA + yA * width] != 0x99000000) {
+					this.pixels[(xA+x) + (yA+y) * this.width] = pixels[xA + yA * width];
 				}
 			}	
 		}
@@ -171,6 +177,9 @@ public class SwingScreen implements IScreen {
 				} else if (update instanceof FillScreenUpdate) {
 					FillScreenUpdate fill = (FillScreenUpdate) update;
 					fillPixels(x, y, width, height, fill.pixel);
+				} else if (update instanceof CursorScreenUpdate) {
+					CursorScreenUpdate cursor = (CursorScreenUpdate) update;
+					drawCursor(x, y, width, height, cursor.pixels);
 				}
 			}
 			updateManager.setComplete();

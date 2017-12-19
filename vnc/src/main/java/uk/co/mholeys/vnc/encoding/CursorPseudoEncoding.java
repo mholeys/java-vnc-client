@@ -8,6 +8,7 @@ import uk.co.mholeys.vnc.data.PixelFormat;
 import uk.co.mholeys.vnc.data.PixelRectangle;
 import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
+import uk.co.mholeys.vnc.util.ColorUtil;
 
 public class CursorPseudoEncoding extends Decoder {
 
@@ -28,14 +29,34 @@ public class CursorPseudoEncoding extends Decoder {
 	@Override
 	public void readEncoding(InputStream in) throws IOException {
 		DataInputStream dataIn = new DataInputStream(in);
-		byte[] cursorData = new byte[width*height*format.bytesPerPixel];
-		Logger.logger.debugLn("Reading cursor data");
-		dataIn.readFully(cursorData);
-		int lineWidth = (width + 7) / 8;
+		byte[] cursorPixels = new byte[width*height*format.bytesPerPixel];
+		Logger.logger.debugLn("Reading cursor pixels");
+		dataIn.readFully(cursorPixels);
+		int lineWidth = (int) Math.floor((width + 7) / 8);
 		byte[] bitmask = new byte[lineWidth * height];
-		Logger.logger.debugLn("Reading bitmask");
+		Logger.logger.debugLn("Reading cursor bitmask");
 		dataIn.readFully(bitmask);
-		boolean[] bits = ByteUtil.bytesToBits(bitmask);
+
+		int[] pixels = new int[width * height];
+		
+		for (int yA = 0; yA < height; yA++) {
+			for (int xA = 0; xA < width; xA++) {
+				boolean valid = (bitmask[xA/8 + yA * lineWidth] & (1 << (7-(xA % 8)))) > 0;
+				if (valid) {
+					byte[] pixel = new byte[format.bytesPerPixel];
+					System.arraycopy(cursorPixels, xA + yA * width, pixel, 0, format.bytesPerPixel);
+					
+					int p = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format));
+					
+					pixels[xA + yA * width] = p;
+				} else {
+					pixels[xA + yA * width] = 0x99000000;
+				}
+			}
+		}
+		
+		render.drawCursor(x, y, width, height, pixels);
+		
 		
 		// TODO: Finish decoding and drawing
 		/*for (int y = 0; y < height; y++) {

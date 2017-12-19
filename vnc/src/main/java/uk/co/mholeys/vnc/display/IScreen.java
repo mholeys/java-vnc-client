@@ -19,7 +19,7 @@ public interface IScreen {
 	public int getWidth();
 	public int getHeight();
 
-	public void drawCursor(int x, int y, int width, int height, byte[] cursorData);
+	public void drawCursor(int x, int y, int width, int height, int[] pixels);
 	
 	public void process();
 	

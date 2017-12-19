@@ -131,7 +131,7 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		//es.addEncoding(Encoding.CORRE_ENCODING);
 		es.addEncoding(Encoding.COPY_RECT_ENCODING);
 		//es.addEncoding(Encoding.HEXTILE_ENCODING); // Not finished
-		//es.addEncoding(Encoding.RRE_ENCODING);
+		es.addEncoding(Encoding.RRE_ENCODING);
 		es.addEncoding(Encoding.RAW_ENCODING);
 
 		// Pseudo encodings

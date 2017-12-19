@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import uk.co.mholeys.vnc.display.data.CopyScreenUpdate;
+import uk.co.mholeys.vnc.display.data.CursorScreenUpdate;
 import uk.co.mholeys.vnc.display.data.FillScreenUpdate;
 import uk.co.mholeys.vnc.display.data.JPEGScreenUpdate;
 import uk.co.mholeys.vnc.display.data.PaletteScreenUpdate;
@@ -56,8 +57,9 @@ public class UpdateManager {
 		screen.process();
 	}
 
-	public void drawCursor(int x, int y, int width, int height, byte[] cursorData) {
-		Logger.logger.verboseLn("Cursor updated ignored");
+	public void drawCursor(int x, int y, int width, int height, int[] pixels) {
+		Logger.logger.verboseLn("Added Cursor updated");
+		updates.offer(new CursorScreenUpdate(x, y, width, height, pixels));
 		screen.process();
 	}
 	
