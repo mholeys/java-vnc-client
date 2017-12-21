@@ -47,6 +47,10 @@ public class ColorUtil {
 		}
 	}
 	
+	public static int convertTo8888ARGBTrueColour(PixelFormat format, int pixel) {
+		return 255 * (pixel >> format.redShift & format.redMax) / format.redMax << 16 |  255 * (pixel >> format.greenShift & format.greenMax) / format.greenMax << 8 | 255 * (pixel >> format.blueShift & format.blueMax) / format.blueMax;
+	}
+	
 	public static int convertToOther(PixelFormat inFormat, PixelFormat outFormat, int pixel) {
 		if (inFormat.colorMap == null) {
 			return outFormat.redMax * (pixel >> inFormat.redShift & inFormat.redMax) / inFormat.redMax << outFormat.redShift |  outFormat.greenMax * (pixel >> inFormat.greenShift & inFormat.greenMax) / inFormat.greenMax << outFormat.greenShift | outFormat.blueMax * (pixel >> inFormat.blueShift & inFormat.blueMax) / inFormat.blueMax << outFormat.blueShift;

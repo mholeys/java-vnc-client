@@ -96,7 +96,7 @@ public class TightEncoding extends Decoder {
 						height * ((width + 7) / 8) :
 						width * height;
 				byte[] paletteData = new byte[paletteDataLength];
-				Logger.logger.debugLn("Reading compressed palette data");
+				Logger.logger.detailedLn("Reading compressed palette data " + paletteDataLength + " " + stream);
 				paletteData = readCompressedData(dataIn, paletteDataLength, stream);
 				
 				render.drawPalette(x, y, width, height, palette, paletteSize, paletteData);
@@ -189,7 +189,7 @@ public class TightEncoding extends Decoder {
 	public static int readTightPixel(DataInputStream dataIn, PixelFormat format) throws IOException {
 		byte[] b = new byte[format.bytesPerTPixel];
 		dataIn.readFully(b);
-		return ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(b, format));
+		return ColorUtil.convertTo8888ARGBTrueColour(format, ByteUtil.bytesToInt(b, format));
 	}
 	
 	public static int readCompactInt(DataInputStream dataIn) throws IOException {
@@ -201,16 +201,18 @@ public class TightEncoding extends Decoder {
 		length = b0 & 0x7F;
 		if ((b0 & 0x80)>>>7 != 0) {
 			b1 = dataIn.readByte();
-			length += (b1 & 0x7F)<<7;
+			length |= (b1 & 0x7F)<<7;
 			if (((b1 & 0x80)>>>7) != 0) {
 				b2 = dataIn.readByte();
-				length += b2 << 14;
-				if ((b2 & 0x80)>>>7 != 0) {
+				length |= b2 << 14;
+				/*if ((b2 & 0x80)>>>7 != 0) {
 					return -1;
-				}
+				}*/
 			}
 		}
-		return length;
+		if (length < 0)
+			System.err.println("Got odd length for compressed " + (length & 0x3FFFFF));
+		return length & 0x3FFFFF;
 	}
 
 	public byte[] readCompressedData(DataInputStream dataIn, int length, int stream) throws IOException {

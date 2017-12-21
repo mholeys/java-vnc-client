@@ -154,6 +154,7 @@ public class Mouse extends MouseAdapter implements IMouseManager {
 	@Override
 	public PointerPoint getLocalMouse() {
 		PointerPoint p = miceUpdates.poll();
+		display.repaint();
 		return p;
 	}
 

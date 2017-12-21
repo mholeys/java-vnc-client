@@ -35,10 +35,10 @@ public class SwingDisplay extends JPanel implements IDisplay {
 
 	public JFrame frame;
 	private SwingInterface intf;
-	public IScreen screen;
+	public SwingScreen screen;
 	public UpdateManager updateManager;
-	private BufferedImage image;
-	private int[] pixels;
+	private BufferedImage image, mouseImage;
+	private int[] pixels, mousePixels;
 	
 	private Mouse mouse;
 	private Keyboard keyboard;
@@ -51,7 +51,7 @@ public class SwingDisplay extends JPanel implements IDisplay {
 	public SwingDisplay(SwingInterface intf) {
 		this.intf = intf;
 		this.updateManager = intf.getUpdateManager();
-		this.screen = intf.getScreen();
+		this.screen = (SwingScreen) intf.getScreen();
 	}
 	
 	public void start() {
@@ -59,6 +59,10 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		this.height = screen.getHeight();
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+
+		mouseImage = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
+		this.mousePixels = ((DataBufferInt) mouseImage.getRaster().getDataBuffer()).getData();
+		
 		this.frame = new JFrame();
 		this.setPreferredSize(new Dimension(width, height));
 		setFocusable(true);
@@ -115,13 +119,48 @@ public class SwingDisplay extends JPanel implements IDisplay {
 	public void paint(Graphics g) {
 
 		int[] newPixels = screen.getPixels();
+		int[] mousePixels = screen.mousePixels;
 		
-		for (int i = 0; i < width*height; i++) {
-			pixels[i] = newPixels[i];
+		if (screen.mouseW != mouseImage.getWidth() || screen.mouseH != mouseImage.getHeight()) {
+			if (screen.mouseW != 0 && screen.mouseH != 0) {
+				// Update mouse image if it has changed size
+				mouseImage = new BufferedImage(screen.mouseW, screen.mouseH, BufferedImage.TYPE_INT_ARGB);
+				this.mousePixels = ((DataBufferInt) mouseImage.getRaster().getDataBuffer()).getData();
+			}
 		}
 		
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+		if (mouseImage != null) {
+	
+			for (int i = 0; i < width*height; i++) {
+				pixels[i] = newPixels[i];
+			}
+			
+			for (int i = 0; i < screen.mouseW*screen.mouseH; i++) {
+				if (((mousePixels[i] & 0xFF000000)) == 0x99000000) {
+					// Skip colour so make transparent
+					this.mousePixels[i] = 0;
+				} else {
+					this.mousePixels[i] = 0xFF000000 | mousePixels[i];
+				}
+			}
+			g.drawImage(mouseImage, mouse.localX, mouse.localY, mouseImage.getWidth(), mouseImage.getHeight(), null);
+		}
+		
 	}
+	
+	final protected static char[] encoding = "0123456789ABCDEF".toCharArray();
+    public String convertToString(int[] arr) {
+        char[] encodedChars = new char[arr.length * 4 * 2];
+        for (int i = 0; i < arr.length; i++) {
+            int v = arr[i];
+            int idx = i * 4 * 2;
+            for (int j = 0; j < 8; j++) {
+                encodedChars[idx + j] = encoding[(v >>> ((7-j)*4)) & 0x0F];
+            }
+        }
+        return new String(encodedChars);
+    }
 
 	public static void main(String[] args) {
 		SwingInterface i = new SwingInterface();
@@ -131,32 +170,32 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		//es.addEncoding(Encoding.CORRE_ENCODING);
 		es.addEncoding(Encoding.COPY_RECT_ENCODING);
 		//es.addEncoding(Encoding.HEXTILE_ENCODING); // Not finished
-		es.addEncoding(Encoding.RRE_ENCODING);
+		//es.addEncoding(Encoding.RRE_ENCODING);
 		es.addEncoding(Encoding.RAW_ENCODING);
 
 		// Pseudo encodings
-		//es.addEncoding(Encoding.JPEG_QUALITY_LEVEL_1_PSEUDO_ENCODING); // Now optional as gradient "works"
-		//es.addEncoding(Encoding.COMPRESSION_LEVEL_1_PSEUDO_ENCODING);
+		es.addEncoding(Encoding.JPEG_QUALITY_LEVEL_2_PSEUDO_ENCODING); // Now optional as gradient "works"
+		es.addEncoding(Encoding.COMPRESSION_LEVEL_0_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);
 		
 		
 		IConnectionInformation connection;
 		
 		PixelFormat p = PixelFormat.DEFAULT_FORMAT.clone();
-		p.bitsPerPixel = 16;
+		/*p.bitsPerPixel = 16;
 		p.redMax = 16;
 		p.greenMax = 16;
 		p.blueMax = 16;
 		p.redShift = 8;
 		p.greenShift = 4;
-		p.blueShift = 0;
+		p.blueShift = 0;*/
 		
 		try {
 			connection = new SwingConnection(es, null, new SwingPassword());
-			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_DETAILED));
+			VNCProtocol vnc = new VNCProtocol(connection, i, new Logger(System.out, Logger.LOG_LEVEL_NORMAL));
 			vnc.addListener(new IVNCConnectionAdapter() {
 				public void onFormatChanged(PixelFormat format) {
-					System.out.println(format.depth);
+					System.out.println("Depth is now " + format.depth);
 				}
 			});
 			Thread t = new Thread(vnc);

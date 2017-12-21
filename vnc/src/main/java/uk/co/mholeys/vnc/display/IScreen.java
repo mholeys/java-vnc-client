@@ -12,14 +12,15 @@ public interface IScreen {
 	
 	public void fillPixels(int x, int y, int width, int height, int pixel);
 
+	public void setupCursor(int x, int y, int width, int height, int[] pixels);
+	public void moveCursor(int x, int y);
+
 	public int[] getPixels();
 	
 	public void setSize(int width, int height);
 	
 	public int getWidth();
 	public int getHeight();
-
-	public void drawCursor(int x, int y, int width, int height, int[] pixels);
 	
 	public void process();
 	

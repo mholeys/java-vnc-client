@@ -24,6 +24,8 @@ public class SwingScreen implements IScreen {
 	public int[] pixels;
 	public UpdateManager updateManager;
 	public SwingDisplay display;
+	public int[] mousePixels;
+	public int mouseX, mouseY, mouseW, mouseH;
 	
 	
 	public SwingScreen(int width, int height) {
@@ -116,19 +118,22 @@ public class SwingScreen implements IScreen {
 	}
 	
 	@Override
-	public void drawCursor(int x, int y, int width, int height, int[] pixels) {
-		if (x > this.width) { return; }
-		if (y > this.height) { return; }
+	public void setupCursor(int x, int y, int width, int height, int[] pixels) {
+		mouseX = x;
+		mouseY = y;
+		mouseW = width;
+		mouseH = height;
+		mousePixels = new int[width*height];
 		for (int yA = 0; yA < height; yA++) {
 			for (int xA = 0; xA < width; xA++) {
-				if ((y + yA < 0) || (y + yA > this.width) || (x + xA > this.width) || (x + xA < 0)) {
-					continue;
-				}
-				if (pixels[xA + yA * width] != 0x99000000) {
-					this.pixels[(xA+x) + (yA+y) * this.width] = pixels[xA + yA * width];
-				}
+				this.mousePixels[xA + yA * width] = pixels[xA + yA * width];
 			}	
 		}
+	}
+	
+	public void moveCursor(int x, int y) {
+		mouseX = x;
+		mouseY = y;
 	}
 	
 	@Override
@@ -179,7 +184,7 @@ public class SwingScreen implements IScreen {
 					fillPixels(x, y, width, height, fill.pixel);
 				} else if (update instanceof CursorScreenUpdate) {
 					CursorScreenUpdate cursor = (CursorScreenUpdate) update;
-					drawCursor(x, y, width, height, cursor.pixels);
+					setupCursor(x, y, width, height, cursor.pixels);
 				}
 			}
 			updateManager.setComplete();

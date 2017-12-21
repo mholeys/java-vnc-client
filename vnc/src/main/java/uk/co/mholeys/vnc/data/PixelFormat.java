@@ -107,11 +107,13 @@ public class PixelFormat {
 	
 	public void setupColourMap(int size) {
 		colorMap = new int[size];
+		System.out.println("Colour attempt!!");
 	}
 	
 	public void addColourMapEntry(int i, int c) {
 		if (colorMap != null) {			
 			colorMap[i] = c;
+			System.out.println("Colour map entry added!!");
 		}
 	}
 
