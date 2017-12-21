@@ -57,7 +57,7 @@ public class UpdateManager {
 		screen.process();
 	}
 
-	public void drawCursor(int x, int y, int width, int height, int[] pixels) {
+	public void setupCursor(int x, int y, int width, int height, int[] pixels) {
 		Logger.logger.verboseLn("Added Cursor updated");
 		updates.offer(new CursorScreenUpdate(x, y, width, height, pixels));
 		screen.process();

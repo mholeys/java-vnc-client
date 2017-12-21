@@ -144,7 +144,7 @@ public class SwingDisplay extends JPanel implements IDisplay {
 					this.mousePixels[i] = 0xFF000000 | mousePixels[i];
 				}
 			}
-			g.drawImage(mouseImage, mouse.localX, mouse.localY, mouseImage.getWidth(), mouseImage.getHeight(), null);
+			g.drawImage(mouseImage, mouse.localX - screen.mouseCenterX, mouse.localY - screen.mouseCenterY, mouseImage.getWidth(), mouseImage.getHeight(), null);
 		}
 		
 	}
@@ -176,6 +176,7 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		// Pseudo encodings
 		es.addEncoding(Encoding.JPEG_QUALITY_LEVEL_2_PSEUDO_ENCODING); // Now optional as gradient "works"
 		es.addEncoding(Encoding.COMPRESSION_LEVEL_0_PSEUDO_ENCODING);
+		es.addEncoding(Encoding.X_CURSOR_PSEUDO_ENCODING);
 		es.addEncoding(Encoding.CURSOR_PSEUDO_ENCODING);
 		
 		

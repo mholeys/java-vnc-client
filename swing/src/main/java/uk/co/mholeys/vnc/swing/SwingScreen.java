@@ -25,7 +25,7 @@ public class SwingScreen implements IScreen {
 	public UpdateManager updateManager;
 	public SwingDisplay display;
 	public int[] mousePixels;
-	public int mouseX, mouseY, mouseW, mouseH;
+	public int mouseX, mouseY, mouseCenterX, mouseCenterY, mouseW, mouseH;
 	
 	
 	public SwingScreen(int width, int height) {
@@ -119,8 +119,8 @@ public class SwingScreen implements IScreen {
 	
 	@Override
 	public void setupCursor(int x, int y, int width, int height, int[] pixels) {
-		mouseX = x;
-		mouseY = y;
+		mouseCenterX = x;
+		mouseCenterY = y;
 		mouseW = width;
 		mouseH = height;
 		mousePixels = new int[width*height];

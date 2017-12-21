@@ -13,6 +13,7 @@ import uk.co.mholeys.vnc.encoding.RawEncoding;
 import uk.co.mholeys.vnc.encoding.TightEncoding;
 import uk.co.mholeys.vnc.encoding.ZLibEncoding;
 import uk.co.mholeys.vnc.encoding.ZLibStream;
+import uk.co.mholeys.vnc.encoding.XCursorPseudoEncoding;
 import uk.co.mholeys.vnc.log.Logger;
 
 public enum Encoding {
@@ -50,7 +51,7 @@ public enum Encoding {
 	POINTER_POS_ENCODING(-225),
 	TIGHT_OPTIONS3_ENCODING(-238, -226),
 	CURSOR_PSEUDO_ENCODING(-239, CursorPseudoEncoding.class),
-	X_CURSOR_PSEUDO_ENCODING(-240),
+	X_CURSOR_PSEUDO_ENCODING(-240, XCursorPseudoEncoding.class),
 	TIGHT_OPTIONS4_ENCODING(-246, -241),
 	COMPRESSION_LEVEL_0_PSEUDO_ENCODING(-247),
 	COMPRESSION_LEVEL_1_PSEUDO_ENCODING(-248),

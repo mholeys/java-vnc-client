@@ -10,7 +10,7 @@ import uk.co.mholeys.vnc.log.Logger;
 import uk.co.mholeys.vnc.util.ByteUtil;
 import uk.co.mholeys.vnc.util.ColorUtil;
 
-public class CursorPseudoEncoding extends Decoder {
+public class XCursorPseudoEncoding extends Decoder {
 
 	public int x; // Click point of the mouse
 	public int y;
@@ -18,7 +18,7 @@ public class CursorPseudoEncoding extends Decoder {
 	public int height;
 	public PixelFormat format;
 	
-	public CursorPseudoEncoding(PixelRectangle r, PixelFormat format) {
+	public XCursorPseudoEncoding(PixelRectangle r, PixelFormat format) {
 		this.x = r.x;
 		this.y = r.y;
 		this.width = r.width;
@@ -33,27 +33,35 @@ public class CursorPseudoEncoding extends Decoder {
 			return;
 		}
 		DataInputStream dataIn = new DataInputStream(in);
-		byte[] cursorPixels = new byte[width*height*format.bytesPerPixel];
-		Logger.logger.debugLn("Reading cursor pixels");
-		dataIn.readFully(cursorPixels);
+		byte[] primaryData = new byte[3];
+		byte[] secondaryData = new byte[3];
+		dataIn.read(primaryData);
+		dataIn.read(secondaryData);
+		int primaryColour = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(primaryData, format));
+		int secondaryColour = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(secondaryData, format));
+		
+		
 		int lineWidth = (int) Math.floor((width + 7) / 8);
+		
+		byte[] bitmap = new byte[lineWidth * height];
+		Logger.logger.debugLn("Reading cursor bitmap");
+		dataIn.readFully(bitmap);
 		byte[] bitmask = new byte[lineWidth * height];
 		Logger.logger.debugLn("Reading cursor bitmask");
 		dataIn.readFully(bitmask);
-
 		
 		int[] pixels = new int[width * height];
 		
 		for (int yA = 0; yA < height; yA++) {
 			for (int xA = 0; xA < width; xA++) {
 				boolean valid = (bitmask[xA/8 + yA * lineWidth] & (1 << (7-(xA % 8)))) > 0;
+				boolean primary = (bitmap[xA/8 + yA * lineWidth] & (1 << (7-(xA % 8)))) > 0;
 				if (valid) {
-					byte[] pixel = new byte[format.bytesPerPixel];
-					System.arraycopy(cursorPixels, xA + yA * width, pixel, 0, format.bytesPerPixel);
-					
-					int p = ColorUtil.convertTo8888ARGB(format, ByteUtil.bytesToInt(pixel, format));
-					
-					pixels[xA + yA * width] = p;
+					if (primary) {
+						pixels[xA + yA * width] = primaryColour;
+					} else {
+						pixels[xA + yA * width] = secondaryColour;
+					}
 				} else {
 					pixels[xA + yA * width] = 0x99000000;
 				}
@@ -62,21 +70,6 @@ public class CursorPseudoEncoding extends Decoder {
 		
 		render.setupCursor(x, y, width, height, pixels);
 		
-		
-		// TODO: Finish decoding and drawing
-		/*for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				if (bits[y * lineWidth + x / 8 + x%8]) {
-					
-				}
-				if ((bitmask[x/8 + y * lineWidth] & (1 << (7-(x % 8)))) == 0) {
-					cursorData[x + y * width] = 0;
-				} else {
-					cursorData[x + y * width] =  & 0xFFFFFFFF;
-				}
-			}
-		}
-		screen.drawCursor(x, y, width, height, cursorData);*/
 	}
 
 }
