@@ -119,6 +119,11 @@ public class SwingDisplay extends JPanel implements IDisplay {
 	public void paint(Graphics g) {
 
 		int[] newPixels = screen.getPixels();
+		
+		for (int i = 0; i < width*height; i++) {
+			pixels[i] = newPixels[i];
+		}
+
 		int[] mousePixels = screen.mousePixels;
 		
 		if (screen.mouseW != mouseImage.getWidth() || screen.mouseH != mouseImage.getHeight()) {
@@ -132,9 +137,6 @@ public class SwingDisplay extends JPanel implements IDisplay {
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 		if (mouseImage != null) {
 	
-			for (int i = 0; i < width*height; i++) {
-				pixels[i] = newPixels[i];
-			}
 			
 			for (int i = 0; i < screen.mouseW*screen.mouseH; i++) {
 				if (((mousePixels[i] & 0xFF000000)) == 0x99000000) {
