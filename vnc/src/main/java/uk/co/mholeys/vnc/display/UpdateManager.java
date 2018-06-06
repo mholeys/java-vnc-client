@@ -7,6 +7,8 @@ import uk.co.mholeys.vnc.display.data.CopyScreenUpdate;
 import uk.co.mholeys.vnc.display.data.CursorScreenUpdate;
 import uk.co.mholeys.vnc.display.data.FillScreenUpdate;
 import uk.co.mholeys.vnc.display.data.JPEGScreenUpdate;
+import uk.co.mholeys.vnc.display.data.LEDOtherUpdate;
+import uk.co.mholeys.vnc.display.data.NameOtherUpdate;
 import uk.co.mholeys.vnc.display.data.PaletteScreenUpdate;
 import uk.co.mholeys.vnc.display.data.RawScreenUpdate;
 import uk.co.mholeys.vnc.display.data.ScreenUpdate;
@@ -58,7 +60,7 @@ public class UpdateManager {
 	}
 
 	public void setupCursor(int x, int y, int width, int height, int[] pixels) {
-		Logger.logger.verboseLn("Added Cursor updated");
+		Logger.logger.verboseLn("Added Cursor update");
 		updates.offer(new CursorScreenUpdate(x, y, width, height, pixels));
 		screen.process();
 	}
@@ -99,6 +101,18 @@ public class UpdateManager {
 	
 	public void setComplete() {
 		ready = false;
+	}
+
+	public void setLEDs(boolean scroll, boolean num, boolean caps) {
+		Logger.logger.verboseLn("Added keyboard led update");
+		updates.offer(new LEDOtherUpdate(scroll, num, caps));
+		screen.process();
+	}
+
+	public void setName(String name) {
+		Logger.logger.verboseLn("Added name change update");
+		updates.offer(new NameOtherUpdate(name));
+		screen.process();
 	}
 	
 }
